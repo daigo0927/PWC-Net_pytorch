@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-from .modules import (FeaturePyramidExtractor, WarpingLayer, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
+from modules import (FeaturePyramidExtractor, WarpingLayer, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
 
 
 
@@ -10,7 +10,8 @@ from .modules import (FeaturePyramidExtractor, WarpingLayer, CostVolumeLayer, Op
 class Net(nn.Module):
 
 
-    def __init__(self):
+    def __init__(self, args):
+        super(Net, self).__init__()
         self.feature_pyramid_extractor = FeaturePyramidExtractor()
         self.warping_layer = WarpingLayer()
         self.cost_volume_layer = CostVolumeLayer()

@@ -73,6 +73,7 @@ def train(args):
     # Build Model
     # ============================================================
     from model import Net
+    import torch
     model = Net(args)
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
@@ -88,7 +89,6 @@ def train(args):
     # Prepare Dataloader
     # ============================================================
     from dataset import MPISintel
-    import torch
     from torch.autograd import Variable
     from torch.utils.data import DataLoader
     import torch.nn.functional as F
