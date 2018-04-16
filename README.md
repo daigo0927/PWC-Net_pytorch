@@ -1,0 +1,29 @@
+# PWC-Net
+Still in progress...
+
+This is a unofficial pytorch implementation of CVPR2018 paper: Deqing Sun *et al.* **"PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume"**.
+
+Resources:  
+[arXiv](https://arxiv.org/abs/1709.02371)
+
+
+# Usage
+
+
+- Get Started with Demo
+```
+python3 main.py --predict --load models/best.model -i example/1.png example/2.png -o example/output.flo
+```
+
+- Prepare Datasets
+    - Download [FlyingChairs](https://lmb.informatik.uni-freiburg.de/data/FlyingChairs/FlyingChairs.zip) for training
+    - Download [FlyingThings](https://lmb.informatik.uni-freiburg.de/data/SceneFlowDatasets_CVPR16/Release_april16/data/FlyingThings3D/derived_data/flyingthings3d__optical_flow.tar.bz2) for fine-tuning
+    - Download [KITTI](http://www.cvlibs.net/download.php?file=data_scene_flow.zip) for fine-tuning if you want to validate on KITTI
+    - Download [MPI-Sintel](http://files.is.tue.mpg.de/sintel/MPI-Sintel-complete.zip) for fine-tuning if you want to validate on MPI-Sintel
+
+- Train
+```
+python3 main.py --train
+```
+
+- Validate

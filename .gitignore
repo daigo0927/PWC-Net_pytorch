@@ -1,0 +1,8 @@
+*.vscode*
+*__pycache__*
+example/output.flo
+
+*mpi*
+
+data_test.txt
+data_train.txt
