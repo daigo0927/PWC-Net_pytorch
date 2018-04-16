@@ -1,5 +1,5 @@
 import torch.nn as nn
-import nn.functional as F
+import torch.nn.functional as F
 
 
 from .modules import (FeaturePyramidExtractor, WarpingLayer, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
