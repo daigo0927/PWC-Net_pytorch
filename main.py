@@ -1,3 +1,6 @@
+from losses import get_criterion
+
+
 def parse():
     import argparse
     parser = argparse.ArgumentParser(description='Structure from Motion Learner training on KITTI and CityScapes Dataset',
@@ -20,6 +23,10 @@ def parse():
     parser.add_argument('--epsilon', default = 0.02)
     parser.add_argument('--q', default = 0.4)
     parser.add_argument('--gamma', default = 4e-4)
+    parser.add_argument('--lr', default = 4e-4)
+    parser.add_argument('--momentum', default = 4e-4)
+    parser.add_argument('--beta', default = 0.99)
+    parser.add_argument('--weight_decay', default = 4e-4)
     # summary & log args
     parser.add_argument('--summary_interval', type = int, default = 100)
     parser.add_argument('--log_interval', type = int, default = 100)
@@ -77,13 +84,14 @@ def train(args):
     model = Net(args)
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
+    
+    # build criterion
+    criterion = get_criterion(args)
+    parameters = model.parameters()
     optimizer = torch.optim.Adam(parameters, args.lr,
                                  betas=(args.momentum, args.beta),
                                  weight_decay=args.weight_decay)
-    # build criterion
-    criterion = get_criterion(args)
-    model_parameters = model.parameters()
-    pass
+
 
     
     # Prepare Dataloader
