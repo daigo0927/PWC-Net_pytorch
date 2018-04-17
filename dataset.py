@@ -69,9 +69,11 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
 # FlyingChairs
 # ============================================================
 class FlyingChairs(BaseDataset):
-    def __init__(self, dataset_dir, train_or_test = 'train'):
+    def __init__(self, dataset_dir, train_or_test = 'train', color = 'rgb', shape = None):
         super(FlyingChairs, self).__init__()
         assert train_or_test in ['train', 'test']
+        self.color = color
+        self.shape = shape
 
         p = Path(dataset_dir)
         p_txt = p / (train_or_test + '.txt')
