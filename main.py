@@ -116,7 +116,7 @@ def train(args):
     
     # Prepare Dataloader
     # ============================================================
-    train_dataset, eval_dataset = eval("{0}({1}, 'train'), {0}({1}, 'test')".format(args.dataset, args.dataset_dir))
+    train_dataset, eval_dataset = eval("{0}('{1}', 'train'), {0}('{1}', 'test')".format(args.dataset, args.dataset_dir))
 
     train_loader = DataLoader(train_dataset,
                             batch_size = args.batch_size,
