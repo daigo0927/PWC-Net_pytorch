@@ -1,8 +1,27 @@
+from datetime import datetime
+import argparse
+import imageio
+
+import torch
+import torch.nn.functional as F
+from torch.autograd import Variable
+from torch.utils.data import DataLoader
+
+from model import Net
 from losses import get_criterion
+from dataset import (FlyingChairs, FlyingThings, Sintel, KITTI)
+try:
+    import tensorflow as try:
+    use_logger = True
+except Exception:
+    use_logger = False
+
+if use_logger:
+    from logger import Logger
+from flow_utils import (flow_to_image, save_flow)
 
 
 def parse():
-    import argparse
     parser = argparse.ArgumentParser(description='Structure from Motion Learner training on KITTI and CityScapes Dataset',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # mode selection
@@ -15,8 +34,8 @@ def parse():
 
     # mode=train args
     # ============================================================
-    from datetime import datetime
-    parser.add_argument('--log_dir', default = datetime.now().strftime('%Y%m%d-%H%M%S'))
+    
+    parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
     parser.add_argument('--dataset_dir', type = str)
     parser.add_argument('--dataset', type = str)
     parser.add_argument('--weights', nargs = '+', default = [0.32, 0.08, 0.02, 0.01, 0.005])
@@ -27,6 +46,7 @@ def parse():
     parser.add_argument('--momentum', default = 4e-4)
     parser.add_argument('--beta', default = 0.99)
     parser.add_argument('--weight_decay', default = 4e-4)
+    parser.add_argument('--total_step', default = 200 * 1000)
     # summary & log args
     parser.add_argument('--summary_interval', type = int, default = 100)
     parser.add_argument('--log_interval', type = int, default = 100)
@@ -79,9 +99,9 @@ def parse():
 def train(args):
     # Build Model
     # ============================================================
-    from model import Net
-    import torch
+    
     model = Net(args)
+    model.train()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
     
@@ -96,12 +116,8 @@ def train(args):
     
     # Prepare Dataloader
     # ============================================================
-    from dataset import MPISintel
-    from torch.autograd import Variable
-    from torch.utils.data import DataLoader
-    import torch.nn.functional as F
-    train_dataset = MPISintel('data_train.txt')
-    eval_dataset = MPISintel('data_test.txt')
+    train_dataset, eval_dataset = eval("{0}('data_train.txt'), {0}('data_test.txt')".format(args.dataset))
+
     train_loader = DataLoader(train_dataset,
                             batch_size = args.batch_size,
                             shuffle = True,
@@ -117,11 +133,12 @@ def train(args):
 
     # Init logger
     # ============================================================
-    from logger import Logger
+    
     logger = Logger(args.log_dir)
 
+    train_iter = iter(train_loader)
 
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for batch_idx, (data, target) in enumerate(train_iter):
 
         
         # Load Data
@@ -145,7 +162,6 @@ def train(args):
         
         # Compute Loss
         # ============================================================
-        from losses import compute_loss
         loss = criterion(args, flow_pyramid, flow_gt_pyramid, model_parameters)
 
 
@@ -160,15 +176,21 @@ def train(args):
         
         # Collect Summaries & Output Logs
         # ============================================================
-        
+        # TODO: add summaries and check
         # flow output on each level
-        if step % args.summary_interval == 0:
-            # add scalar summary
+        if use_logger:
+            if step % args.summary_interval == 0:
+                # add scalar summaries
+                logger.scalar_summary('loss', loss, step)
+                logger.scalar_summary('EPE', epe, step)
 
 
-            # add image summary
-            # logger.image_summary()
-            pass
+                # add image summaries
+                for l in args.num_levels:
+                    logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
+                    logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], step)
+                    # logger.image_summary(f'')
+                pass
         
         if step % args.log_interval == 0:
             print(f'Step [{step}/{args.total_step}], Loss: {loss:.4f}, EPE: {epe:.4f}')
@@ -178,10 +200,23 @@ def predict(args):
     # TODO
     # Build Model
     # ============================================================
-    from model import Net
     model = Net(args)
-    args.input
-    args.output
+    model.load_state_dict(torch.load(args.load))
+    model.eval()
+    
+    
+    src_img, tgt_img = map(imageio.imread, args.input)
+    
+    
+
+    # Forward Pass
+    # ============================================================
+    flow_pyramid = model(src_img, tgt_img)
+    flow = flow_pyramid[-1]
+    save_flow(args.output, flow)
+    flow_vis = flow_to_image(flow)
+    imageio.imwrite(args.output.replace('.flo', '.png'), flow_vis)
+
 
 
 def test(args):

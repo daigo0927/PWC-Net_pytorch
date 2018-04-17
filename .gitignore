@@ -6,3 +6,6 @@ example/output.flo
 
 data_test.txt
 data_train.txt
+train_log*
+
+datasets*

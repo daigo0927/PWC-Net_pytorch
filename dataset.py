@@ -7,6 +7,7 @@ import torch
 import random
 import cv2
 from flow_utils import load_flow
+from abc import abstractmethod, ABCMeta
 
 
 class StaticRandomCrop(object):
@@ -39,12 +40,71 @@ def window(seq, n=2):
         result = result[1:] + (elem,)
         yield result
 
+class BaseDataset(Dataset, metaclass = ABCMeta):
+    @abstractmethod
+    def __init__(self): pass
+    def __len__(self): return len(self.samples)
+    def __getitem__(self, idx):
+        img1_path, img2_path, flow_path = self.samples[idx]
+        img1, img2 = map(imageio.imread, (img1_path, img2_path))
+        flow = load_flow(flow_path)
 
-class MPISintel(Dataset):
+        if self.color == 'gray':
+            img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)[:,:,np.newaxis]
+            img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)[:,:,np.newaxis]
+
+        images = [img1, img2]
+        if self.shape is not None:
+            cropper = StaticRandomCrop(img1.shape[:2], self.shape)
+            images = list(map(cropper, images))
+            flow = cropper(flow)
+        images = np.array(images).transpose(3,0,1,2)
+        flow = flow.transpose(2,0,1)
+
+        images = torch.from_numpy(images.astype(np.float32))
+        flow = torch.from_numpy(flow.astype(np.float32))
+
+        return [images], [flow]
+
+# FlyingChairs
+# ============================================================
+class FlyingChairs(BaseDataset):
+    def __init__(self, dataset_dir, train_or_test = 'train'):
+        super(FlyingChairs, self).__init__()
+        assert train_or_test in ['train', 'test']
+
+        p = Path(dataset_dir)
+        p_txt = p / (train_or_test + '.txt')
+        if p_txt.exists():
+            with open(p_txt, 'r') as f:
+                self.samples = [i.split(',') for i in f.readlines()]
+        else:
+            imgs = sorted(p.glob('*.ppm'))
+            samples = [(str(i[0]), str(i[1]), str(i[0]).replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
+            test_ratio = 0.1
+            random.shuffle(samples)
+            idx = int(len(samples) * (1 - test_ratio))
+            train_samples = samples[:idx]
+            test_samples = samples[idx:]
+
+            with open(p / 'train.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in train_samples))
+            with open(p / 'test.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in test_samples))
+
+            self.samples = train_samples if train_or_test == 'train' else test_samples
+
+
+# FlyingThings
+# ============================================================
+class FlyingThings(BaseDataset):
+    def __init__(self): pass
+
+# Sintel
+# ============================================================
+class Sintel(BaseDataset):
 
 
     def __init__(self, text_path, mode = 'final', color = 'rgb', shape = None):
-        super(MPISintel, self).__init__()
+        super(Sintel, self).__init__()
         self.mode = mode
         self.color = color
         self.shape = shape
@@ -72,36 +132,17 @@ class MPISintel(Dataset):
         # with open('data_test.txt', 'w') as f:
         #     f.writelines((str(i) + '\n' for i in l2))
 
-    def __getitem__(self, idx):
-        img_path1, img_path2 = self.samples[idx]
-        img1, img2 = imageio.imread(str(img_path1)), imageio.imread(str(img_path2))
 
-        flow_path = str(img_path1).replace('.png', '.flo').replace(self.mode, 'flow')
-        flow = load_flow(flow_path)
-        if self.color == 'gray':
-            img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)[:,:,np.newaxis]
-            img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)[:,:,np.newaxis]
+# KITTI
+# ============================================================
+class KITTI(BaseDataset):
 
-        images = [img1, img2]
-        if self.shape is not None:
-            cropper = StaticRandomCrop(img1.shape[:2], self.shape)
-            images = list(map(cropper, images))
-            flow = cropper(flow)
-        images = np.array(images).transpose(3,0,1,2)
-        flow = flow.transpose(2,0,1)
-
-        images = torch.from_numpy(images.astype(np.float32))
-        flow = torch.from_numpy(flow.astype(np.float32))
-
-        return [images], [flow]
-    
-
-    def __len__(self):
-        return len(self.samples)
+    def __init__(self):
+        pass
 
 
 if __name__ == '__main__':
-    dataset = MPISintel('data_train.txt', shape = (384,768))
+    dataset = FlyingChairs('datasets/FlyingChairs')
     for i in range(dataset.__len__()):
         images, flow = dataset.__getitem__(i)
         print(images[0].size(), flow[0].size())
