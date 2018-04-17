@@ -76,8 +76,12 @@ class FlyingChairs(BaseDataset):
         p = Path(dataset_dir)
         p_txt = p / (train_or_test + '.txt')
         if p_txt.exists():
+            self.samples = []
             with open(p_txt, 'r') as f:
-                self.samples = [i.split(',') for i in f.readlines()]
+                for i in f.readlines():
+                    img1, img2, flow = i.split(',')
+                    flow = flow.strip()
+                self.samples.append((img1, img2, flow))
         else:
             imgs = sorted(p.glob('*.ppm'))
             samples = [(str(i[0]), str(i[1]), str(i[0]).replace('img1', 'flow').replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
