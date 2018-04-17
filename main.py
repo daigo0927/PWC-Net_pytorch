@@ -11,7 +11,7 @@ from model import Net
 from losses import get_criterion
 from dataset import (FlyingChairs, FlyingThings, Sintel, KITTI)
 try:
-    import tensorflow as tf:
+    import tensorflow as tf
     use_logger = True
 except Exception:
     use_logger = False
