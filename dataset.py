@@ -80,7 +80,7 @@ class FlyingChairs(BaseDataset):
                 self.samples = [i.split(',') for i in f.readlines()]
         else:
             imgs = sorted(p.glob('*.ppm'))
-            samples = [(str(i[0]), str(i[1]), str(i[0]).replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
+            samples = [(str(i[0]), str(i[1]), str(i[0]).replace('img1', 'flow').replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
             test_ratio = 0.1
             random.shuffle(samples)
             idx = int(len(samples) * (1 - test_ratio))
