@@ -134,6 +134,7 @@ class OpticalFlowEstimator(nn.Module):
 
     def forward(self, tgt, cost_volume, flow):
         args = self.args
+        print(tgt.size(), cost_volume.size(), flow.size())
         x = torch.cat([tgt, cost_volume, flow], dim = 1)
         
         out_conv1 = self.conv1(x)
