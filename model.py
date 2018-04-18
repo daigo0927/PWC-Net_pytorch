@@ -17,8 +17,8 @@ class Net(nn.Module):
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
         self.warping_layer = WarpingLayer(args)
         self.cost_volume_layer = CostVolumeLayer(args)
-        self.opticla_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
-        self.context_network = ContextNetwork(args)
+        self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
+        self.context_networks = [ContextNetwork(args, ch_in + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
     
 
     def forward(self, src_img, tgt_img):
@@ -32,14 +32,20 @@ class Net(nn.Module):
         # 2. warp tgt_feature
         # 3. build cost volume
         # 4. estimate flow
+        flow_pyramid, flow_refinedpyramid = [], []
         for l in range(args.num_levels):
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample_bilinear(flow, scale_factor = 2)
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
-            flow = self.opticla_flow_estimators[l](src_features[l], cost_volume, flow)
-            print('Here!')
-            final_flow, flow_pyramid = 0,0
-        
-        return flow_pyramid, None
+            flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
+            # use context to refine
+            flow_refined = self.context_networks(src_features[l], flow)
+            
+            flow_pyramid.append(flow)
+            flow_refined_pyramid.append(flow_refined)
+
+        summaries = dict()
+        summaries['coarse_flow_pyramid'] = flow_pyramid
+        return flow_refined_pyramid, summaries

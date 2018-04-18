@@ -157,11 +157,11 @@ class OpticalFlowEstimator(nn.Module):
 class ContextNetwork(nn.Module):
 
 
-    def __init__(self, args):
+    def __init__(self, args, ch_in):
         super(ContextNetwork, self).__init__()
         self.args = args
         self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels = 34, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
+            nn.Conv2d(in_channels = ch_in, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 2, groups = 1, bias = True),
