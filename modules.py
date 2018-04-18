@@ -48,8 +48,9 @@ class CostVolumeLayer(nn.Module):
         print(output.size())
         for i in range(H):
             for j in range(W):
-                tmp = sum(src[:,:,i,j] * tgt[:,:,I,J] for I in range(i-args.search_range, i+args.search_range) for J in range(i-args.search_range, i+args.search_range))
-                print(tmp)
+                # TODO: pytorch的einsum该怎么写????
+                tmp = torch.stack([torch.mm(src[:,:,i,j], tgt[:,:,I,J].transpose(0,0)) for I in range(i-args.search_range, i+args.search_range+1) for J in range(j-args.search_range, j+args.search_range+1)], dim = 1)
+                print(tmp.size())
                 output[:,:,i,j] = tmp
         print(time.time() - t_start)
         return output
