@@ -1,15 +1,25 @@
 import torch.nn as nn
 import torch.nn.functional as F
-
+from torch.autograd import Variable
 
 class WarpingLayer(nn.Module):
 
-    def __init__(self):
+    def __init__(self, args):
         super(WarpingLayer, self).__init__()        
 
     def forward(self, x, flow):
         # build coord matrix
-        grid = 0
+        torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
+        torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
+
+
+        grid = torch.cat([torchHorizontal, torchVertical], 1)
+        if not self.no_cuda: grid = grid.cuda()
+
+        grid = Variable(data = grid, volatile = not self.training)
+
+		
+        # variableFlow = torch.cat([ variableFlow[:, 0:1, :, :] / ((variableInput.size(3) - 1.0) / 2.0), variableFlow[:, 1:2, :, :] / ((variableInput.size(2) - 1.0) / 2.0) ], 1)
         return F.grid_sample(x, grid + flow)
 
 
@@ -19,6 +29,7 @@ class CostVolumeLayer(nn.Module):
         super(CostVolumeLayer, self).__init__()
     
     def forward(self, src, tgt):
+        print(src.size(), tgt.size())
         pass
 
 
@@ -80,10 +91,11 @@ class FeaturePyramidExtractor(nn.Module):
         out_conv11 = self.conv11(out_conv10)
         out_conv12 = self.conv12(out_conv11)
 
-        # print(x.size(), out_conv1.size(), out_conv2.size(), out_conv3.size(),
-        # out_conv4.size(), out_conv5.size(), out_conv6.size(), out_conv7.size(),
-        # out_conv8.size(),out_conv9.size(),out_conv10.size(),out_conv11.size(),
-        # out_conv12.size(), sep = '\n')
+        # print(x.size(),
+        # out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(),
+        # out_conv5.size(), out_conv6.size(), out_conv7.size(), out_conv8.size(),
+        # out_conv9.size(), out_conv10.size(), out_conv11.size(), out_conv12.size(),
+        # sep = '\n')
 
         return out_conv2, out_conv4, out_conv6, out_conv8, out_conv10, out_conv12
         
@@ -119,6 +131,11 @@ class OpticalFlowEstimator(nn.Module):
         out_conv4 = self.conv4(out_conv3)
         out_feature = self.conv5(out_conv4)
         out_flow = self.conv6(out_feature)
+
+        print(x.size(),
+        out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(), 
+        out_feature.size(), out_flow.size(),
+        sep = '\n')
         
         return out_feature, out_flow
 
@@ -157,4 +174,12 @@ class ContextNetwork(nn.Module):
         out_conv5 = self.conv5(out_conv4)
         out_conv6 = self.conv6(out_conv5)
         out_flow = self.conv7(out_conv6)
+
+        print(x.size(),
+        out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(),
+        out_conv5.size(), out_conv6.size(),
+        out_flow.size(),
+        sep = '\n')
+
+
         return flow + out_flow

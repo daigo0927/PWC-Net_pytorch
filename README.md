@@ -1,7 +1,13 @@
 # PWC-Net
-Still in progress...
+Still in progress, even no guarantee of a complete version, so feel free to copy/fork/PR/..., do anything you want.
 
-This is a unofficial pytorch implementation of CVPR2018 paper: Deqing Sun *et al.* **"PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume"**.
+**TODOs**  
+- [ ] Support to FlyingThings dataset.
+- [ ] Support to KITTI dataset.
+- [ ] Load official Caffe weights. (After the official Caffe implementation is released.)
+
+
+This is an unofficial pytorch implementation of CVPR2018 paper: Deqing Sun *et al.* **"PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume"**.
 
 Resources:  
 [arXiv](https://arxiv.org/abs/1709.02371)

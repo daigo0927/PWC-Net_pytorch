@@ -1,5 +1,6 @@
 import numpy as np
 
+__all__ = ['load_flow', 'save_flow', 'flow_to_image']
 
 def load_flow(path):
     with open(path, 'rb') as f:
@@ -19,7 +20,7 @@ def save_flow(path, flow):
     with open(path, 'wb') as f:
         magic.tofile(f); w.tofile(f); h.tofile(f); flow.tofile(f)
 
-def flow_to_image(flow):
+def flow_to_image(flow, logscale = False, output = False, scaledown = 1):
     """
     topleft is zero, u is horiz, v is vertical
     red is 3 o'clock, yellow is 6, light blue is 9, blue/purple is 12
@@ -72,8 +73,7 @@ def flow_to_image(flow):
 
     colorwheel = makecolorwheel()
     ncols = colorwheel.shape[0]
-
-    
+    u, v = map(np.squeeze, np.split(flow, 2, 2))
 
     radius = np.sqrt(u**2 + v**2)
     if output:
@@ -111,3 +111,13 @@ def flow_to_image(flow):
         img[:,:,i] = np.floor(255*col).astype(np.uint8)
     
     return img.astype(np.uint8)
+
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
+    flow = load_flow('result.flo')
+    img = flow_to_image(flow)
+    
+    plt.imshow(img)
+    plt.show()

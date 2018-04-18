@@ -204,7 +204,8 @@ def predict(args):
     model.load_state_dict(torch.load(args.load))
     model.eval()
     
-    
+    # Load Data
+    # ============================================================
     src_img, tgt_img = map(imageio.imread, args.input)
     
     
@@ -216,6 +217,9 @@ def predict(args):
     save_flow(args.output, flow)
     flow_vis = flow_to_image(flow)
     imageio.imwrite(args.output.replace('.flo', '.png'), flow_vis)
+    import matplotlib.pyplot as plt
+    plt.imshow(flow_vis)
+    plt.show()
 
 
 

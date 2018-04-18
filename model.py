@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -37,6 +38,7 @@ class Net(nn.Module):
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
             flow = self.opticla_flow_estimator(src_features[l], cost_volume)
+            print('Here!')
             final_flow, flow_pyramid = 0,0
         
         return flow_pyramid, None
