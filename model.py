@@ -38,7 +38,7 @@ class Net(nn.Module):
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
-            flow = self.opticla_flow_estimator[l](src_features[l], cost_volume, flow)
+            flow = self.opticla_flow_estimators[l](src_features[l], cost_volume, flow)
             print('Here!')
             final_flow, flow_pyramid = 0,0
         
