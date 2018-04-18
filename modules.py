@@ -90,9 +90,9 @@ class FeaturePyramidExtractor(nn.Module):
             out = self.levels[l](out)
             feature_pyramid.insert(0, out)
 
-        for i in feature_pyramid:
-            print(i.size())
-        quit()
+        # for i in feature_pyramid:
+        #     print(i.size())
+        # quit()
         return feature_pyramid
         
 
