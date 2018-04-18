@@ -17,7 +17,7 @@ class Net(nn.Module):
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
         self.warping_layer = WarpingLayer(args)
         self.cost_volume_layer = CostVolumeLayer(args)
-        self.opticla_flow_estimator = OpticalFlowEstimator(args)
+        self.opticla_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1) + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
         self.context_network = ContextNetwork(args)
     
 
@@ -38,7 +38,7 @@ class Net(nn.Module):
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
-            flow = self.opticla_flow_estimator(src_features[l], cost_volume, flow)
+            flow = self.opticla_flow_estimator[l](src_features[l], cost_volume, flow)
             print('Here!')
             final_flow, flow_pyramid = 0,0
         
