@@ -35,7 +35,7 @@ class Net(nn.Module):
         flow_pyramid, flow_refined_pyramid = [], []
         flow_features = []
         for l in range(args.num_levels):
-            flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample_bilinear(flow, scale_factor = 2)
+            flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
