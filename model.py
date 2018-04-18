@@ -36,7 +36,7 @@ class Net(nn.Module):
             if l == 0:
                 _size = list(src_features[0].size())
                 _size[1] = 2
-                flow = torch.zeros(_size)
+                flow = Variable(torch.zeros(_size))
             else:
                 flow = F.upsample_bilinear(flow, scale_factor = 2)
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
