@@ -101,11 +101,11 @@ class FeaturePyramidExtractor(nn.Module):
         out_conv11 = self.conv11(out_conv10)
         out_conv12 = self.conv12(out_conv11)
 
-        # print(x.size(),
-        # out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(),
-        # out_conv5.size(), out_conv6.size(), out_conv7.size(), out_conv8.size(),
-        # out_conv9.size(), out_conv10.size(), out_conv11.size(), out_conv12.size(),
-        # sep = '\n')
+        print(x.size(),
+        out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(),
+        out_conv5.size(), out_conv6.size(), out_conv7.size(), out_conv8.size(),
+        out_conv9.size(), out_conv10.size(), out_conv11.size(), out_conv12.size(),
+        sep = '\n')
 
         return out_conv2, out_conv4, out_conv6, out_conv8, out_conv10, out_conv12
         
