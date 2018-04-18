@@ -65,7 +65,7 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
         images = torch.from_numpy(images.astype(np.float32))
         flow = torch.from_numpy(flow.astype(np.float32))
 
-        return images, flow
+        return [images], [flow]
     def has_txt(self):
         p = Path(self.dataset_dir) / (self.train_or_test + '.txt')
         self.samples = []
@@ -178,7 +178,7 @@ if __name__ == '__main__':
 
     data_iter = iter(train_loader)
     for data, flow in data_iter:
-        print(data.size(), flow.size())
+        print(data[0].size(), flow[0].size())
     
     # for i in range(dataset.__len__()):
     #     data, flow = dataset.__getitem__(i)
