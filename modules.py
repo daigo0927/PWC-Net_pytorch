@@ -5,9 +5,12 @@ from torch.autograd import Variable
 class WarpingLayer(nn.Module):
 
     def __init__(self, args):
-        super(WarpingLayer, self).__init__()        
+        super(WarpingLayer, self).__init__()
+        self.args = args
+
 
     def forward(self, x, flow):
+        args = self.args
         # build coord matrix
         torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
         torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
@@ -27,8 +30,11 @@ class CostVolumeLayer(nn.Module):
 
     def __init__(self, args):
         super(CostVolumeLayer, self).__init__()
+        self.args = args
+
     
     def forward(self, src, tgt):
+        args = self.args
         print(src.size(), tgt.size())
         pass
 
@@ -38,6 +44,8 @@ class FeaturePyramidExtractor(nn.Module):
 
     def __init__(self, args):
         super(FeaturePyramidExtractor, self).__init__()
+        self.args = args
+
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels = 3, out_channels = 16, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
@@ -78,6 +86,7 @@ class FeaturePyramidExtractor(nn.Module):
     
 
     def forward(self, x):
+        args = self.args
         out_conv1 = self.conv1(x)
         out_conv2 = self.conv2(out_conv1)
         out_conv3 = self.conv3(out_conv2)
@@ -104,6 +113,7 @@ class OpticalFlowEstimator(nn.Module):
 
     def __init__(self, args):
         super(OpticalFlowEstimator, self).__init__()
+        self.args = args
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels = 115, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
@@ -123,6 +133,7 @@ class OpticalFlowEstimator(nn.Module):
         self.conv6 = nn.Conv2d(in_channels = 32, out_channels = 2, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True)
 
     def forward(self, tgt, cost_volume, flow):
+        args = self.args
         x = torch.cat([tgt, cost_volume, flow], dim = 1)
         
         out_conv1 = self.conv1(x)
@@ -144,6 +155,7 @@ class ContextNetwork(nn.Module):
 
     def __init__(self, args):
         super(ContextNetwork, self).__init__()
+        self.args = args
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels = 34, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
@@ -166,6 +178,7 @@ class ContextNetwork(nn.Module):
 
     
     def forward(self, feature, flow):
+        args = self.args
         x = torch.cat([feature, flow], dim = 1)
         out_conv1 = self.conv1(x)
         out_conv2 = self.conv2(out_conv1)
