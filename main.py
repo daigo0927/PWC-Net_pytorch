@@ -35,6 +35,8 @@ def parse():
     # mode=train args
     # ============================================================
     
+    parser.add_argument('--num_workers', default = 1, type = int, help = 'num of workers')
+    parser.add_argument('--batch_size', default = 8, type=int, help='mini-batch size')
     parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
     parser.add_argument('--dataset_dir', type = str)
     parser.add_argument('--dataset', type = str)
@@ -65,13 +67,11 @@ def parse():
     parser.add_argument('--search_range', type = int, default = 4)
     parser.add_argument('--model', type = str)
     parser.add_argument('--no_cuda', action = 'store_true')
-    parser.add_argument('--num_workers', default = 1, type = int, help = 'num of workers')
-    parser.add_argument('-b', '--batch-size', default = 8, type=int, help='mini-batch size')
 
 
     # image input size
     # ============================================================
-    parser.add_argument('--crop_shape', type = int, nargs = '+', default = [512, 512])
+    parser.add_argument('--crop_shape', nargs = '+', default = [384, 448])
     parser.add_argument('--num_levels', type = int, default = 6)
 
     
@@ -111,16 +111,15 @@ def train(args):
     
     # build criterion
     criterion = get_criterion(args)
-    parameters = model.parameters()
-    optimizer = torch.optim.Adam(parameters, args.lr,
-                                 betas=(args.momentum, args.beta),
-                                 weight_decay=args.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), args.lr,
+                                 betas = (args.momentum, args.beta),
+                                 weight_decay = args.weight_decay)
 
 
     
     # Prepare Dataloader
     # ============================================================
-    train_dataset, eval_dataset = eval("{0}('{1}', 'train'), {0}('{1}', 'test')".format(args.dataset, args.dataset_dir))
+    train_dataset, eval_dataset = eval("{0}('{1}', 'train', shape = {2}), {0}('{1}', 'test', shape = {2})".format(args.dataset, args.dataset_dir, args.crop_shape))
 
     train_loader = DataLoader(train_dataset,
                             batch_size = args.batch_size,
@@ -170,7 +169,7 @@ def train(args):
         # ============================================================
         flow_gt_pyramid = []
 
-        loss = criterion(args, flow_pyramid, flow_gt_pyramid, model_parameters)
+        loss = criterion(args, flow_pyramid, flow_gt_pyramid, model.parameters())
 
 
         
