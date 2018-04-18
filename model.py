@@ -24,8 +24,14 @@ class Net(nn.Module):
     def forward(self, src_img, tgt_img):
         args = self.args
         # (B,3,H,W) -> (B,3,H/2,W/2) -> (B,3,H/4,W/4) -> (B,3,H/8,W/8)
+        import time
+        t = time.time()
         src_features = self.feature_pyramid_extractor(src_img)
+
+        print('src_feature_pyramid_extractor:', time.time() - t)
+        t = time.time()
         tgt_features = self.feature_pyramid_extractor(tgt_img)
+        print('tgt_feature_pyramid_extractor:', time.time() - t)
 
         # on each level:
         # 1. upsample the flow on upper level
@@ -36,13 +42,26 @@ class Net(nn.Module):
         flow_features = []
         for l in range(args.num_levels):
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+
+
+            t = time.time()
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
+            print(f'warp feature in lv.{l}:', time.time() - t)
 
+            t = time.time()
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
+            print(f'compute cost volume in lv.{l}:', time.time() - t)
 
+            t = time.time()
             flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
+            print(f'estimate flow in lv.{l}:', time.time() - t)
+
+
+
             # use context to refine
+            t = time.time()
             flow_refined = self.context_networks[l](src_features[l], flow)
+            print(f'refine flow in lv.{l}:', time.time() - t)
             flow_features.append(flow_feature)
             flow_pyramid.append(flow)
             flow_refined_pyramid.append(flow_refined)

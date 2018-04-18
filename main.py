@@ -150,12 +150,12 @@ def train(args):
         # shape: B,3,H,W
         src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
         # shape: B,2,H,W
-        flow = target[0]
+        flow_gt = target[0]
         
-        if not args.no_cuda: src_img, tgt_img, flow = map(lambda x: x.cuda(), (src_img, tgt_img, flow))
+        if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
 
 
-        src_img, tgt_img, flow = map(Variable, (src_img, tgt_img, flow))
+        src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
         
         # Forward Pass
         # ============================================================
