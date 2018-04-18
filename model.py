@@ -30,7 +30,7 @@ class Net(nn.Module):
         # 2. warp tgt_feature
         # 3. build cost volume
         # 4. estimate flow
-        flow = Variable(torch.zeros_like(src_features[-1]))
+        flow = torch.zeros_like(src_features[-1])
         for l in range(args.num_levels):
             flow_upsampled = F.upsample_bilinear(flow, scale_factor = 2)
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow_upsampled)
