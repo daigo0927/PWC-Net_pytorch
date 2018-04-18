@@ -48,7 +48,9 @@ class CostVolumeLayer(nn.Module):
         print(output.size())
         for i in range(H):
             for j in range(W):
-                output[:,:,i,j] = sum(src[:,:,i,j] * tgt[:,:,I,J] for I in range(i-args.search_range, i+args.search_range) for J in range(i-args.search_range, i+args.search_range))
+                tmp = sum(src[:,:,i,j] * tgt[:,:,I,J] for I in range(i-args.search_range, i+args.search_range) for J in range(i-args.search_range, i+args.search_range))
+                print(tmp)
+                output[:,:,i,j] = tmp
         print(time.time() - t_start)
         return output
 
