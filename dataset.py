@@ -65,7 +65,31 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
         images = torch.from_numpy(images.astype(np.float32))
         flow = torch.from_numpy(flow.astype(np.float32))
 
-        return [images], [flow]
+        return images, flow
+    def has_txt(self):
+        p = Path(self.dataset_dir) / (self.train_or_test + '.txt')
+        self.samples = []
+        with open(p, 'r') as f:
+            for i in f.readlines():
+                img1, img2, flow = i.split(',')
+                flow = flow.strip()
+                self.samples.append((img1, img2, flow))
+
+    @abstractmethod
+    def has_no_txt(self): ...
+    
+    def split(self, samples):
+        p = Path(self.dataset_dir)
+        test_ratio = 0.1
+        random.shuffle(samples)
+        idx = int(len(samples) * (1 - test_ratio))
+        train_samples = samples[:idx]
+        test_samples = samples[idx:]
+
+        with open(p / 'train.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in train_samples))
+        with open(p / 'test.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in test_samples))
+
+        self.samples = train_samples if self.train_or_test == 'train' else test_samples
 
 
 # FlyingChairs
@@ -83,36 +107,18 @@ class FlyingChairs(BaseDataset):
         p = Path(dataset_dir) / (train_or_test + '.txt')
         if p.exists(): self.has_txt()
         else: self.has_no_txt()
-    
-    def has_txt(self):
-        p = Path(self.dataset_dir) / (self.train_or_test + '.txt')
-        self.samples = []
-        with open(p, 'r') as f:
-            for i in f.readlines():
-                img1, img2, flow = i.split(',')
-                flow = flow.strip()
-            self.samples.append((img1, img2, flow))
 
     def has_no_txt(self):
         p = Path(self.dataset_dir)
         imgs = sorted(p.glob('*.ppm'))
         samples = [(str(i[0]), str(i[1]), str(i[0]).replace('img1', 'flow').replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
-        test_ratio = 0.1
-        random.shuffle(samples)
-        idx = int(len(samples) * (1 - test_ratio))
-        train_samples = samples[:idx]
-        test_samples = samples[idx:]
-
-        with open(p / 'train.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in train_samples))
-        with open(p / 'test.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in test_samples))
-
-        self.samples = train_samples if train_or_test == 'train' else test_samples
+        self.split()
 
 
 # FlyingThings
 # ============================================================
 class FlyingThings(BaseDataset):
-    def __init__(self): pass
+    def __init__(self): ...
 
 
 # Sintel
@@ -125,41 +131,27 @@ class Sintel(BaseDataset):
         self.mode = mode
         self.color = color
         self.shape = shape
-
-        p = Path(self.dataset_dir) / (train_or_test + '.txt')
+        self.dataset_dir = dataset_dir
+        self.train_or_test = train_or_test
+        p = Path(dataset_dir) / (train_or_test + '.txt')
         if p.exists(): self.has_txt()
         else: self.has_no_txt()
 
-        
-        self.samples = []
-        for path in paths:
-            path = path.strip()
-            img_paths = sorted((root / path).iterdir())
-
-            for i in window(img_paths, 2):
-                self.samples.append(i)
     
-    def has_txt(self):
-        with open(self.dataset_dir, 'r') as f:
-            paths = f.readlines()
-        pass
+
     
     def has_no_txt(self):
-        img_root = Path(self.dataset_dir) / 'training' / self.mode
-        flow_root = Path(self.dataset_dir) / 'flow'
-        pass
-        # root = Path(mpi_path) / 'training'
-        # img_dir = root / mode
-        # flow_dir = root / 'flow'
+        p = Path(self.dataset_dir)
+        p_img = p / 'training' / self.mode
+        p_flow = p / 'training/flow'
+        samples = []
 
-        # l = list(img_dir.iterdir())
-        # l1 = l[:20]
-        # l2 = l[20:]
-        # with open('data_train.txt', 'w') as f:
-        #     f.writelines((str(i) + '\n' for i in l1))
-        
-        # with open('data_test.txt', 'w') as f:
-        #     f.writelines((str(i) + '\n' for i in l2))
+        collections_of_scenes = sorted(map(str, p_img.glob('**/*.png')))
+        from itertools import groupby
+        collections = [list(g) for k, g in groupby(collections_of_scenes, lambda x: x.split('/')[-2])]
+
+        samples = [(*i, i[0].replace(self.mode, 'flow').replace('.png', '.flo')) for collection in collections for i in window(collection, 2)]
+        self.split()
 
 
 # KITTI
@@ -171,7 +163,24 @@ class KITTI(BaseDataset):
 
 
 if __name__ == '__main__':
-    dataset = FlyingChairs('datasets/Sintel')
-    for i in range(dataset.__len__()):
-        images, flow = dataset.__getitem__(i)
-        print(images[0].size(), flow[0].size())
+    dataset = Sintel('datasets/Sintel', 'train')
+
+    # for i in range(dataset.__len__()):
+    #     images, flow = dataset.__getitem__(i)
+    #     print(images[0].size(), flow[0].size())
+    
+    from torch.utils.data import DataLoader
+    train_loader = DataLoader(dataset,
+                            batch_size = 4,
+                            shuffle = True,
+                            num_workers = 2,
+                            pin_memory = True)
+
+    data_iter = iter(train_loader)
+    for data, flow in data_iter:
+        print(data.size(), flow.size())
+    
+    # for i in range(dataset.__len__()):
+    #     data, flow = dataset.__getitem__(i)
+    #     print(data.size(), flow.size())
+    

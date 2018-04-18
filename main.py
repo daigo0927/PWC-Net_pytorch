@@ -138,7 +138,7 @@ def train(args):
 
     train_iter = iter(train_loader)
 
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for batch_idx, (data, target) in enumerate(train_iter):
 
         
         # Load Data
