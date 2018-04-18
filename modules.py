@@ -25,7 +25,7 @@ class WarpingLayer(nn.Module):
 
 class CostVolumeLayer(nn.Module):
 
-    def __init__(self):
+    def __init__(self, args):
         super(CostVolumeLayer, self).__init__()
     
     def forward(self, src, tgt):
@@ -36,7 +36,7 @@ class CostVolumeLayer(nn.Module):
 
 class FeaturePyramidExtractor(nn.Module):
 
-    def __init__(self):
+    def __init__(self, args):
         super(FeaturePyramidExtractor, self).__init__()
 
         self.conv1 = nn.Sequential(
@@ -102,7 +102,7 @@ class FeaturePyramidExtractor(nn.Module):
 
 class OpticalFlowEstimator(nn.Module):
 
-    def __init__(self):
+    def __init__(self, args):
         super(OpticalFlowEstimator, self).__init__()
 
         self.conv1 = nn.Sequential(
@@ -142,7 +142,7 @@ class OpticalFlowEstimator(nn.Module):
 class ContextNetwork(nn.Module):
 
 
-    def __init__(self):
+    def __init__(self, args):
         super(ContextNetwork, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels = 34, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),

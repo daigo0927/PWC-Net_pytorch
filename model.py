@@ -13,11 +13,11 @@ class Net(nn.Module):
 
     def __init__(self, args):
         super(Net, self).__init__()
-        self.feature_pyramid_extractor = FeaturePyramidExtractor()
-        self.warping_layer = WarpingLayer()
-        self.cost_volume_layer = CostVolumeLayer()
-        self.opticla_flow_estimator = OpticalFlowEstimator()
-        self.context_network = ContextNetwork()
+        self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
+        self.warping_layer = WarpingLayer(args)
+        self.cost_volume_layer = CostVolumeLayer(args)
+        self.opticla_flow_estimator = OpticalFlowEstimator(args)
+        self.context_network = ContextNetwork(args)
     
 
     def forward(self, src_img, tgt_img):
