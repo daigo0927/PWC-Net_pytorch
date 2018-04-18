@@ -49,37 +49,37 @@ class FeaturePyramidExtractor(nn.Module):
 
         self.level1 = nn.Sequential(
             nn.Conv2d(in_channels = 3, out_channels = 16, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True)),
+            nn.LeakyReLU(inplace = True),
             nn.Conv2d(in_channels = 16, out_channels = 16, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         )
         self.level2 = nn.Sequential(
             nn.Conv2d(in_channels = 16, out_channels = 32, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True)),
+            nn.LeakyReLU(inplace = True),
             nn.Conv2d(in_channels = 32, out_channels = 32, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         )
         self.level3 = nn.Sequential(
             nn.Conv2d(in_channels = 32, out_channels = 64, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True)),
+            nn.LeakyReLU(inplace = True),
             nn.Conv2d(in_channels = 64, out_channels = 64, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         )
         self.level4 = nn.Sequential(
             nn.Conv2d(in_channels = 64, out_channels = 96, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True)),
+            nn.LeakyReLU(inplace = True),
             nn.Conv2d(in_channels = 96, out_channels = 96, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         )
         self.level5 = nn.Sequential(
             nn.Conv2d(in_channels = 96, out_channels = 128, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True)),
+            nn.LeakyReLU(inplace = True),
             nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         )
         self.level6 = nn.Sequential(
             nn.Conv2d(in_channels = 128, out_channels = 192, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True)),
+            nn.LeakyReLU(inplace = True),
             nn.Conv2d(in_channels = 192, out_channels = 192, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         )
