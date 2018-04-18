@@ -19,7 +19,9 @@ class Net(nn.Module):
         self.context_network = ContextNetwork()
     
 
-    def forward(self, src_img, tgt_img, flow_gt):
+    def forward(self, src_img, tgt_img):
+        print(src_img.size())
+        # (B,3,H,W) -> (B,3,H/2,W/2) -> (B,3,H/4,W/4) -> (B,3,H/8,W/8)
         src_features = self.feature_pyramid_extractor(src_img)
         tgt_features = self.feature_pyramid_extractor(tgt_img)
 
@@ -32,11 +34,10 @@ class Net(nn.Module):
         for l in range(args.num_levels):
             flow_upsampled = F.upsample_bilinear(flow, scale_factor = 2)
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow_upsampled)
-            flow_gt_downsampled = F.avg_pool2d(flow_gt, kernel_size = 2, stride = 2)
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
             flow = self.opticla_flow_estimator(src_features[l], cost_volume)
-            final_flow, flow_pyramids = 0,0
+            final_flow, flow_pyramid = 0,0
         
-        return flow_pyramids
+        return flow_pyramid, None

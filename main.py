@@ -156,7 +156,7 @@ def train(args):
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
-        (flow_pyramid, flow_gt_pyramid), summaries = model(src_img, tgt_img, flow)
+        flow_pyramid, summaries = model(src_img, tgt_img)
 
 
         

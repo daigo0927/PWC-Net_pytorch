@@ -40,6 +40,7 @@ def window(seq, n=2):
         result = result[1:] + (elem,)
         yield result
 
+
 class BaseDataset(Dataset, metaclass = ABCMeta):
     @abstractmethod
     def __init__(self): pass
@@ -66,6 +67,7 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
 
         return [images], [flow]
 
+
 # FlyingChairs
 # ============================================================
 class FlyingChairs(BaseDataset):
@@ -75,28 +77,36 @@ class FlyingChairs(BaseDataset):
         self.color = color
         self.shape = shape
 
-        p = Path(dataset_dir)
-        p_txt = p / (train_or_test + '.txt')
-        if p_txt.exists():
-            self.samples = []
-            with open(p_txt, 'r') as f:
-                for i in f.readlines():
-                    img1, img2, flow = i.split(',')
-                    flow = flow.strip()
-                self.samples.append((img1, img2, flow))
-        else:
-            imgs = sorted(p.glob('*.ppm'))
-            samples = [(str(i[0]), str(i[1]), str(i[0]).replace('img1', 'flow').replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
-            test_ratio = 0.1
-            random.shuffle(samples)
-            idx = int(len(samples) * (1 - test_ratio))
-            train_samples = samples[:idx]
-            test_samples = samples[idx:]
+        self.dataset_dir = dataset_dir
+        self.train_or_test = train_or_test
+        
+        p = Path(dataset_dir) / (train_or_test + '.txt')
+        if p.exists(): self.has_txt()
+        else: self.has_no_txt()
+    
+    def has_txt(self):
+        p = Path(self.dataset_dir) / (self.train_or_test + '.txt')
+        self.samples = []
+        with open(p, 'r') as f:
+            for i in f.readlines():
+                img1, img2, flow = i.split(',')
+                flow = flow.strip()
+            self.samples.append((img1, img2, flow))
 
-            with open(p / 'train.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in train_samples))
-            with open(p / 'test.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in test_samples))
+    def has_no_txt(self):
+        p = Path(self.dataset_dir)
+        imgs = sorted(p.glob('*.ppm'))
+        samples = [(str(i[0]), str(i[1]), str(i[0]).replace('img1', 'flow').replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
+        test_ratio = 0.1
+        random.shuffle(samples)
+        idx = int(len(samples) * (1 - test_ratio))
+        train_samples = samples[:idx]
+        test_samples = samples[idx:]
 
-            self.samples = train_samples if train_or_test == 'train' else test_samples
+        with open(p / 'train.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in train_samples))
+        with open(p / 'test.txt', 'w') as f: f.writelines((','.join(i) + '\n' for i in test_samples))
+
+        self.samples = train_samples if train_or_test == 'train' else test_samples
 
 
 # FlyingThings
@@ -104,27 +114,40 @@ class FlyingChairs(BaseDataset):
 class FlyingThings(BaseDataset):
     def __init__(self): pass
 
+
 # Sintel
 # ============================================================
 class Sintel(BaseDataset):
 
 
-    def __init__(self, text_path, mode = 'final', color = 'rgb', shape = None):
+    def __init__(self, dataset_dir, train_or_test, mode = 'final', color = 'rgb', shape = None):
         super(Sintel, self).__init__()
         self.mode = mode
         self.color = color
         self.shape = shape
 
-        root = Path('mpi/training/' + mode)
+        p = Path(self.dataset_dir) / (train_or_test + '.txt')
+        if p.exists(): self.has_txt()
+        else: self.has_no_txt()
+
+        
         self.samples = []
-        with open(text_path, 'r') as f:
-            paths = f.readlines()
         for path in paths:
             path = path.strip()
             img_paths = sorted((root / path).iterdir())
 
             for i in window(img_paths, 2):
                 self.samples.append(i)
+    
+    def has_txt(self):
+        with open(self.dataset_dir, 'r') as f:
+            paths = f.readlines()
+        pass
+    
+    def has_no_txt(self):
+        img_root = Path(self.dataset_dir) / 'training' / self.mode
+        flow_root = Path(self.dataset_dir) / 'flow'
+        pass
         # root = Path(mpi_path) / 'training'
         # img_dir = root / mode
         # flow_dir = root / 'flow'
@@ -148,7 +171,7 @@ class KITTI(BaseDataset):
 
 
 if __name__ == '__main__':
-    dataset = FlyingChairs('datasets/FlyingChairs')
+    dataset = FlyingChairs('datasets/Sintel')
     for i in range(dataset.__len__()):
         images, flow = dataset.__getitem__(i)
         print(images[0].size(), flow[0].size())
