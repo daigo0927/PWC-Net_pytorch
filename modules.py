@@ -44,9 +44,11 @@ class CostVolumeLayer(nn.Module):
         output = F.pad(torch.zeros_like(src), (abs(src.size(1) - (args.search_range*2+1)**2),0,0,0,0,0))
         for i in range(H):
             for j in range(W):
+                tmp = 0
                 for I in range(i-args.search_range, i+args.search_range):
                     for J in range(i-args.search_range, i+args.search_range):
-                        output[:,:,i,j] += src[:,:,i,j] * tgt[:,:,I,J]
+                        tmp += src[:,:,i,j] * tgt[:,:,I,J]
+                output[:,:,i,j] = tmp
         print(time.time() - t_start)
         return output
 
