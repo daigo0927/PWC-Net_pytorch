@@ -22,10 +22,10 @@ class WarpingLayer(nn.Module):
 
         grid = Variable(data = grid, volatile = not self.training)
 
-        print(x.size(), grid.size(), flow.size())
+        # print(x.size(), grid.size(), flow.size())
 
         # variableFlow = torch.cat([ variableFlow[:, 0:1, :, :] / ((variableInput.size(3) - 1.0) / 2.0), variableFlow[:, 1:2, :, :] / ((variableInput.size(2) - 1.0) / 2.0) ], 1)
-        return F.grid_sample(x, grid + flow)
+        return F.grid_sample(x, (grid + flow).permute(0, 2, 3, 1))
 
 
 class CostVolumeLayer(nn.Module):
