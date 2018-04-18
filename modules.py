@@ -37,8 +37,18 @@ class CostVolumeLayer(nn.Module):
     
     def forward(self, src, tgt):
         args = self.args
-        print(src.size(), tgt.size())
-        pass
+        tgt = F.pad(tgt, [args.search_range]*4)
+        H, W = src.size()[2:]
+        import time
+        t_start = time.time()
+        output = torch.zeros([src.size(0)] + [args.search_range*2+1] + src.size()[2:])
+        for i in range(H):
+            for j in range(W):
+                for I in range(i-args.search_range, i+args.search_range):
+                    for J in range(i-args.search_range, i+args.search_range):
+                        output[:,:,i,j] += src[:,:,i,j] * tgt[:,:,I,J]
+        print(time.time() - t_start)
+        return output
 
 
 
