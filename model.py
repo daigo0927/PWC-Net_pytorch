@@ -33,20 +33,21 @@ class Net(nn.Module):
         # 3. build cost volume
         # 4. estimate flow
         flow_pyramid, flow_refinedpyramid = [], []
+        flow_features = []
         for l in range(args.num_levels):
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample_bilinear(flow, scale_factor = 2)
             tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
-            flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
+            flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
             # use context to refine
-            print(src_features[l].size(), flow.size())
             flow_refined = self.context_networks[l](src_features[l], flow)
-            
+            flow_features.append(flow_feature)
             flow_pyramid.append(flow)
             flow_refined_pyramid.append(flow_refined)
 
         summaries = dict()
+        summaries['flow_feature'] = flow_features
         summaries['coarse_flow_pyramid'] = flow_pyramid
         return flow_refined_pyramid, summaries
