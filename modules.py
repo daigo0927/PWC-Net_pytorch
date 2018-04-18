@@ -18,7 +18,7 @@ class WarpingLayer(nn.Module):
 
 
         grid = torch.cat([torchHorizontal, torchVertical], 1)
-        if not self.no_cuda: grid = grid.cuda()
+        if not args.no_cuda: grid = grid.cuda()
 
         grid = Variable(data = grid, volatile = not self.training)
 

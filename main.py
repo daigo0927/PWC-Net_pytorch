@@ -100,7 +100,8 @@ def train(args):
     # Build Model
     # ============================================================
     
-    model = Net(args) if args.no_cuda else Net(args).cuda()
+    model = Net(args)
+    if not args.no_cuda: model = model.cuda()
     model.train()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
