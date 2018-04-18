@@ -164,16 +164,16 @@ class ContextNetwork(nn.Module):
             nn.Conv2d(in_channels = ch_in, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv2 = nn.Sequential(
-            nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 2, groups = 1, bias = True),
+            nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 2, dilation = 2, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv3 = nn.Sequential(
-            nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 4, groups = 1, bias = True),
+            nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 4, dilation = 4, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv4 = nn.Sequential(
-            nn.Conv2d(in_channels = 128, out_channels = 96, kernel_size = 3, stride = 1, padding = 1, dilation = 8, groups = 1, bias = True),
+            nn.Conv2d(in_channels = 128, out_channels = 96, kernel_size = 3, stride = 1, padding = 8, dilation = 8, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv5 = nn.Sequential(
-            nn.Conv2d(in_channels = 96, out_channels = 64, kernel_size = 3, stride = 1, padding = 1, dilation = 16, groups = 1, bias = True),
+            nn.Conv2d(in_channels = 96, out_channels = 64, kernel_size = 3, stride = 1, padding = 16, dilation = 16, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv6 = nn.Sequential(
             nn.Conv2d(in_channels = 64, out_channels = 32, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
