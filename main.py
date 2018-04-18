@@ -101,7 +101,9 @@ def train(args):
     # ============================================================
     
     model = Net(args)
-    if not args.no_cuda: model = model.cuda()
+    if not args.no_cuda:
+        model = model.cuda()
+        model.opticla_flow_estimators = [i.cuda() for i in model.opticla_flow_estimators]
     model.train()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
