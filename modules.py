@@ -87,7 +87,7 @@ class FeaturePyramidExtractor(nn.Module):
         out = self.levels[0](x)
         feature_pyramid.insert(0, out)
         for l in range(1, args.num_levels):
-            out = self.levels[l](x)
+            out = self.levels[l](out)
             feature_pyramid.insert(0, out)
 
         return feature_pyramid
