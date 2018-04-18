@@ -192,11 +192,11 @@ class ContextNetwork(nn.Module):
         out_conv6 = self.conv6(out_conv5)
         out_flow = self.conv7(out_conv6)
 
-        print(x.size(),
-        out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(),
-        out_conv5.size(), out_conv6.size(),
-        out_flow.size(),
-        sep = '\n')
+        # print(x.size(),
+        # out_conv1.size(), out_conv2.size(), out_conv3.size(), out_conv4.size(),
+        # out_conv5.size(), out_conv6.size(),
+        # out_flow.size(),
+        # sep = '\n')
 
 
         return flow + out_flow

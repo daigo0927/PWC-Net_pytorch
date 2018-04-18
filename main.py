@@ -160,12 +160,16 @@ def train(args):
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
+        import time
+        t = time.time()
         flow_pyramid, summaries = model(src_img, tgt_img)
-
+        print(time.time() - t)
 
         
         # Compute Loss
         # ============================================================
+        flow_gt_pyramid = []
+
         loss = criterion(args, flow_pyramid, flow_gt_pyramid, model_parameters)
 
 
