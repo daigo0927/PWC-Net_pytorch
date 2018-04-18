@@ -41,7 +41,7 @@ class Net(nn.Module):
 
             flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
             # use context to refine
-            flow_refined = self.context_networks(src_features[l], flow)
+            flow_refined = self.context_networks[l](src_features[l], flow)
             
             flow_pyramid.append(flow)
             flow_refined_pyramid.append(flow_refined)

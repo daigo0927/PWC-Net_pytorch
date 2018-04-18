@@ -104,6 +104,7 @@ def train(args):
     if not args.no_cuda:
         model = model.cuda()
         model.optical_flow_estimators = [i.cuda() for i in model.optical_flow_estimators]
+        model.context_networks = [i.cuda() for i in model.context_networks]
     model.train()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
