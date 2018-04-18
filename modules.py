@@ -49,7 +49,7 @@ class CostVolumeLayer(nn.Module):
         for i in range(H):
             for j in range(W):
                 # TODO: pytorch的einsum该怎么写????
-                tmp = [torch.matmul(src[:,:,i,j].view(src.size(0), 1, src.size(1)), tgt[:,:,I,J].view(tgt.size(0), tgt.size(1), 1)) for I in range(i-args.search_range, i+args.search_range+1) for J in range(j-args.search_range, j+args.search_range+1)]
+                tmp = [torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,I,J].unsqueeze(2)) for I in range(i-args.search_range, i+args.search_range+1) for J in range(j-args.search_range, j+args.search_range+1)]
                 for i in tmp:
                     print(i.size())
                 tmp = torch.stack(tmp, dim = 1)
