@@ -32,7 +32,7 @@ class Net(nn.Module):
         # 2. warp tgt_feature
         # 3. build cost volume
         # 4. estimate flow
-        flow_pyramid, flow_refinedpyramid = [], []
+        flow_pyramid, flow_refined_pyramid = [], []
         flow_features = []
         for l in range(args.num_levels):
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample_bilinear(flow, scale_factor = 2)
