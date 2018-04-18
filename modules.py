@@ -44,7 +44,7 @@ class CostVolumeLayer(nn.Module):
         if src.size(1) >= (args.search_range*2+1)**2:
             output = torch.zeros_like(src)[:,:(args.search_range*2+1)**2,:,:]
         else:
-            output = F.pad(torch.zeros_like(src), ((args.search_range*2+1)**2 - src.size(1)),0,0,0,0,0))
+            output = F.pad(torch.zeros_like(src), ((args.search_range*2+1)**2 - src.size(1)),0,0,0,0,0)
         for i in range(H):
             for j in range(W):
                 tmp = 0
