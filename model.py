@@ -34,7 +34,7 @@ class Net(nn.Module):
         # 4. estimate flow
         for l in range(args.num_levels):
             flow = torch.zeros_like(src_features[0]) if l == 0 else F.upsample_bilinear(flow, scale_factor = 2)
-            tgt_feature_warped = self.warping_layer(tgt_features[l], flow_upsampled)
+            tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
 
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
 
