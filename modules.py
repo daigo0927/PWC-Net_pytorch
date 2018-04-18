@@ -45,17 +45,14 @@ class CostVolumeLayer(nn.Module):
             output = torch.zeros_like(src)[:,:(args.search_range*2+1)**2,:,:]
         else:
             output = F.pad(torch.zeros_like(src), ((args.search_range*2+1)**2 - src.size(1)),0,0,0,0,0)
-        print(output.size())
+
+        # TODO: so slow! find the batch dot way
         for i in range(H):
             for j in range(W):
                 # TODO: pytorch的einsum该怎么写????
                 tmp = [torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,I,J].unsqueeze(2)) for I in range(i-args.search_range, i+args.search_range+1) for J in range(j-args.search_range, j+args.search_range+1)]
-                # for i in tmp:
-                #     print(i.size())
                 tmp = torch.stack(tmp, dim = 1).squeeze()
-                print(tmp.size())
                 output[:,:,i,j] = tmp
-        print(time.time() - t_start)
         return output
 
 
@@ -121,9 +118,9 @@ class OpticalFlowEstimator(nn.Module):
         super(OpticalFlowEstimator, self).__init__()
         self.args = args
 
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels = 115, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-            nn.LeakyReLU(inplace = True))
+        # self.conv1 = nn.Sequential(
+        #     nn.Conv2d(in_channels = 115, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
+        #     nn.LeakyReLU(inplace = True))
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
@@ -143,7 +140,7 @@ class OpticalFlowEstimator(nn.Module):
         print(tgt.size(), cost_volume.size(), flow.size())
         x = torch.cat([tgt, cost_volume, flow], dim = 1)
         
-        out_conv1 = self.conv1(x)
+        out_conv1 = F.conv2d(input = x, weight = (128, x.size(1), 3, 3), padding = 1)
         out_conv2 = self.conv2(out_conv1)
         out_conv3 = self.conv3(out_conv2)
         out_conv4 = self.conv4(out_conv3)
