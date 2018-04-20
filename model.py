@@ -19,6 +19,13 @@ class Net(nn.Module):
         self.optical_flow_estimators = [nn.DataParallel(OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
         self.context_networks = [nn.DataParallel(ContextNetwork(args, ch_in + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
     
+    def cuda_(self):
+        self.feature_pyramid_extractor.levels = [i.cuda() for i in self.feature_pyramid_extractor.levels]
+        self.feature_pyramid_extractor.cuda()
+        self.optical_flow_estimators = [i.cuda() for i in self.optical_flow_estimators]
+        self.context_networks = [i.cuda() for i in self.context_networks]
+        self.cuda()
+
 
     def forward(self, src_img, tgt_img):
         args = self.args
@@ -45,6 +52,7 @@ class Net(nn.Module):
             # upsample the flow estimated from upper level
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             # warp tgt_feature
+            print(type(tgt_features[l]), type(grid_pyramid[l]), type(flow))
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)

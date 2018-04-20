@@ -41,6 +41,8 @@ class CostVolumeLayer(nn.Module):
         #     for j in range(args.search_range, W):\
         #         output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
 
+        # Version 3
+        # ============================================================
         tgt_neigh = [tgt]
         for i in range(1, args.search_range + 1):
             map_up    = torch.zeros_like(tgt); map_up[:,:,i:,:]     = tgt[:,:,:-i,:]
