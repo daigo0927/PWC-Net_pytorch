@@ -13,8 +13,8 @@ class WarpingLayer(nn.Module):
     def forward(self, x, flow):
         args = self.args
         # build coord matrix
-        torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
-        torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
+        torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3),out=torch.cuda.FloatTensor()).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
+        torchVertical = torch.linspace(-1.0, 1.0, x.size(2),out=torch.cuda.FloatTensor()).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
 
 
         grid = torch.cat([torchHorizontal, torchVertical], 1)
@@ -106,39 +106,6 @@ class FeaturePyramidExtractor(nn.Module):
 
             setattr(self, f'level{l+1}', layer)
             self.levels.append(layer)
-
-        # self.level1 = nn.Sequential(
-        #     nn.Conv2d(in_channels = 3, out_channels = 16, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True),
-        #     nn.Conv2d(in_channels = 16, out_channels = 16, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True))
-        # self.level2 = nn.Sequential(
-        #     nn.Conv2d(in_channels = 16, out_channels = 32, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True),
-        #     nn.Conv2d(in_channels = 32, out_channels = 32, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True))
-        # self.level3 = nn.Sequential(
-        #     nn.Conv2d(in_channels = 32, out_channels = 64, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True),
-        #     nn.Conv2d(in_channels = 64, out_channels = 64, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True))
-        # self.level4 = nn.Sequential(
-        #     nn.Conv2d(in_channels = 64, out_channels = 96, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True),
-        #     nn.Conv2d(in_channels = 96, out_channels = 96, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True))
-        # self.level5 = nn.Sequential(
-        #     nn.Conv2d(in_channels = 96, out_channels = 128, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True),
-        #     nn.Conv2d(in_channels = 128, out_channels = 128, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True))
-        # self.level6 = nn.Sequential(
-        #     nn.Conv2d(in_channels = 128, out_channels = 192, kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True),
-        #     nn.Conv2d(in_channels = 192, out_channels = 192, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-        #     nn.LeakyReLU(inplace = True))
-
-        # self.levels = [self.level1, self.level2, self.level3, self.level4, self.level5, self.level6]
 
 
     def forward(self, x):
