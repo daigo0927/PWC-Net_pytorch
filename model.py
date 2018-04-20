@@ -28,8 +28,8 @@ class Net(nn.Module):
         tgt_features = self.feature_pyramid_extractor(tgt_img)
 
         # on each level:
-        # 1. upsample the flow on upper level
-        # 2. warp tgt_feature
+        # 1. upsample the flow estimated from upper level
+        # 2. warp tgt_feature using above flow
         # 3. build cost volume
         # 4. estimate flow
         flow_pyramid, flow_refined_pyramid = [], []

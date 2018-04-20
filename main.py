@@ -73,6 +73,7 @@ def parse():
     # ============================================================
     parser.add_argument('--crop_shape', nargs = '+', default = [384, 448])
     parser.add_argument('--num_levels', type = int, default = 6)
+    parser.add_argument('--lv_chs', nargs = '+', default = [16, 32, 64, 96, 128, 192])
 
     
     
@@ -82,7 +83,7 @@ def parse():
     # ============================================================
     if args.train:
         assert not(args.predict or args.test), 'Only ONE mode should be selected.'
-        assert len(args.weights) == args.num_levels
+        assert len(args.weights) len(args.lv_chs) == args.num_levels
         assert args.dataset in ['FlyingChairs', 'FlyingThings', 'Sintel', 'KITTI'], 'One dataset should be correctly set as for there are specific hyper-parameters for every dataset'
     elif args.predict:
         assert not(args.train or args.test), 'Only ONE mode should be selected.'
