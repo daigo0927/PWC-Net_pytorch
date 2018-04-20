@@ -37,7 +37,7 @@ class CostVolumeLayer(nn.Module):
     
     def forward(self, src, tgt):
         args = self.args
-        tgt = F.pad(tgt, [args.search_range]*4)
+        # tgt = F.pad(tgt, [args.search_range]*4)
         B, C, H, W = src.size()
         if src.size(1) >= (args.search_range*2+1)**2:
             output = torch.zeros_like(src)[:,:(args.search_range*2+1)**2,:,:]
@@ -57,14 +57,13 @@ class CostVolumeLayer(nn.Module):
         # print('v1:', time.time()-t)
         # t = time.time()
 
-        t = time.time()
-        for i in range(args.search_range, H):
-            for j in range(args.search_range, W):\
-                output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
-        print('v2:', time.time()-t)
+        # t = time.time()
+        # for i in range(args.search_range, H):
+        #     for j in range(args.search_range, W):\
+        #         output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
+        # print('v2:', time.time()-t)
 
         t = time.time()
-
         tgt_neigh = [tgt]
         for i in range(1, args.search_range + 1):
             map_up    = torch.zeros_like(tgt); map_up[:,:,i:,:]     = tgt[:,:,:-i,:]
@@ -82,7 +81,6 @@ class CostVolumeLayer(nn.Module):
 
         tgt_neigh = torch.stack(tgt_neigh, dim = 2)
         
-
         output = (src.unsqueeze(dim = 2) * tgt_neigh).sum(dim = 1)
         print('v3:', time.time()-t)
 
