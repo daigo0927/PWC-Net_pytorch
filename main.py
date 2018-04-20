@@ -204,7 +204,7 @@ def train(args):
 
 
                     # add image summaries
-                    for l in range(args.num_levels): ...
+                    for l in range(args.num_levels): 
                         # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
                         logger.image_summary(f'input_1', [src_img], step)
                         # logger.image_summary(f'')
