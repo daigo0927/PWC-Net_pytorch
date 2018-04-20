@@ -69,10 +69,10 @@ class CostVolumeLayer(nn.Module):
 
         tgt_neigh = []
         for i in range(args.search_range):
-            map_left = torch.zeros_like(tgt); map_left[i:, :] = tgt[:-i, :]
-            map_right = torch.zeros_like(tgt); map_right[:-i, :] = tgt[i:, :]
-            map_up = torch.zeros_like(tgt); map_up[:, i:] = tgt[:, :-i]
-            map_down = torch.zeros_like(tgt); map_down[:, :-i] = tgt[:, i:]
+            map_left = torch.zeros_like(tgt); map_left[:,:,i:, :] = tgt[:,:,:-i, :]
+            map_right = torch.zeros_like(tgt); map_right[:,:,:-i, :] = tgt[:,:,i:, :]
+            map_up = torch.zeros_like(tgt); map_up[:,:,:, i:] = tgt[:,:,:, :-i]
+            map_down = torch.zeros_like(tgt); map_down[:,:,:, :-i] = tgt[:,:,:, i:]
             tgt_neigh.extend([map_left, map_right, map_up, map_down])
         
         tgt_neigh = torch.stack(tgt_neigh, dim = 2)
