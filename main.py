@@ -202,11 +202,10 @@ def train(args):
 
 
                     # add image summaries
-                    for l in args.num_levels:
-                        logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], batch_idx)
-                        logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], batch_idx)
+                    for l in range(args.num_levels): ...
+                        # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], batch_idx)
+                        #logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], batch_idx)
                         # logger.image_summary(f'')
-                    pass
             
             if batch_idx % args.log_interval == 0:
                 print(f'Epoch [{epoch}] Step [{batch_idx}/{args.total_step}], Loss: {loss:.4f}, EPE: {epe:.4f}')
