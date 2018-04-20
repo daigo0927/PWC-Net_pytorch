@@ -106,7 +106,7 @@ class FeaturePyramidExtractor(nn.Module):
                 nn.Conv2d(in_channels = 3 if l == 0 else args.lv_chs[l-1], out_channels = args.lv_chs[l], kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
                 nn.LeakyReLU(inplace = True),
                 nn.Conv2d(in_channels = args.lv_chs[l], out_channels = args.lv_chs[l], kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
-                nn.LeakyReLU(inplace = True))
+                nn.LeakyReLU(inplace = True)).cuda()
 
             setattr(self, f'level{l+1}', layer)
             self.levels.append(layer)
