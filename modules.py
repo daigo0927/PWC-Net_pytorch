@@ -46,13 +46,22 @@ class CostVolumeLayer(nn.Module):
         else:
             output = F.pad(torch.zeros_like(src), (0,0,0,0,(args.search_range*2+1)**2 - src.size(1),0))
 
+        import time
+
+        t = time.time()
         # TODO: so slow! find the batch dot way
-        for i in range(H):
-            for j in range(W):
+        for i in range(args.search_range, H):
+            for j in range(args.search_range, W):
                 # TODO: pytorch的einsum该怎么写????
                 tmp = [torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,I,J].unsqueeze(2)) for I in range(i-args.search_range, i+args.search_range+1) for J in range(j-args.search_range, j+args.search_range+1)]
                 tmp = torch.stack(tmp, dim = 1).squeeze()
                 output[:,:,i,j] = tmp
+        print('旧:', time.time()-t)
+        t = time.time()
+        for i in range(args.search_range, H):
+            for j in range(args.search_range, W):
+                output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-4:i+5,j-4:j+5].contiguous().view(8, 3, -1)).squeeze(1)
+        print('新:', time.time()-t)
         return output
 
 
