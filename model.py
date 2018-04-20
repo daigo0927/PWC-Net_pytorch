@@ -26,7 +26,7 @@ class Net(nn.Module):
         self.context_networks = [i.cuda() for i in self.context_networks]
         self.cuda()
 
-        self.cost_volume_layer = nn.DataParallel(self.cost_volume_layer.levels)
+        self.cost_volume_layer = nn.DataParallel(self.cost_volume_layer)
         self.optical_flow_estimators = [nn.DataParallel(i) for i in self.optical_flow_estimators]
         self.context_networks = [nn.DataParallel(i) for i in self.context_networks]
 
