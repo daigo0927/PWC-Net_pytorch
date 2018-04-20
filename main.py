@@ -169,7 +169,7 @@ def train(args):
         # ============================================================
         flow_gt_pyramid = []
 
-        loss = criterion(args, flow_pyramid, flow_gt_pyramid, model.parameters())
+        loss = criterion(args, flow_pyramid, flow_gt_pyramid)
 
 
         
