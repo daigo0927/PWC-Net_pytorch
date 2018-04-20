@@ -145,11 +145,11 @@ def train(args):
     iter_per_epoch = len(train_loader)
 
     # Start training
-    for step in range(args.total_step):
+    for step in range(1, args.total_step + 1):
         
         # Reset the data_iter
         if (step+1) % iter_per_epoch == 0:
-            data_iter = iter(data_loader)
+            data_iter = iter(train_loader)
 
             # Load Data
             # ============================================================
