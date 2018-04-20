@@ -27,6 +27,18 @@ class Net(nn.Module):
         src_features = self.feature_pyramid_extractor(src_img)
         tgt_features = self.feature_pyramid_extractor(tgt_img)
 
+        # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
+        # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
+        # compute grid on each level
+        grid_pyramid = []
+        for l in range(args.num_levels):
+            x = src_features[l]
+            torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
+            torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
+            grid = torch.cat([torchHorizontal, torchVertical], 1).cuda()
+            grid = Variable(data = grid, volatile = not self.training)
+            grid_pyramid.append(grid)
+
         # on each level:
         # 1. upsample the flow estimated from upper level
         # 2. warp tgt_feature using above flow
@@ -36,7 +48,7 @@ class Net(nn.Module):
         flow_features = []
         for l in range(args.num_levels):
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
-            tgt_feature_warped = self.warping_layer(tgt_features[l], flow)
+            tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
             flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
 

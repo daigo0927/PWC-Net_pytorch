@@ -10,11 +10,13 @@ class WarpingLayer(nn.Module):
         self.args = args
 
 
-    def forward(self, x, flow):
+    def forward(self, x, grid, flow):
         args = self.args
         # build coord matrix
 
         torch.set_default_tensor_type('torch.FloatTensor')
+        # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
+        # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
         torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
         torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
