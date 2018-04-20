@@ -135,77 +135,80 @@ def train(args):
 
     # Init logger
     # ============================================================
-    
     logger = Logger(args.log_dir)
 
+    # Start training
+    # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
-
-    # Start training
     for step in range(1, args.total_step + 1):
         
         # Reset the data_iter
-        if (step+1) % iter_per_epoch == 0:
-            data_iter = iter(train_loader)
+        if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
 
-            # Load Data
-            # ============================================================
-            data, target = next(data_iter)
-            # shape: B,3,H,W
-            src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
-            # shape: B,2,H,W
-            flow_gt = target[0]
-            
-            if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
-
-            src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
-            
-            # Forward Pass
-            # ============================================================
-            # features on each level will downsample to 1/2 from bottom to top
-            flow_pyramid, summaries = model(src_img, tgt_img)
-
-            
-            # Compute Loss
-            # ============================================================
-
-            flow_gt_pyramid = []
-            x = flow_gt
-            for l in range(args.num_levels):
-                x = F.avg_pool2d(x, 2)
-                flow_gt_pyramid.insert(0, x)
-
-            loss = criterion(args, flow_pyramid, flow_gt_pyramid)
-            epe = 0
+        # Load Data
+        # ============================================================
+        data, target = next(data_iter)
+        # shape: B,3,H,W
+        src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
+        # shape: B,2,H,W
+        flow_gt = target[0]
+        if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
+        src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
 
 
-            
-            # Do step
-            # ============================================================
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        
+        # Build Groundtruth Pyramid
+        # ============================================================
+        flow_gt_pyramid = []
+        x = flow_gt
+        for l in range(args.num_levels):
+            x = F.avg_pool2d(x, 2)
+            flow_gt_pyramid.insert(0, x)
 
 
-            
-            # Collect Summaries & Output Logs
-            # ============================================================
-            # TODO: add summaries and check
-            # flow output on each level
-            if step % args.summary_interval == 0:
-                # add scalar summaries
-                logger.scalar_summary('loss', loss.data[0], step)
-                logger.scalar_summary('EPE', epe, step)
+        
+        # Forward Pass
+        # ============================================================
+        # features on each level will downsample to 1/2 from bottom to top
+        flow_pyramid, summaries = model(src_img, tgt_img)
 
 
-                # add image summaries
-                for l in range(args.num_levels): 
-                    # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
-                    logger.image_summary(f'input_1', [src_img], step)
-                    # logger.image_summary(f'')
-            
-            if step % args.log_interval == 0:
-                print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
+        
+        # Compute Loss
+        # ============================================================
+        loss = criterion(args, flow_pyramid, flow_gt_pyramid)
+        epe = 0
+
+
+        
+        # Do step
+        # ============================================================
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+
+        
+        # Collect Summaries & Output Logs
+        # ============================================================
+        # TODO: add summaries and check
+        # flow output on each level
+        if True:
+        # if step % args.summary_interval == 0:
+            # add scalar summaries
+            logger.scalar_summary('loss', loss.data[0], step)
+            logger.scalar_summary('EPE', epe, step)
+
+
+            # add image summaries
+            for l in range(args.num_levels): 
+                # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
+                logger.image_summary(f'input_1', [src_img], step)
+                # logger.image_summary(f'')
+        
+        if step % args.log_interval == 0:
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
 
 
 def predict(args):
