@@ -38,7 +38,7 @@ class CostVolumeLayer(nn.Module):
     def forward(self, src, tgt):
         args = self.args
         tgt = F.pad(tgt, [args.search_range]*4)
-        H, W = src.size()[2:]
+        B, C, H, W = src.size()
         import time
         t_start = time.time()
         if src.size(1) >= (args.search_range*2+1)**2:
@@ -58,12 +58,14 @@ class CostVolumeLayer(nn.Module):
                 output[:,:,i,j] = tmp
         print('旧:', time.time()-t)
         t = time.time()
+
+        
         for i in range(args.search_range, H):
             for j in range(args.search_range, W):
-                x = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-4:i+5,j-4:j+5].contiguous().view(8, 3, -1)).squeeze(1)
+                x = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
                 print(x.size())
                 quit()
-                output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-4:i+5,j-4:j+5].contiguous().view(8, 3, -1)).squeeze(1)
+                output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
         print('新:', time.time()-t)
         return output
 
