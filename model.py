@@ -15,9 +15,9 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.args = args
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
-        self.cost_volume_layer = nn.DataParallel(CostVolumeLayer(args))
-        self.optical_flow_estimators = [nn.DataParallel(OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
-        self.context_networks = [nn.DataParallel(ContextNetwork(args, ch_in + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
+        self.cost_volume_layer = CostVolumeLayer(args)
+        self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
+        self.context_networks = [ContextNetwork(args, ch_in + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
     
     def cuda_(self):
         self.feature_pyramid_extractor.levels = [i.cuda() for i in self.feature_pyramid_extractor.levels]
@@ -25,6 +25,11 @@ class Net(nn.Module):
         self.optical_flow_estimators = [i.cuda() for i in self.optical_flow_estimators]
         self.context_networks = [i.cuda() for i in self.context_networks]
         self.cuda()
+
+        self.cost_volume_layer.levels = [nn.DataParallel(i) for i in self.cost_volume_layer.levels]
+        self.optical_flow_estimators = [nn.DataParallel(i) for i in self.optical_flow_estimators]
+        self.context_networks = [nn.DataParallel(i) for i in self.context_networks]
+
 
 
     def forward(self, src_img, tgt_img):
