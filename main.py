@@ -98,13 +98,8 @@ def parse():
 def train(args):
     # Build Model
     # ============================================================
-    
     model = Net(args)
-    if not args.no_cuda:
-        # torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        model.cuda_()
-        ## model = nn.DataParallel(model)
-    model.train()
+    if not args.no_cuda: model.cuda_()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
     
@@ -134,7 +129,6 @@ def train(args):
 
 
     # Init logger
-    # ============================================================
     logger = Logger(args.log_dir)
 
     # Start training
@@ -142,6 +136,7 @@ def train(args):
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
     for step in range(1, args.total_step + 1):
+        model.train()
         
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
@@ -206,7 +201,7 @@ def train(args):
                 # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
                 logger.image_summary(f'input_1', [src_img], step)
                 # logger.image_summary(f'')
-        
+        # print log
         if step % args.log_interval == 0:
             print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
 

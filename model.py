@@ -6,8 +6,6 @@ from torch.autograd import Variable
 from modules import (FeaturePyramidExtractor, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
 
 
-
-
 class Net(nn.Module):
 
 
