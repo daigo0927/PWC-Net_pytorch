@@ -105,7 +105,7 @@ def train(args):
     
     model = Net(args)
     if not args.no_cuda:
-        torch.set_default_tensor_type('torch.cuda.FloatTensor')
+        # torch.set_default_tensor_type('torch.cuda.FloatTensor')
         model.feature_pyramid_extractor.levels = [i.cuda() for i in model.feature_pyramid_extractor.levels]
         model.optical_flow_estimators = [i.cuda() for i in model.optical_flow_estimators]
         model.context_networks = [i.cuda() for i in model.context_networks]
@@ -203,7 +203,7 @@ def train(args):
             if use_logger:
                 if step % args.summary_interval == 0:
                     # add scalar summaries
-                    logger.scalar_summary('loss', loss, step)
+                    logger.scalar_summary('loss', loss.data[0], step)
                     logger.scalar_summary('EPE', epe, step)
 
 

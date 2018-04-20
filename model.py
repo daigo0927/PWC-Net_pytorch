@@ -15,7 +15,6 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.args = args
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
-        self.warping_layer = nn.DataParallel(WarpingLayer(args))
         self.cost_volume_layer = nn.DataParallel(CostVolumeLayer(args))
         self.optical_flow_estimators = [nn.DataParallel(OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
         self.context_networks = [nn.DataParallel(ContextNetwork(args, ch_in + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
@@ -39,17 +38,17 @@ class Net(nn.Module):
             grid = Variable(data = grid, volatile = not self.training)
             grid_pyramid.append(grid)
 
-        # on each level:
-        # 1. upsample the flow estimated from upper level
-        # 2. warp tgt_feature using above flow
-        # 3. build cost volume
-        # 4. estimate flow
+        
         flow_pyramid, flow_refined_pyramid = [], []
         flow_features = []
         for l in range(args.num_levels):
+            # upsample the flow estimated from upper level
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+            # warp tgt_feature
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
+            # build cost volume, time costly
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
+            # estimate flow
             flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
 
             # use context to refine
