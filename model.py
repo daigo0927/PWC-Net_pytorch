@@ -57,7 +57,6 @@ class Net(nn.Module):
             # upsample the flow estimated from upper level
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             # warp tgt_feature
-            print(type(tgt_features[l]), type(grid_pyramid[l]), type(flow))
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
             cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)

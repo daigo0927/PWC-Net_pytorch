@@ -211,7 +211,7 @@ def train(args):
                         # logger.image_summary(f'')
             
             if step % args.log_interval == 0:
-                print(f'Epoch [{epoch}] Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
+                print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
 
 
 def predict(args):
