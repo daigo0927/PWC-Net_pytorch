@@ -195,16 +195,16 @@ def train(args):
             # TODO: add summaries and check
             # flow output on each level
             if use_logger:
-                if step % args.summary_interval == 0:
+                if batch_idx % args.summary_interval == 0:
                     # add scalar summaries
-                    logger.scalar_summary('loss', loss, step)
-                    logger.scalar_summary('EPE', epe, step)
+                    logger.scalar_summary('loss', loss, batch_idx)
+                    logger.scalar_summary('EPE', epe, batch_idx)
 
 
                     # add image summaries
                     for l in args.num_levels:
-                        logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
-                        logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], step)
+                        logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], batch_idx)
+                        logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], batch_idx)
                         # logger.image_summary(f'')
                     pass
             
