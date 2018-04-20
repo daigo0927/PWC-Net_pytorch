@@ -106,7 +106,7 @@ def train(args):
     model = Net(args)
     if not args.no_cuda:
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        model.feature_pyramid_extractor = model.feature_pyramid_extractor.cuda()
+        model.feature_pyramid_extractor.levels = [i.cuda() for i in model.feature_pyramid_extractor.levels]
         model.optical_flow_estimators = [i.cuda() for i in model.optical_flow_estimators]
         model.context_networks = [i.cuda() for i in model.context_networks]
         model = nn.DataParallel(model)
