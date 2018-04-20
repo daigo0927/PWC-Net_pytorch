@@ -15,10 +15,10 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.args = args
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
-        self.warping_layer = WarpingLayer(args)
-        self.cost_volume_layer = CostVolumeLayer(args)
-        self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
-        self.context_networks = [ContextNetwork(args, ch_in + 2) for ch_in in (192, 128, 96, 64, 32, 16)]
+        self.warping_layer = nn.DataParallel(WarpingLayer(args))
+        self.cost_volume_layer = nn.DataParallel(CostVolumeLayer(args))
+        self.optical_flow_estimators = [nn.DataParallel(OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
+        self.context_networks = [nn.DataParallel(ContextNetwork(args, ch_in + 2)) for ch_in in (192, 128, 96, 64, 32, 16)]
     
 
     def forward(self, src_img, tgt_img):
