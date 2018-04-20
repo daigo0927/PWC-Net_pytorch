@@ -40,7 +40,7 @@ def parse():
     parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
     parser.add_argument('--dataset_dir', type = str)
     parser.add_argument('--dataset', type = str)
-    parser.add_argument('--weights', nargs = '+', default = [0.32, 0.08, 0.02, 0.01, 0.005])
+    parser.add_argument('--weights', nargs = '+', default = [0.005, 0.01, 0.02, 0.08, 0.32, 1])
     parser.add_argument('--epsilon', default = 0.02)
     parser.add_argument('--q', default = 0.4)
     parser.add_argument('--gamma', default = 4e-4)
@@ -82,6 +82,7 @@ def parse():
     # ============================================================
     if args.train:
         assert not(args.predict or args.test), 'Only ONE mode should be selected.'
+        assert len(args.weights) == args.num_levels
         assert args.dataset in ['FlyingChairs', 'FlyingThings', 'Sintel', 'KITTI'], 'One dataset should be correctly set as for there are specific hyper-parameters for every dataset'
     elif args.predict:
         assert not(args.train or args.test), 'Only ONE mode should be selected.'
