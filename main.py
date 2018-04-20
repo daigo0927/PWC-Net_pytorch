@@ -159,10 +159,7 @@ def train(args):
             # Forward Pass
             # ============================================================
             # features on each level will downsample to 1/2 from bottom to top
-            import time
-            t = time.time()
             flow_pyramid, summaries = model(src_img, tgt_img)
-            print(time.time() - t)
 
             
             # Compute Loss
@@ -174,8 +171,6 @@ def train(args):
             for l in range(args.num_levels):
                 x = F.avg_pool2d(x, 2)
                 flow_gt_pyramid.insert(0, x)
-            
-            print(len(flow_pyramid), len(flow_gt_pyramid))
 
             loss = criterion(args, flow_pyramid, flow_gt_pyramid)
             epe = 0
