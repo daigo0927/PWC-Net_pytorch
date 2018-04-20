@@ -208,7 +208,7 @@ def train(args):
                         # logger.image_summary(f'')
             
             if batch_idx % args.log_interval == 0:
-                print(f'Epoch [{epoch}] Step [{batch_idx}/{args.total_step}], Loss: {loss:.4f}, EPE: {epe:.4f}')
+                print(f'Epoch [{epoch}] Step [{batch_idx}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
     
     for epoch in range(1, 100 + 1):
         train_epoch(epoch)
