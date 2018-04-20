@@ -174,6 +174,8 @@ def train(args):
         for l in range(args.num_levels):
             x = F.avg_pool2d(x, 2)
             flow_gt_pyramid.insert(0, x)
+        
+        print(len(flow_pyramid), len(flow_gt_pyramid))
 
         loss = criterion(args, flow_pyramid, flow_gt_pyramid)
         epe = 0
