@@ -141,19 +141,25 @@ def train(args):
     
     logger = Logger(args.log_dir)
 
-    def train_epoch(epoch):
-        for batch_idx, (data, target) in enumerate(train_loader):
+    data_iter = iter(train_loader)
+    iter_per_epoch = len(train_loader)
 
-            
+    # Start training
+    for step in range(args.total_step):
+        
+        # Reset the data_iter
+        if (step+1) % iter_per_epoch == 0:
+            data_iter = iter(data_loader)
+
             # Load Data
             # ============================================================
+            data, target = next(data_iter)
             # shape: B,3,H,W
             src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
             # shape: B,2,H,W
             flow_gt = target[0]
             
             if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
-
 
             src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
             
@@ -191,23 +197,20 @@ def train(args):
             # TODO: add summaries and check
             # flow output on each level
             if use_logger:
-                if batch_idx % args.summary_interval == 0:
+                if step % args.summary_interval == 0:
                     # add scalar summaries
-                    logger.scalar_summary('loss', loss, batch_idx)
-                    logger.scalar_summary('EPE', epe, batch_idx)
+                    logger.scalar_summary('loss', loss, step)
+                    logger.scalar_summary('EPE', epe, step)
 
 
                     # add image summaries
                     for l in range(args.num_levels): ...
-                        # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], batch_idx)
-                        #logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], batch_idx)
+                        # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
+                        logger.image_summary(f'input_1', [src_img], step)
                         # logger.image_summary(f'')
             
-            if batch_idx % args.log_interval == 0:
-                print(f'Epoch [{epoch}] Step [{batch_idx}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
-    
-    for epoch in range(1, 100 + 1):
-        train_epoch(epoch)
+            if step % args.log_interval == 0:
+                print(f'Epoch [{epoch}] Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
 
 
 def predict(args):
