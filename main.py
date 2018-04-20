@@ -106,7 +106,7 @@ def train(args):
     model = Net(args)
     if not args.no_cuda:
         # torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        model = model.cuda_()
+        model.cuda_()
         ## model = nn.DataParallel(model)
     model.train()
 
