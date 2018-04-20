@@ -115,6 +115,7 @@ class FeaturePyramidExtractor(nn.Module):
     def forward(self, x):
         args = self.args
         feature_pyramid = []
+        print(type(x.data), next(self.levels[0].parameters()).is_cuda)
         out = self.levels[0](x)
         feature_pyramid.insert(0, out)
         for l in range(1, args.num_levels):
