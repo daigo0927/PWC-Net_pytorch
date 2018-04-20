@@ -59,7 +59,7 @@ class CostVolumeLayer(nn.Module):
         # print('v1:', time.time()-t)
         # t = time.time()
 
-        
+        t = time.time()
         for i in range(args.search_range, H):
             for j in range(args.search_range, W):
                 # x = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
