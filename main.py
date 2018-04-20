@@ -140,77 +140,79 @@ def train(args):
     
     logger = Logger(args.log_dir)
 
-    train_iter = iter(train_loader)
+    def train_epoch(epoch):
+        for batch_idx, (data, target) in enumerate(train_loader):
 
-    for batch_idx, (data, target) in enumerate(train_iter):
-
-        
-        # Load Data
-        # ============================================================
-        # shape: B,3,H,W
-        src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
-        # shape: B,2,H,W
-        flow_gt = target[0]
-        
-        if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
-
-
-        src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
-        
-        # Forward Pass
-        # ============================================================
-        # features on each level will downsample to 1/2 from bottom to top
-        import time
-        t = time.time()
-        flow_pyramid, summaries = model(src_img, tgt_img)
-        print(time.time() - t)
-
-        
-        # Compute Loss
-        # ============================================================
-
-        flow_gt_pyramid = []
-        
-        x = flow_gt
-        for l in range(args.num_levels):
-            x = F.avg_pool2d(x, 2)
-            flow_gt_pyramid.insert(0, x)
-        
-        print(len(flow_pyramid), len(flow_gt_pyramid))
-
-        loss = criterion(args, flow_pyramid, flow_gt_pyramid)
-        epe = 0
+            
+            # Load Data
+            # ============================================================
+            # shape: B,3,H,W
+            src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
+            # shape: B,2,H,W
+            flow_gt = target[0]
+            
+            if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
 
 
-        
-        # Do step
-        # ============================================================
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
+            
+            # Forward Pass
+            # ============================================================
+            # features on each level will downsample to 1/2 from bottom to top
+            import time
+            t = time.time()
+            flow_pyramid, summaries = model(src_img, tgt_img)
+            print(time.time() - t)
+
+            
+            # Compute Loss
+            # ============================================================
+
+            flow_gt_pyramid = []
+            
+            x = flow_gt
+            for l in range(args.num_levels):
+                x = F.avg_pool2d(x, 2)
+                flow_gt_pyramid.insert(0, x)
+            
+            print(len(flow_pyramid), len(flow_gt_pyramid))
+
+            loss = criterion(args, flow_pyramid, flow_gt_pyramid)
+            epe = 0
 
 
-        
-        # Collect Summaries & Output Logs
-        # ============================================================
-        # TODO: add summaries and check
-        # flow output on each level
-        if use_logger:
-            if step % args.summary_interval == 0:
-                # add scalar summaries
-                logger.scalar_summary('loss', loss, step)
-                logger.scalar_summary('EPE', epe, step)
+            
+            # Do step
+            # ============================================================
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
 
-                # add image summaries
-                for l in args.num_levels:
-                    logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
-                    logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], step)
-                    # logger.image_summary(f'')
-                pass
-        
-        if step % args.log_interval == 0:
-            print(f'Step [{step}/{args.total_step}], Loss: {loss:.4f}, EPE: {epe:.4f}')
+            
+            # Collect Summaries & Output Logs
+            # ============================================================
+            # TODO: add summaries and check
+            # flow output on each level
+            if use_logger:
+                if step % args.summary_interval == 0:
+                    # add scalar summaries
+                    logger.scalar_summary('loss', loss, step)
+                    logger.scalar_summary('EPE', epe, step)
+
+
+                    # add image summaries
+                    for l in args.num_levels:
+                        logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
+                        logger.image_summary(f'warped_level{l}', [warped_pyramid[l]], step)
+                        # logger.image_summary(f'')
+                    pass
+            
+            if batch_idx % args.log_interval == 0:
+                print(f'Epoch [{epoch}] Step [{batch_idx}/{args.total_step}], Loss: {loss:.4f}, EPE: {epe:.4f}')
+    
+    for epoch in range(1, 100 + 1):
+        train_epoch(epoch)
 
 
 def predict(args):
