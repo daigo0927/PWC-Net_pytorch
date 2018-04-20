@@ -11,14 +11,10 @@ from torch.utils.data import DataLoader
 from model import Net
 from losses import get_criterion
 from dataset import (FlyingChairs, FlyingThings, Sintel, KITTI)
-try:
-    import tensorflow as tf
-    use_logger = True
-except Exception:
-    use_logger = False
 
-if use_logger:
-    from logger import Logger
+import tensorflow as tf
+
+from logger import Logger
 from flow_utils import (flow_to_image, save_flow)
 
 
@@ -174,7 +170,6 @@ def train(args):
             # ============================================================
 
             flow_gt_pyramid = []
-            
             x = flow_gt
             for l in range(args.num_levels):
                 x = F.avg_pool2d(x, 2)
@@ -197,18 +192,17 @@ def train(args):
             # ============================================================
             # TODO: add summaries and check
             # flow output on each level
-            if use_logger:
-                if step % args.summary_interval == 0:
-                    # add scalar summaries
-                    logger.scalar_summary('loss', loss.data[0], step)
-                    logger.scalar_summary('EPE', epe, step)
+            if step % args.summary_interval == 0:
+                # add scalar summaries
+                logger.scalar_summary('loss', loss.data[0], step)
+                logger.scalar_summary('EPE', epe, step)
 
 
-                    # add image summaries
-                    for l in range(args.num_levels): 
-                        # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
-                        logger.image_summary(f'input_1', [src_img], step)
-                        # logger.image_summary(f'')
+                # add image summaries
+                for l in range(args.num_levels): 
+                    # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
+                    logger.image_summary(f'input_1', [src_img], step)
+                    # logger.image_summary(f'')
             
             if step % args.log_interval == 0:
                 print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
