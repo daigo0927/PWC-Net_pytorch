@@ -15,8 +15,8 @@ class WarpingLayer(nn.Module):
         # build coord matrix
 
         torch.set_default_tensor_type('torch.FloatTensor')
-        torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3), out = torch.FloatTensor).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
-        torchVertical = torch.linspace(-1.0, 1.0, x.size(2), out = torch.FloatTensor).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
+        torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
+        torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
         if not args.no_cuda:
             torchHorizontal = torchHorizontal.cuda()
