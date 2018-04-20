@@ -3,6 +3,7 @@ import argparse
 import imageio
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
@@ -102,7 +103,7 @@ def train(args):
     # Build Model
     # ============================================================
     
-    model = Net(args)
+    model = nn.DataParallel(Net(args))
     if not args.no_cuda:
         model = model.cuda()
         model.optical_flow_estimators = [i.cuda() for i in model.optical_flow_estimators]
