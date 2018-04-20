@@ -83,7 +83,7 @@ class CostVolumeLayer(nn.Module):
         tgt_neigh = torch.stack(tgt_neigh, dim = 2)
         
 
-        output = (src.unsqueeze(2) * tgt_neigh).sum(dim = 1)
+        output = (src.unsqueeze(dim = 2) * tgt_neigh).sum(dim = 1)
         print('v3:', time.time()-t)
 
         return output
