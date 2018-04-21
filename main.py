@@ -70,7 +70,9 @@ def parse():
 
     # image input size
     # ============================================================
-    parser.add_argument('--crop_shape', nargs = '+', default = [384, 448])
+    parser.add_argument('--crop_shape', type = int, nargs = '+', default = [384, 448])
+    parser.add_argument('--resize_shape', nargs = '+', default = None)
+    parser.add_argument('--resize_scale', type = float, default = None)
     parser.add_argument('--num_levels', type = int, default = 6)
     parser.add_argument('--lv_chs', nargs = '+', default = [16, 32, 64, 96, 128, 192])
 
