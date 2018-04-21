@@ -233,6 +233,8 @@ def predict(args):
         def __call__(self, img):
             return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
 
+    src_img = np.array(src_img)
+    tgt_img = np.array(tgt_img)
 
     if args.crop_shape is not None:
         cropper = StaticCenterCrop(src_img.shape[:2], args.crop_shape)
@@ -243,9 +245,9 @@ def predict(args):
     elif args.resize_scale is not None:
         resizer = partial(cv2.resize, dsize = (0,0), fx = args.resize_scale, fy = args.resize_scale)
         src_img, tgt_img = map(resizer, [src_img, tgt_img])
-        
-    src_img = np.array(src_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
-    tgt_img = np.array(tgt_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
+
+    src_img = src_img[np.newaxis,:,:,:].transpose(0,3,1,2)
+    tgt_img = tgt_img[np.newaxis,:,:,:].transpose(0,3,1,2)
 
 
     src_img = Variable(torch.Tensor(src_img))
