@@ -58,13 +58,13 @@ def parse():
     # ============================================================
     parser.add_argument('-i', '--input', nargs = 2)
     parser.add_argument('-o', '--output', default = 'output.flo')
+    parser.add_argument('--load', type = str)
 
 
 
     # shared args
     # ============================================================
     parser.add_argument('--search_range', type = int, default = 4)
-    parser.add_argument('--model', type = str)
     parser.add_argument('--no_cuda', action = 'store_true')
 
 
