@@ -52,8 +52,7 @@ class Net(nn.Module):
             grid_pyramid.append(grid)
 
         
-        flow_pyramid, flow_refined_pyramid = [], []
-        flow_features = []
+        flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
         for l in range(args.num_levels):
             # upsample the flow estimated from upper level
             flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
@@ -70,9 +69,7 @@ class Net(nn.Module):
             # use context to refine
             flow_refined = self.context_networks[l](src_features[l], flow)
 
-            flow_features.append(flow_feature)
-            flow_pyramid.append(flow)
-            flow_refined_pyramid.append(flow_refined)
+            flow_features.append(flow_feature); flow_pyramid.append(flow); flow_refined_pyramid.append(flow_refined)
 
         summaries = dict()
         summaries['flow_feature'] = flow_features
