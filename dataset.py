@@ -151,7 +151,7 @@ class Sintel(BaseDataset):
         collections = [list(g) for k, g in groupby(collections_of_scenes, lambda x: x.split('/')[-2])]
 
         samples = [(*i, i[0].replace(self.mode, 'flow').replace('.png', '.flo')) for collection in collections for i in window(collection, 2)]
-        self.split()
+        self.split(samples)
 
 
 # KITTI

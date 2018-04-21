@@ -2,6 +2,7 @@
 Still in progress, even no guarantee of a complete version, so feel free to copy/fork/PR/..., do anything you want.
 
 **News**
+- Offical repo [deqings/PWC-Net](https://github.com/deqings/PWC-Net) is released.
 - Training code for FlyingChairs & Sintel is released.
     - Tested with CUDA 8.0, PyTorch 0.3, CentOS 7.
     - Due to my bad cost volume layer, batchsize=8 will occupy 9000MB+ memory on each GPU.
@@ -17,7 +18,7 @@ Still in progress, even no guarantee of a complete version, so feel free to copy
 This is an unofficial pytorch implementation of CVPR2018 paper: Deqing Sun *et al.* **"PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume"**.
 
 Resources:  
-[arXiv](https://arxiv.org/abs/1709.02371)
+[arXiv](https://arxiv.org/abs/1709.02371) | [offical caffe](https://github.com/deqings/PWC-Net)
 
 
 # Usage
