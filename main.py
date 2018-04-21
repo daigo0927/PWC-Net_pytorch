@@ -232,7 +232,7 @@ def predict(args):
             self.h, self.w = image_size
             print(self.th, self.tw, self.h, self.w)
         def __call__(self, img):
-            print(type(img))
+            print(type(img), img.shape)
             return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
 
     src_img = np.array(src_img)
