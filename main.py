@@ -21,7 +21,7 @@ from pathlib import Path
 from flow_utils import (flow_to_image, save_flow)
 
 
-def parse():
+def main():
     parser = argparse.ArgumentParser(description='Structure from Motion Learner training on KITTI and CityScapes Dataset',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # mode selection
@@ -30,9 +30,9 @@ def parse():
                                 description='valid modes',  
                                 help='additional help',  
                                 dest='subparser_name')
-    train_parser = modes.add_parser('train')
-    pred_parser = modes.add_parser('pred')
-    test_parser = modes.add_parser('eval')
+    train_parser = modes.add_parser('train'); train_parser.set_defaults(func = train)
+    pred_parser = modes.add_parser('pred'); pred_parser.set_defaults(func = pred)
+    test_parser = modes.add_parser('eval'); test_parser.set_defaults(func = test)
 
 
 
@@ -108,7 +108,7 @@ def parse():
     else:
         raise RuntimeError('use train/predict/test to select a mode')
 
-    return args
+    args.func(args)
 
 
 
@@ -288,11 +288,5 @@ def test(args):
 
 
 
-def main(args):
-    eval(f'{args.subparser_name}(args)')
-
-
-
 if __name__ == '__main__':
-    args = parse()
-    main(args)
+    main()

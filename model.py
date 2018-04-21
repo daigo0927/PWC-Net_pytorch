@@ -60,7 +60,7 @@ class Net(nn.Module):
             # warp tgt_feature
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
-            if args.use_cost_volume
+            if args.use_cost_volume:
                 cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
                 # estimate flow
                 flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
