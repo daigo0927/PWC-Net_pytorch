@@ -227,6 +227,26 @@ def predict(args):
     src_img, tgt_img = map(imageio.imread, args.input)
     src_img = np.array(src_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
     tgt_img = np.array(tgt_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
+
+    class StaticCenterCrop(object):
+        def __init__(self, image_size, crop_size):
+            self.th, self.tw = crop_size
+            self.h, self.w = image_size
+        def __call__(self, img):
+            return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
+
+
+    if self.crop_shape is not None:
+        cropper = StaticCenterCrop(img1.shape[:2], self.crop_shape)
+        src_img, tgt_img = map(cropper, [src_img, tgt_img])
+    if self.resize_shape is not None:
+        resizer = partial(cv2.resize, dsize = (0,0), dst = self.resize_shape)
+        src_img, tgt_img = map(resizer, [src_img, tgt_img])
+    elif self.resize_scale is not None:
+        resizer = partial(cv2.resize, dsize = (0,0), fx = self.resize_scale, fy = self.resize_scale)
+        src_img, tgt_img = map(resizer, [src_img, tgt_img])
+
+
     src_img = Variable(torch.Tensor(src_img))
     tgt_img = Variable(torch.Tensor(tgt_img))
     if not args.no_cuda: src_img, tgt_img = map(lambda x: x.cuda(), [src_img, tgt_img])
