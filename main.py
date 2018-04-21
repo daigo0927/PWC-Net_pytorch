@@ -230,7 +230,9 @@ def predict(args):
         def __init__(self, image_size, crop_size):
             self.th, self.tw = crop_size
             self.h, self.w = image_size
+            print(self.th, self.tw, self.h, self.w)
         def __call__(self, img):
+            print(type(img))
             return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
 
     src_img = np.array(src_img)
