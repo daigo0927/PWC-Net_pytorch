@@ -240,7 +240,8 @@ def predict(args):
 
     if args.crop_shape is not None:
         cropper = StaticCenterCrop(src_img.shape[:2], args.crop_shape)
-        src_img, tgt_img = map(cropper, [src_img, tgt_img])
+        src_img = cropper(src_img)
+        tgt_img = cropper(tgt_img)
     if args.resize_shape is not None:
         resizer = partial(cv2.resize, dsize = (0,0), dst = args.resize_shape)
         src_img, tgt_img = map(resizer, [src_img, tgt_img])
