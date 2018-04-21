@@ -71,7 +71,7 @@ def parse():
     # image input size
     # ============================================================
     parser.add_argument('--crop_shape', type = int, nargs = '+', default = [384, 448])
-    parser.add_argument('--resize_shape', nargs = '+', default = None)
+    parser.add_argument('--resize_shape', nargs = 2, type = int, default = None)
     parser.add_argument('--resize_scale', type = float, default = None)
     parser.add_argument('--num_levels', type = int, default = 6)
     parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
@@ -117,7 +117,7 @@ def train(args):
     
     # Prepare Dataloader
     # ============================================================
-    train_dataset, eval_dataset = eval("{0}('{1}', 'train', shape = {2}), {0}('{1}', 'test', shape = {2})".format(args.dataset, args.dataset_dir, args.crop_shape))
+    train_dataset, eval_dataset = eval("{0}('{1}', 'train', crop_shape = {2}, resize_shape = {3}, resize_scale = {4}), {0}('{1}', 'test', crop_shape = {2}, resize_shape = {3}, resize_scale = {4})".format(args.dataset, args.dataset_dir, args.crop_shape, args.resize_shape, args.resize_scale))
 
     train_loader = DataLoader(train_dataset,
                             batch_size = args.batch_size,
