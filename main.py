@@ -74,7 +74,7 @@ def parse():
     parser.add_argument('--resize_shape', nargs = '+', default = None)
     parser.add_argument('--resize_scale', type = float, default = None)
     parser.add_argument('--num_levels', type = int, default = 6)
-    parser.add_argument('--lv_chs', nargs = '+', default = [16, 32, 64, 96, 128, 192])
+    parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
 
     
     
