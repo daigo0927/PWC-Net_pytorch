@@ -26,79 +26,90 @@ def parse():
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # mode selection
     # ============================================================
-    parser.add_argument('--train', action = 'store_true')
-    parser.add_argument('--predict', action = 'store_true')
-    parser.add_argument('--test', action = 'store_true')
+    modes = parser.add_subparsers(title='modes',  
+                                description='valid modes',  
+                                help='additional help',  
+                                dest='subparser_name')
+    train_parser = modes.add_parser('train')
+    pred_parser = modes.add_parser('pred')
+    test_parser = modes.add_parser('eval')
 
 
 
-    # mode=train args
+    # train_parser
     # ============================================================
+    # dataflow
+    train_parser.add_argument('--crop_shape', type = int, nargs = '+', default = [384, 448])
+    train_parser.add_argument('--resize_shape', nargs = 2, type = int, default = None)
+    train_parser.add_argument('--resize_scale', type = float, default = None)
+    train_parser.add_argument('--num_workers', default = 1, type = int, help = 'num of workers')
+    train_parser.add_argument('--batch_size', default = 8, type=int, help='mini-batch size')
+    train_parser.add_argument('--dataset_dir', type = str)
+    train_parser.add_argument('--dataset', type = str)
+
+    # net
+    train_parser.add_argument('--num_levels', type = int, default = 6)
+    train_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
+    train_parser.add_argument('--use_cost_volume', type = bool, default = True)
+
+    # loss
+    train_parser.add_argument('--weights', nargs = '+', type = float, default = [0.005, 0.01, 0.02, 0.08, 0.32, 1])
+    train_parser.add_argument('--epsilon', default = 0.02)
+    train_parser.add_argument('--q', default = 0.4)
     
-    parser.add_argument('--num_workers', default = 1, type = int, help = 'num of workers')
-    parser.add_argument('--batch_size', default = 8, type=int, help='mini-batch size')
-    parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
-    parser.add_argument('--dataset_dir', type = str)
-    parser.add_argument('--dataset', type = str)
-    parser.add_argument('--weights', nargs = '+', type = float, default = [0.005, 0.01, 0.02, 0.08, 0.32, 1])
-    parser.add_argument('--epsilon', default = 0.02)
-    parser.add_argument('--q', default = 0.4)
-    parser.add_argument('--gamma', default = 4e-4)
-    parser.add_argument('--lr', default = 4e-4)
-    parser.add_argument('--momentum', default = 4e-4)
-    parser.add_argument('--beta', default = 0.99)
-    parser.add_argument('--weight_decay', default = 4e-4)
-    parser.add_argument('--total_step', default = 200 * 1000)
+    # optimize
+    train_parser.add_argument('--lr', default = 4e-4)
+    train_parser.add_argument('--momentum', default = 4e-4)
+    train_parser.add_argument('--beta', default = 0.99)
+    train_parser.add_argument('--weight_decay', default = 4e-4)
+    train_parser.add_argument('--total_step', default = 200 * 1000)
+
     # summary & log args
-    parser.add_argument('--summary_interval', type = int, default = 100)
-    parser.add_argument('--log_interval', type = int, default = 100)
-    parser.add_argument('--checkpoint_interval', type = int, default = 100)
+    train_parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
+    train_parser.add_argument('--summary_interval', type = int, default = 100)
+    train_parser.add_argument('--log_interval', type = int, default = 100)
+    train_parser.add_argument('--checkpoint_interval', type = int, default = 100)
 
 
 
-    # mode=predict args
+    # pred_parser
     # ============================================================
-    parser.add_argument('-i', '--input', nargs = 2)
-    parser.add_argument('-o', '--output', default = 'output.flo')
-    parser.add_argument('--load', type = str)
+    pred_parser.add_argument('-i', '--input', nargs = 2)
+    pred_parser.add_argument('-o', '--output', default = 'output.flo')
+    pred_parser.add_argument('--load', type = str)
 
 
 
-    # shared args
+    # eval_parser
+    # ============================================================
+    test_parser.add_argument('--load', type = str)
+
+
+
+    # public_parser
     # ============================================================
     parser.add_argument('--search_range', type = int, default = 4)
     parser.add_argument('--no_cuda', action = 'store_true')
 
-
-    # image input size
-    # ============================================================
-    parser.add_argument('--crop_shape', type = int, nargs = '+', default = [384, 448])
-    parser.add_argument('--resize_shape', nargs = 2, type = int, default = None)
-    parser.add_argument('--resize_scale', type = float, default = None)
-    parser.add_argument('--num_levels', type = int, default = 6)
-    parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
-
-    
-    
-
     args = parser.parse_args()
+
+
     # check args
     # ============================================================
-    if args.train:
-        assert not(args.predict or args.test), 'Only ONE mode should be selected.'
+    if args.subparser_name == 'train':
         assert len(args.weights) == len(args.lv_chs) == args.num_levels
         assert args.dataset in ['FlyingChairs', 'FlyingThings', 'Sintel', 'KITTI'], 'One dataset should be correctly set as for there are specific hyper-parameters for every dataset'
-    elif args.predict:
-        assert not(args.train or args.test), 'Only ONE mode should be selected.'
+    elif args.subparser_name == 'pred':
         assert args.input is not None, 'TWO input image path should be given.'
         assert args.load is not None
-    elif args.test:
+    elif args.subparser_name == 'test':
         assert not(args.train or args.predict), 'Only ONE mode should be selected.'
         assert args.load is not None
     else:
-        raise RuntimeError('use --train/predict/test to select a mode')
+        raise RuntimeError('use train/predict/test to select a mode')
 
     return args
+
 
 
 def train(args):
@@ -131,8 +142,6 @@ def train(args):
                             shuffle = True,
                             num_workers = args.num_workers,
                             pin_memory = True)
-
-
 
     # Init logger
     logger = Logger(args.log_dir)
@@ -167,8 +176,6 @@ def train(args):
             x = F.avg_pool2d(x, 2)
             flow_gt_pyramid.insert(0, x)
 
-
-        
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
@@ -214,7 +221,8 @@ def train(args):
             print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
 
 
-def predict(args):
+
+def pred(args):
     # TODO
     # Build Model
     # ============================================================
@@ -279,10 +287,10 @@ def test(args):
     pass
 
 
+
 def main(args):
-    if args.train: train(args)
-    elif args.predict: predict(args)
-    else: test(args)
+    eval(f'{args.subparser_name}(args)')
+
 
 
 if __name__ == '__main__':

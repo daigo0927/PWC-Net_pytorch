@@ -116,7 +116,8 @@ def flow_to_image(flow, logscale = False, output = False, scaledown = 1):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    flow = load_flow('result.flo')
+    flow = load_flow('13382_flow.flo')
+    #flow = load_flow('datasets/Sintel/training/flow/alley_1/frame_0001.flo')
     img = flow_to_image(flow)
     
     plt.imshow(img)

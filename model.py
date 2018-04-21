@@ -13,8 +13,11 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.args = args
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
-        self.cost_volume_layer = CostVolumeLayer(args)
-        self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in args.lv_chs[::-1]]
+        if args.use_cost_volume:
+            self.cost_volume_layer = CostVolumeLayer(args)
+            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in args.lv_chs[::-1]]
+        else:
+            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2) for ch_in in args.lv_chs[::-1]]
         self.context_networks = [ContextNetwork(args, ch_in + 2) for ch_in in args.lv_chs[::-1]]
     
     def cuda_(self):
@@ -57,9 +60,12 @@ class Net(nn.Module):
             # warp tgt_feature
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
-            cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
-            # estimate flow
-            flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
+            if args.use_cost_volume
+                cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
+                # estimate flow
+                flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
+            else:
+                flow_feature, flow = self.optical_flow_estimators[l](src_features[l], tgt_features[l], flow)
 
             # use context to refine
             flow_refined = self.context_networks[l](src_features[l], flow)
