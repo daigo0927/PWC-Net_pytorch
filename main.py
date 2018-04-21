@@ -135,15 +135,15 @@ def train(args):
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
+    model.train()
     for step in range(1, args.total_step + 1):
-        model.train()
-        
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
 
         # Load Data
         # ============================================================
         data, target = next(data_iter)
+        print(data[0].size(), target[0].size())
         # shape: B,3,H,W
         src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
         # shape: B,2,H,W
@@ -166,8 +166,9 @@ def train(args):
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
+        print('before feed')
         flow_pyramid, summaries = model(src_img, tgt_img)
-
+        print('out!')
 
         
         # Compute Loss
