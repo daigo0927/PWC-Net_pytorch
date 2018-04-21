@@ -77,6 +77,7 @@ class FeaturePyramidExtractor(nn.Module):
         self.levels = []
         for l in range(args.num_levels):
             layer = nn.DataParallel(nn.Sequential(
+                print(args.lv_chs[l])
                 nn.Conv2d(in_channels = 3 if l == 0 else args.lv_chs[l-1], out_channels = args.lv_chs[l], kernel_size = 3, stride = 2, padding = 1, dilation = 1, groups = 1, bias = True),
                 nn.LeakyReLU(inplace = True),
                 nn.Conv2d(in_channels = args.lv_chs[l], out_channels = args.lv_chs[l], kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
