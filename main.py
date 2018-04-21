@@ -89,10 +89,10 @@ def parse():
     elif args.predict:
         assert not(args.train or args.test), 'Only ONE mode should be selected.'
         assert args.input is not None, 'TWO input image path should be given.'
-        assert args.model is not None
+        assert args.load is not None
     elif args.test:
         assert not(args.train or args.predict), 'Only ONE mode should be selected.'
-        assert args.model is not None
+        assert args.load is not None
     else:
         raise RuntimeError('use --train/predict/test to select a mode')
 
