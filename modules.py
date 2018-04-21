@@ -76,7 +76,6 @@ class FeaturePyramidExtractor(nn.Module):
         # so here uses setattr to add levels
         self.levels = []
         for l in range(args.num_levels):
-            print(args.lv_chs[l])
             layer = nn.DataParallel(nn.Sequential(
                 nn.Conv2d(in_channels = 3 if l == 0 else args.lv_chs[l-1], out_channels = args.lv_chs[l], kernel_size = 3, stride = 2, padding = 1),
                 nn.LeakyReLU(inplace = True),

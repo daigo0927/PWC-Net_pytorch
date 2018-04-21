@@ -38,7 +38,7 @@ def parse():
     parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
     parser.add_argument('--dataset_dir', type = str)
     parser.add_argument('--dataset', type = str)
-    parser.add_argument('--weights', nargs = '+', default = [0.005, 0.01, 0.02, 0.08, 0.32, 1])
+    parser.add_argument('--weights', nargs = '+', type = float, default = [0.005, 0.01, 0.02, 0.08, 0.32, 1])
     parser.add_argument('--epsilon', default = 0.02)
     parser.add_argument('--q', default = 0.4)
     parser.add_argument('--gamma', default = 4e-4)
