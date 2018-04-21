@@ -264,7 +264,7 @@ def predict(args):
     flow_pyramid, summaries = model(src_img, tgt_img)
     flow = flow_pyramid[-1]
     print(flow.size())
-    flow = np.array(flow.data).transpose()
+    flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
     flow_vis = flow_to_image(flow)
     imageio.imwrite(args.output.replace('.flo', '.png'), flow_vis)
