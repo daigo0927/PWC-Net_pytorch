@@ -227,7 +227,9 @@ def predict(args):
     src_img, tgt_img = map(imageio.imread, args.input)
     src_img = np.array(src_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
     tgt_img = np.array(tgt_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
-    
+    src_img = Variable(torch.Tensor(src_img))
+    tgt_img = Variable(torch.Tensor(tgt_img))
+    if not args.no_cuda: src_img, tgt_img = map(lambda x: x.cuda(), [src_img, tgt_img])
     
 
     # Forward Pass
