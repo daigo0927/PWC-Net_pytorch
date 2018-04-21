@@ -261,7 +261,7 @@ def predict(args):
 
     # Forward Pass
     # ============================================================
-    flow_pyramid = model(src_img, tgt_img)
+    flow_pyramid, summaries = model(src_img, tgt_img)
     flow = flow_pyramid[-1]
     save_flow(args.output, flow)
     flow_vis = flow_to_image(flow)
