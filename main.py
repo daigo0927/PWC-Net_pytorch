@@ -217,6 +217,7 @@ def predict(args):
     # Build Model
     # ============================================================
     model = Net(args)
+    if not args.no_cuda: model.cuda_()
     model.load_state_dict(torch.load(args.load))
     model.eval()
     
