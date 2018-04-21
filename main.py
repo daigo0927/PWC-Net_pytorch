@@ -15,6 +15,7 @@ from dataset import (FlyingChairs, FlyingThings, Sintel, KITTI)
 import tensorflow as tf
 
 from logger import Logger
+from pathlib import Path
 from flow_utils import (flow_to_image, save_flow)
 
 
@@ -49,6 +50,7 @@ def parse():
     # summary & log args
     parser.add_argument('--summary_interval', type = int, default = 100)
     parser.add_argument('--log_interval', type = int, default = 100)
+    parser.add_argument('--checkpoint_interval', type = int, default = 100)
 
 
 
@@ -130,6 +132,7 @@ def train(args):
 
     # Init logger
     logger = Logger(args.log_dir)
+    p_log = Path(args.log_dir)
 
     # Start training
     # ============================================================
@@ -143,7 +146,6 @@ def train(args):
         # Load Data
         # ============================================================
         data, target = next(data_iter)
-        print(data[0].size(), target[0].size())
         # shape: B,3,H,W
         src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
         # shape: B,2,H,W
@@ -166,9 +168,7 @@ def train(args):
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
-        print('before feed')
         flow_pyramid, summaries = model(src_img, tgt_img)
-        print('out!')
 
         
         # Compute Loss
@@ -202,6 +202,9 @@ def train(args):
                 # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
                 # logger.image_summary(f'input_1', [src_img], step)
                 # logger.image_summary(f'')
+        # save model
+        if step % args.checkpoint_interval == 0:
+            torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
         # print log
         if step % args.log_interval == 0:
             print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
