@@ -236,13 +236,13 @@ def predict(args):
             return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
 
 
-    if self.crop_shape is not None:
+    if args.crop_shape is not None:
         cropper = StaticCenterCrop(img1.shape[:2], self.crop_shape)
         src_img, tgt_img = map(cropper, [src_img, tgt_img])
-    if self.resize_shape is not None:
+    if args.resize_shape is not None:
         resizer = partial(cv2.resize, dsize = (0,0), dst = self.resize_shape)
         src_img, tgt_img = map(resizer, [src_img, tgt_img])
-    elif self.resize_scale is not None:
+    elif args.resize_scale is not None:
         resizer = partial(cv2.resize, dsize = (0,0), fx = self.resize_scale, fy = self.resize_scale)
         src_img, tgt_img = map(resizer, [src_img, tgt_img])
 
