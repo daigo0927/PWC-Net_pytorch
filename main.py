@@ -224,8 +224,8 @@ def predict(args):
     # Load Data
     # ============================================================
     src_img, tgt_img = map(imageio.imread, args.input)
-    src_img = src_img[np.newaxis,:,:,:].transposed(0,3,1,2)
-    tgt_img = tgt_img[np.newaxis,:,:,:].transposed(0,3,1,2)
+    src_img = np.array(src_img)[np.newaxis,:,:,:].transposed(0,3,1,2)
+    tgt_img = np.array(tgt_img)[np.newaxis,:,:,:].transposed(0,3,1,2)
     
     
 
