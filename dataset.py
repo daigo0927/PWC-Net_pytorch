@@ -46,6 +46,7 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
     def __init__(self): pass
     def __len__(self): return len(self.samples)
     def __getitem__(self, idx):
+        print(f'get item {idx}')
         img1_path, img2_path, flow_path = self.samples[idx]
         img1, img2 = map(imageio.imread, (img1_path, img2_path))
         flow = load_flow(flow_path)
