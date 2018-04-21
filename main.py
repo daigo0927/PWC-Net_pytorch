@@ -2,6 +2,7 @@ from datetime import datetime
 import argparse
 import imageio
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
