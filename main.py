@@ -225,8 +225,6 @@ def predict(args):
     # Load Data
     # ============================================================
     src_img, tgt_img = map(imageio.imread, args.input)
-    src_img = np.array(src_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
-    tgt_img = np.array(tgt_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
 
     class StaticCenterCrop(object):
         def __init__(self, image_size, crop_size):
@@ -245,6 +243,9 @@ def predict(args):
     elif args.resize_scale is not None:
         resizer = partial(cv2.resize, dsize = (0,0), fx = args.resize_scale, fy = args.resize_scale)
         src_img, tgt_img = map(resizer, [src_img, tgt_img])
+        
+    src_img = np.array(src_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
+    tgt_img = np.array(tgt_img)[np.newaxis,:,:,:].transpose(0,3,1,2)
 
 
     src_img = Variable(torch.Tensor(src_img))
