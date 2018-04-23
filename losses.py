@@ -10,5 +10,5 @@ def training_loss(args, flow_pyramid, flow_gt_pyramid):
     
     
 def robust_training_loss(args, flow_pyramid, flow_gt_pyramid):
-    return sum(args.weights[l] * ((flow_pyramid[l] - flow_gt_pyramid[l]).abs() + args.epsilon) ** args.q for l in range(args.num_levels))
+    return sum(args.weights[l] * ((flow_pyramid[l] - flow_gt_pyramid[l]).abs().sum() + args.epsilon) ** args.q for l in range(args.num_levels))
     

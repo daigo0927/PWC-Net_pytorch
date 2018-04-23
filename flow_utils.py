@@ -1,6 +1,6 @@
 import numpy as np
 
-__all__ = ['load_flow', 'save_flow', 'flow_to_image']
+__all__ = ['load_flow', 'save_flow', 'vis_flow']
 
 def load_flow(path):
     with open(path, 'rb') as f:
@@ -92,7 +92,7 @@ def computeColor(u, v):
 	a = np.arctan2(-v, -u) / np.pi
 	fk = (a+1) /2 * (ncols-1) # -1~1 maped to 1~ncols
 	k0 = fk.astype(np.uint8)	 # 1, 2, ..., ncols
-	k1 = k0+1;
+	k1 = k0+1
 	k1[k1 == ncols] = 0
 	f = fk - k0
 
@@ -112,13 +112,12 @@ def computeColor(u, v):
 
 
 def vis_flow(flow):
-
 	eps = sys.float_info.epsilon
 	UNKNOWN_FLOW_THRESH = 1e9
 	UNKNOWN_FLOW = 1e10
 
-	u = flow[: , : , 0]
-	v = flow[: , : , 1]
+	u = flow[:,:,0]
+	v = flow[:,:,1]
 
 	maxu = -999
 	maxv = -999

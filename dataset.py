@@ -27,7 +27,7 @@ class StaticCenterCrop(object):
         self.th, self.tw = crop_size
         self.h, self.w = image_size
     def __call__(self, img):
-        return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
+        return img[(self.h-self.th)//2:(self.h+self.th)//2, (self.w-self.tw)//2:(self.w+self.tw)//2,:]
 
 
 def window(seq, n=2):
@@ -57,7 +57,9 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
 
         images = [img1, img2]
         if self.crop_shape is not None:
-            cropper = StaticRandomCrop(img1.shape[:2], self.crop_shape)
+            
+            cropper = StaticRandomCrop(img1.shape[:2], self.crop_shape) if self.cropper == 'random' else StaticCenterCrop(img1.shape[:2], self.crop_shape)
+            # print(cropper)
             images = list(map(cropper, images))
             flow = cropper(flow)
         if self.resize_shape is not None:
@@ -105,10 +107,11 @@ class BaseDataset(Dataset, metaclass = ABCMeta):
 # FlyingChairs
 # ============================================================
 class FlyingChairs(BaseDataset):
-    def __init__(self, dataset_dir, train_or_test = 'train', color = 'rgb', crop_shape = None, resize_shape = None, resize_scale = None):
+    def __init__(self, dataset_dir, train_or_test = 'train', color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale = None):
         super(FlyingChairs, self).__init__()
         assert train_or_test in ['train', 'test']
         self.color = color
+        self.cropper = cropper
         self.crop_shape = crop_shape
         self.resize_shape = resize_shape
         self.resize_scale = resize_scale
@@ -138,10 +141,11 @@ class FlyingThings(BaseDataset):
 class Sintel(BaseDataset):
 
 
-    def __init__(self, dataset_dir, train_or_test, mode = 'final', color = 'rgb', crop_shape = None, resize_shape = None, resize_scale = None):
+    def __init__(self, dataset_dir, train_or_test, mode = 'final', color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale = None):
         super(Sintel, self).__init__()
         self.mode = mode
         self.color = color
+        self.cropper = cropper
         self.crop_shape = crop_shape
         self.resize_shape = resize_shape
         self.resize_scale = resize_scale

@@ -18,7 +18,7 @@ import tensorflow as tf
 
 from logger import Logger
 from pathlib import Path
-from flow_utils import (flow_to_image, save_flow)
+from flow_utils import (vis_flow, save_flow)
 
 
 def main():
@@ -39,6 +39,7 @@ def main():
     # train_parser
     # ============================================================
     # dataflow
+    train_parser.add_argument('--crop_type', type = str, default = 'random')
     train_parser.add_argument('--crop_shape', type = int, nargs = '+', default = [384, 448])
     train_parser.add_argument('--resize_shape', nargs = 2, type = int, default = None)
     train_parser.add_argument('--resize_scale', type = float, default = None)
@@ -50,15 +51,15 @@ def main():
     # net
     train_parser.add_argument('--num_levels', type = int, default = 6)
     train_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
-    train_parser.add_argument('--use_cost_volume', type = bool, default = True)
+    train_parser.add_argument('--no_cost_volume', action = 'store_true')
 
     # loss
-    train_parser.add_argument('--weights', nargs = '+', type = float, default = [0.005, 0.01, 0.02, 0.08, 0.32, 1])
+    train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,0.32,0.08,0.02,0.01,0.005])
     train_parser.add_argument('--epsilon', default = 0.02)
     train_parser.add_argument('--q', default = 0.4)
     
     # optimize
-    train_parser.add_argument('--lr', default = 4e-4)
+    train_parser.add_argument('--lr', type = float, default = 4e-4)
     train_parser.add_argument('--momentum', default = 4e-4)
     train_parser.add_argument('--beta', default = 0.99)
     train_parser.add_argument('--weight_decay', default = 4e-4)
@@ -69,6 +70,7 @@ def main():
     train_parser.add_argument('--summary_interval', type = int, default = 100)
     train_parser.add_argument('--log_interval', type = int, default = 100)
     train_parser.add_argument('--checkpoint_interval', type = int, default = 100)
+    train_parser.add_argument('--max_output', type = int, default = 3)
 
 
 
@@ -130,7 +132,7 @@ def train(args):
     
     # Prepare Dataloader
     # ============================================================
-    train_dataset, eval_dataset = eval("{0}('{1}', 'train', crop_shape = {2}, resize_shape = {3}, resize_scale = {4}), {0}('{1}', 'test', crop_shape = {2}, resize_shape = {3}, resize_scale = {4})".format(args.dataset, args.dataset_dir, args.crop_shape, args.resize_shape, args.resize_scale))
+    train_dataset, eval_dataset = eval("{0}('{1}', 'train', cropper = '{5}', crop_shape = {2}, resize_shape = {3}, resize_scale = {4}), {0}('{1}', 'test', cropper = '{5}', crop_shape = {2}, resize_shape = {3}, resize_scale = {4})".format(args.dataset, args.dataset_dir, args.crop_shape, args.resize_shape, args.resize_scale, args.crop_type))
 
     train_loader = DataLoader(train_dataset,
                             batch_size = args.batch_size,
@@ -160,7 +162,8 @@ def train(args):
         # ============================================================
         data, target = next(data_iter)
         # shape: B,3,H,W
-        src_img, tgt_img = map(torch.squeeze, data[0].split(split_size = 1, dim = 2))
+        squeezer = partial(torch.squeeze, dim = 2)
+        src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
         # shape: B,2,H,W
         flow_gt = target[0]
         if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
@@ -209,9 +212,15 @@ def train(args):
 
 
             # add image summaries
-            for l in range(args.num_levels): ...
-                # logger.image_summary(f'flow_level{l}', [flow_pyramid[l]], step)
-                # logger.image_summary(f'input_1', [src_img], step)
+            B = flow_pyramid[l].size(0)
+            for l in range(args.num_levels):
+                # build flow & gt vis_pair:
+                flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[l].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+                flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[l].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+
+                logger.image_summary(f'flow&gt_level{l}', [np.concatenate([i,j], axis = 1) for i,j in zip(flow_vis, flow_gt_vis)], step)
+            logger.image_summary('src_img', list(map(lambda x: x.squeeze(0), np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
+            logger.image_summary('tgt_img', list(map(lambda x: x.squeeze(0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
                 # logger.image_summary(f'')
         # save model
         if step % args.checkpoint_interval == 0:
@@ -274,7 +283,7 @@ def pred(args):
     print(flow.size())
     flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
-    flow_vis = flow_to_image(flow)
+    flow_vis = vis_flow(flow)
     imageio.imwrite(args.output.replace('.flo', '.png'), flow_vis)
     import matplotlib.pyplot as plt
     plt.imshow(flow_vis)
