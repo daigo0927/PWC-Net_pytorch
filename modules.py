@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+import sys
 
 class CostVolumeLayer(nn.Module):
 
@@ -43,24 +44,43 @@ class CostVolumeLayer(nn.Module):
 
         # Version 3
         # ============================================================
-        tgt_neigh = [tgt]
-        for i in range(1, args.search_range + 1):
-            map_up    = torch.zeros_like(tgt); map_up[:,:,i:,:]     = tgt[:,:,:-i,:]
+        # tgt_neigh = [tgt]
+        # for i in range(1, args.search_range + 1):
+        #     map_up    = torch.zeros_like(tgt); map_up[:,:,i:,:]     = tgt[:,:,:-i,:]
+        #     map_down  = torch.zeros_like(tgt); map_down[:,:,:-i,:]  = tgt[:,:,i:,:]
+        #     map_left  = torch.zeros_like(tgt); map_left[:,:,:,i:]   = tgt[:,:,:,:-i]
+        #     map_right = torch.zeros_like(tgt); map_right[:,:,:,:-i] = tgt[:,:,:,i:]
+        #     tgt_neigh.extend([map_up, map_down, map_left, map_right])
+
+        #     for j in range(1, args.search_range + 1):
+        #         map_ul = torch.zeros_like(tgt); map_ul[:,:,i:,j:]   = tgt[:,:,:-i,:-j]
+        #         map_ll = torch.zeros_like(tgt); map_ll[:,:,:-i,j:]  = tgt[:,:,i:,:-j]
+        #         map_ur = torch.zeros_like(tgt); map_ur[:,:,i:,:-j]  = tgt[:,:,:-i,j:]
+        #         map_lr = torch.zeros_like(tgt); map_lr[:,:,:-i,:-j] = tgt[:,:,i:,j:]
+        #         tgt_neigh.extend([map_ul, map_ll, map_ur, map_lr])
+
+        # tgt_neigh = torch.stack(tgt_neigh, dim = 2)
+        
+        # output = (src.unsqueeze(dim = 2) * tgt_neigh).sum(dim = 1)
+
+
+        # Version 4
+        # ============================================================
+        f = lambda x: (x*src).sum(1)
+        outputs = [f(tgt)]
+        for i in range(1, S + 1):
+            map_up = torch.zeros_like(tgt); map_up[:,:,i:,:] = tgt[:,:,:-i,:]
             map_down  = torch.zeros_like(tgt); map_down[:,:,:-i,:]  = tgt[:,:,i:,:]
             map_left  = torch.zeros_like(tgt); map_left[:,:,:,i:]   = tgt[:,:,:,:-i]
             map_right = torch.zeros_like(tgt); map_right[:,:,:,:-i] = tgt[:,:,:,i:]
-            tgt_neigh.extend([map_up, map_down, map_left, map_right])
-
-            for j in range(1, args.search_range + 1):
+            outputs.extend(list(map(f, [map_up, map_down, map_left, map_right])))
+            
+            for j in range(1, S + 1):
                 map_ul = torch.zeros_like(tgt); map_ul[:,:,i:,j:]   = tgt[:,:,:-i,:-j]
                 map_ll = torch.zeros_like(tgt); map_ll[:,:,:-i,j:]  = tgt[:,:,i:,:-j]
                 map_ur = torch.zeros_like(tgt); map_ur[:,:,i:,:-j]  = tgt[:,:,:-i,j:]
                 map_lr = torch.zeros_like(tgt); map_lr[:,:,:-i,:-j] = tgt[:,:,i:,j:]
-                tgt_neigh.extend([map_ul, map_ll, map_ur, map_lr])
-
-        tgt_neigh = torch.stack(tgt_neigh, dim = 2)
-        
-        output = (src.unsqueeze(dim = 2) * tgt_neigh).sum(dim = 1)
+                outputs.extend(list(map(f, [map_ul, map_ll, map_ur, map_lr])))
 
         return output
 

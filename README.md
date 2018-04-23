@@ -29,7 +29,7 @@ Resources:
 
 - Get Started with Demo
 ```
-python3 main.py --predict --load models/best.model -i example/1.png example/2.png -o example/output.flo
+python3 main.py predict --load models/best.model -i example/1.png example/2.png -o example/output.flo
 ```
 
 - Prepare Datasets
@@ -70,4 +70,5 @@ python3 main.py --predict --load models/best.model -i example/1.png example/2.pn
 python3 main.py --train --dataset <DATASET_NAME> --dataset_dir <DIR_NAME>
 ```
 
-- Validate
+- Analyze
+We use a simple logger to enable scalar & image summary on Tensorboard. ()  
