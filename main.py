@@ -119,7 +119,7 @@ def train(args):
     # ============================================================
     model = Net(args)
     if not args.no_cuda: model.cuda_()
-    summary(model, input_size = (3, 384, 448))
+    summary(model, input_size = [(3, 384, 448)] * 2)
     quit()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
