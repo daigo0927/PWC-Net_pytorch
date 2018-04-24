@@ -15,7 +15,7 @@ from losses import get_criterion
 from dataset import (FlyingChairs, FlyingThings, Sintel, KITTI)
 
 import tensorflow as tf
-
+from summary import summary
 from logger import Logger
 from pathlib import Path
 from flow_utils import (vis_flow, save_flow)
@@ -119,6 +119,8 @@ def train(args):
     # ============================================================
     model = Net(args)
     if not args.no_cuda: model.cuda_()
+    summary(model, input_size = (3, 384, 448))
+    quit()
 
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
     
