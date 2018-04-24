@@ -171,8 +171,8 @@ def train(args):
         # shape: B,3,H,W
         squeezer = partial(torch.squeeze, dim = 2)
         src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
-        src_img = src_img / 255 - 0.5
-        tgt_img = tgt_img / 255 - 0.5
+        src_img = src_img / 255# - 0.5
+        tgt_img = tgt_img / 255# - 0.5
         # shape: B,2,H,W
         flow_gt = target[0]
         if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
