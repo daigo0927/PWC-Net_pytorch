@@ -77,16 +77,26 @@ class CostVolumeLayer(nn.Module):
 
         I = 1
         for i in range(1, S + 1):
-             output[:,I] = f(F.pad(tgt[:,:,:-i,:], (0,0,i,0))); I += 1
-             output[:,I] = f(F.pad(tgt[:,:,i:,:], (0,0,0,i))); I += 1
-             output[:,I] = f(F.pad(tgt[:,:,:,:-i], (i,0))); I += 1
-             output[:,I] = f(F.pad(tgt[:,:,:,i:], (0,i))); I += 1
+            print(I); time.sleep(10)
+            output[:,I] = f(F.pad(tgt[:,:,:-i,:], (0,0,i,0))); I += 1
+            print(I); time.sleep(10)
+            output[:,I] = f(F.pad(tgt[:,:,i:,:], (0,0,0,i))); I += 1
+            print(I); time.sleep(10)
+            output[:,I] = f(F.pad(tgt[:,:,:,:-i], (i,0))); I += 1
+            print(I); time.sleep(10)
+            output[:,I] = f(F.pad(tgt[:,:,:,i:], (0,i))); I += 1
+            print(I); time.sleep(10)
 
-             for j in range(1, S + 1):
+            for j in range(1, S + 1):
+                print(I); time.sleep(10)
                 output[:,I] = f(F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))); I += 1
+                print(I); time.sleep(10)
                 output[:,I] = f(F.pad(tgt[:,:,i:,:-j], (j,0,0,i))); I += 1
+                print(I); time.sleep(10)
                 output[:,I] = f(F.pad(tgt[:,:,:-i,j:], (0,j,i,0))); I += 1
+                print(I); time.sleep(10)
                 output[:,I] = f(F.pad(tgt[:,:,i:,j:], (0,j,0,i))); I += 1
+                print(I); time.sleep(10)
 
         return output
 
