@@ -66,14 +66,14 @@ class CostVolumeLayer(nn.Module):
 
         # Version 4
         # ============================================================
-        f = lambda x: (x*src).sum(1)
+        f = lambda x: (x*src).sum(1).unsqueeze(1)
         S = args.search_range
         B, C, H, W = src.size()
 
         output = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
         if not args.no_cuda: output = output.cuda()
         print(output.size(), tgt.size())
-        output[:,0] = tgt
+        output[:,0] = f(tgt)
 
         I = 1
         for i in range(1, S + 1):
