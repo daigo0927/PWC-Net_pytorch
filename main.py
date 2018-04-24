@@ -227,8 +227,10 @@ def train(args):
                 flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[l].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
 
                 logger.image_summary(f'flow&gt_level{l}', [np.concatenate([i,j], axis = 1) for i,j in zip(flow_vis, flow_gt_vis)], step)
-            logger.image_summary('src_img', list(map(lambda x: x.squeeze(0), np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
-            logger.image_summary('tgt_img', list(map(lambda x: x.squeeze(0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
+            logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0))], step)
+            
+            # list(map(lambda x: x.squeeze(0), np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
+            # logger.image_summary('tgt_img', list(map(lambda x: x.squeeze(0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
                 # logger.image_summary(f'')
         # save model
         if step % args.checkpoint_interval == 0:
