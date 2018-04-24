@@ -43,7 +43,7 @@ def main():
     train_parser.add_argument('--crop_shape', type = int, nargs = '+', default = [384, 448])
     train_parser.add_argument('--resize_shape', nargs = 2, type = int, default = None)
     train_parser.add_argument('--resize_scale', type = float, default = None)
-    train_parser.add_argument('--num_workers', default = 1, type = int, help = 'num of workers')
+    train_parser.add_argument('--num_workers', default = 8, type = int, help = 'num of workers')
     train_parser.add_argument('--batch_size', default = 8, type=int, help='mini-batch size')
     train_parser.add_argument('--dataset_dir', type = str)
     train_parser.add_argument('--dataset', type = str)
@@ -150,12 +150,16 @@ def train(args):
     logger = Logger(args.log_dir)
     p_log = Path(args.log_dir)
 
+    iter_time = 0
+
     # Start training
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
     model.train()
     for step in range(1, args.total_step + 1):
+        t_iter = time.time()
+
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
 
@@ -189,7 +193,7 @@ def train(args):
         # Compute Loss
         # ============================================================
         loss = criterion(args, flow_pyramid, flow_gt_pyramid)
-        epe = 0
+        epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
 
 
         
@@ -199,6 +203,7 @@ def train(args):
         loss.backward()
         optimizer.step()
 
+        iter_time += time.time() - t_iter
 
         
         # Collect Summaries & Output Logs
@@ -228,7 +233,7 @@ def train(args):
             torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
         # print log
         if step % args.log_interval == 0:
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}')
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}, Average Iter Time: {iter_time/step} per iter')
 
 
 
@@ -280,7 +285,6 @@ def pred(args):
     # ============================================================
     flow_pyramid, summaries = model(src_img, tgt_img)
     flow = flow_pyramid[-1]
-    print(flow.size())
     flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
     flow_vis = vis_flow(flow)
@@ -291,7 +295,7 @@ def pred(args):
 
 
 
-def test(args):
+def test(args, eval_iter, ):
     # TODO
     pass
 

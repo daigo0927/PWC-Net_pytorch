@@ -1,3 +1,7 @@
+# Acknowledges
+- Thanks [yunjey/pytorch-tutorial](https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/04-utils/tensorboard) for Tensorboard logger
+- Thanks [sksq96/pytorch-summary](https://github.com/sksq96/pytorch-summary) for model summary similar to `model.summary()` in Keras
+
 # PWC-Net
 Still in progress, even no guarantee of a complete version, so feel free to copy/fork/PR/..., do anything you want.
 
@@ -18,7 +22,7 @@ Still in progress, even no guarantee of a complete version, so feel free to copy
 This is an unofficial pytorch implementation of CVPR2018 paper: Deqing Sun *et al.* **"PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume"**.
 
 Resources:  
-[arXiv](https://arxiv.org/abs/1709.02371) | [offical caffe](https://github.com/deqings/PWC-Net)
+[arXiv](https://arxiv.org/abs/1709.02371) | [Caffe](https://github.com/deqings/PWC-Net)(official)
 
 
 # Usage
@@ -63,21 +67,18 @@ python3 main.py predict --load models/best.model -i example/1.png example/2.png 
         When setting `--dataset_dir <DIR_NAME>`, your file tree should be like this
         ```
         <DIR_NAME>
+        ├── training
+        ├── testing
         ```
 
 - Train
 ```
-python3 main.py --train --dataset <DATASET_NAME> --dataset_dir <DIR_NAME>
+python3 main.py train --dataset <DATASET_NAME> --dataset_dir <DIR_NAME>
 ```
-
-- Analyze
-We use a simple logger to enable scalar & image summary on Tensorboard. ()
-
-
-
 
 
 # Details
+## Network Parameters
 ```
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
