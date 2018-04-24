@@ -3,14 +3,6 @@
 - Thanks [sksq96/pytorch-summary](https://github.com/sksq96/pytorch-summary) for model summary similar to `model.summary()` in Keras
 
 # PWC-Net
-Still in progress, even no guarantee of a complete version, so feel free to copy/fork/PR/..., do anything you want.
-
-**News**
-- Offical repo [deqings/PWC-Net](https://github.com/deqings/PWC-Net) is released.
-- Training code for FlyingChairs & Sintel is released.
-    - Tested with CUDA 8.0, PyTorch 0.3, CentOS 7.
-    - Due to my bad cost volume layer, batchsize=8 will occupy 9000MB+ memory on each GPU.
-
 **Still in Progress**
 - [ ] EPE compute on train_batch & test_batch
 - [ ] predict & test codes
