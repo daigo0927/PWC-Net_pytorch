@@ -34,8 +34,9 @@ class Net(nn.Module):
 
 
 
-    def forward(self, src_img, tgt_img):
+    def forward(self, inputs):
         args = self.args
+        src_img, tgt_img = inputs
         # (B,3,H,W) -> (B,3,H/2,W/2) -> (B,3,H/4,W/4) -> (B,3,H/8,W/8)
         src_features = self.feature_pyramid_extractor(src_img)
         tgt_features = self.feature_pyramid_extractor(tgt_img)

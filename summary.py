@@ -53,10 +53,7 @@ def summary(model, input_size):
     # register hook
     model.apply(register_hook)
     # make a forward pass
-    if isinstance(input_size[0], (list, tuple)):
-        model(*x)
-    else:
-        model(x)
+    model(x)
     # remove these hooks
     for h in hooks:
         h.remove()

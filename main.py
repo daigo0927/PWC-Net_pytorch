@@ -184,7 +184,7 @@ def train(args):
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
-        flow_pyramid, summaries = model(src_img, tgt_img)
+        flow_pyramid, summaries = model([src_img, tgt_img])
 
         
         # Compute Loss
