@@ -43,7 +43,7 @@ def summary(model, input_size):
         x = [Variable(th.rand(1,*in_size)).type(dtype) for in_size in input_size]
     else:
         x = Variable(th.rand(1,*input_size)).type(dtype)
-        
+    
         
     # print(x.shape)
     # print(type(x[0]))
@@ -53,7 +53,10 @@ def summary(model, input_size):
     # register hook
     model.apply(register_hook)
     # make a forward pass
-    model(x)
+    if isinstance(input_size[0], (list, tuple)):
+        model(*x)
+    else:
+        model(x)
     # remove these hooks
     for h in hooks:
         h.remove()
