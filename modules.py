@@ -71,17 +71,17 @@ class CostVolumeLayer(nn.Module):
         S = args.search_range
         
         for i in range(1, S + 1):
-            map_up = F.pad(tgt[:,:,:-i,:], (0,0,i,0))
-            map_down  = F.pad(tgt[:,:,i:,:], (0,0,0,i))
-            map_left  = F.pad(tgt[:,:,:,:-i], (i,0))
-            map_right = F.pad(tgt[:,:,:,i:], (0,i))
+            map_up = F.pad(tgt[:,:,:-i,:], (0,0,i,0)).contiguous()
+            map_down  = F.pad(tgt[:,:,i:,:], (0,0,0,i)).contiguous()
+            map_left  = F.pad(tgt[:,:,:,:-i], (i,0)).contiguous()
+            map_right = F.pad(tgt[:,:,:,i:], (0,i)).contiguous()
             outputs.extend(list(map(f, [map_up, map_down, map_left, map_right])))
 
             for j in range(1, S + 1):
-                map_ul = F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))
-                map_ll = F.pad(tgt[:,:,i:,:-j], (j,0,0,i))
-                map_ur = F.pad(tgt[:,:,:-i,j:], (0,j,i,0))
-                map_lr = F.pad(tgt[:,:,i:,j:], (0,j,0,i))
+                map_ul = F.pad(tgt[:,:,:-i,:-j], (j,0,i,0)).contiguous()
+                map_ll = F.pad(tgt[:,:,i:,:-j], (j,0,0,i)).contiguous()
+                map_ur = F.pad(tgt[:,:,:-i,j:], (0,j,i,0)).contiguous()
+                map_lr = F.pad(tgt[:,:,i:,j:], (0,j,0,i)).contiguous()
                 outputs.extend(list(map(f, [map_ul, map_ll, map_ur, map_lr])))
 
 
