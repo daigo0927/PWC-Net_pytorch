@@ -68,21 +68,24 @@ class CostVolumeLayer(nn.Module):
         # ============================================================
         f = lambda x: (x*src).sum(1)
         outputs = [f(tgt)]
+        S = args.search_range
+        
         for i in range(1, S + 1):
-            map_up = torch.zeros_like(tgt); map_up[:,:,i:,:] = tgt[:,:,:-i,:]
-            map_down  = torch.zeros_like(tgt); map_down[:,:,:-i,:]  = tgt[:,:,i:,:]
-            map_left  = torch.zeros_like(tgt); map_left[:,:,:,i:]   = tgt[:,:,:,:-i]
-            map_right = torch.zeros_like(tgt); map_right[:,:,:,:-i] = tgt[:,:,:,i:]
+            map_up = F.pad(tgt[:,:,:-i,:], (0,0,i,0))
+            map_down  = F.pad(tgt[:,:,i:,:], (0,0,0,i))
+            map_left  = F.pad(tgt[:,:,:,:-i], (i,0))
+            map_right = F.pad(tgt[:,:,:,i:], (0,i))
             outputs.extend(list(map(f, [map_up, map_down, map_left, map_right])))
-            
+
             for j in range(1, S + 1):
-                map_ul = torch.zeros_like(tgt); map_ul[:,:,i:,j:]   = tgt[:,:,:-i,:-j]
-                map_ll = torch.zeros_like(tgt); map_ll[:,:,:-i,j:]  = tgt[:,:,i:,:-j]
-                map_ur = torch.zeros_like(tgt); map_ur[:,:,i:,:-j]  = tgt[:,:,:-i,j:]
-                map_lr = torch.zeros_like(tgt); map_lr[:,:,:-i,:-j] = tgt[:,:,i:,j:]
+                map_ul = F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))
+                map_ll = F.pad(tgt[:,:,i:,:-j], (j,0,0,i))
+                map_ur = F.pad(tgt[:,:,:-i,j:], (0,j,i,0))
+                map_lr = F.pad(tgt[:,:,i:,j:], (0,j,0,i))
                 outputs.extend(list(map(f, [map_ul, map_ll, map_ur, map_lr])))
 
-        return output
+
+        return torch.stack(outputs, dim = 1)
 
 
 
