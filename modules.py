@@ -66,28 +66,28 @@ class CostVolumeLayer(nn.Module):
 
         # Version 4
         # ============================================================
-        import time
-        time.sleep(60)
         f = lambda x: (x*src).sum(1)
-        outputs = [f(tgt)]
         S = args.search_range
-        
+        B, C, H, W = src.size()
+
+        output = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
+        if not args.no_cuda: output = output.cuda()
+        output[:,0] = tgt
+
+        I = 1
         for i in range(1, S + 1):
-            map_up = F.pad(tgt[:,:,:-i,:], (0,0,i,0)).contiguous()
-            map_down  = F.pad(tgt[:,:,i:,:], (0,0,0,i)).contiguous()
-            map_left  = F.pad(tgt[:,:,:,:-i], (i,0)).contiguous()
-            map_right = F.pad(tgt[:,:,:,i:], (0,i)).contiguous()
-            outputs.extend(list(map(f, [map_up, map_down, map_left, map_right])))
+             output[:,I] = f(F.pad(tgt[:,:,:-i,:], (0,0,i,0))); I += 1
+             output[:,I] = f(F.pad(tgt[:,:,i:,:], (0,0,0,i))); I += 1
+             output[:,I] = f(F.pad(tgt[:,:,:,:-i], (i,0))); I += 1
+             output[:,I] = f(F.pad(tgt[:,:,:,i:], (0,i))); I += 1
 
-            for j in range(1, S + 1):
-                map_ul = F.pad(tgt[:,:,:-i,:-j], (j,0,i,0)).contiguous()
-                map_ll = F.pad(tgt[:,:,i:,:-j], (j,0,0,i)).contiguous()
-                map_ur = F.pad(tgt[:,:,:-i,j:], (0,j,i,0)).contiguous()
-                map_lr = F.pad(tgt[:,:,i:,j:], (0,j,0,i)).contiguous()
-                outputs.extend(list(map(f, [map_ul, map_ll, map_ur, map_lr])))
+             for j in range(1, S + 1):
+                output[:,I] = f(F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))); I += 1
+                output[:,I] = f(F.pad(tgt[:,:,i:,:-j], (j,0,0,i))); I += 1
+                output[:,I] = f(F.pad(tgt[:,:,:-i,j:], (0,j,i,0))); I += 1
+                output[:,I] = f(F.pad(tgt[:,:,i:,j:], (0,j,0,i))); I += 1
 
-
-        return torch.stack(outputs, dim = 1)
+        return output
 
 
 
