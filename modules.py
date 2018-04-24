@@ -95,7 +95,7 @@ class CostVolumeLayer(nn.Module):
                 output[:,I,i:,j:] = tgt[:,:,:-i,:-j] * src[:,:,i:,j:]; I += 1
                 output[:,I,:-i,:-j] = tgt[:,:,i:,j:] * src[:,:,:-i,:-j]; I += 1
                 output[:,I,i:,:-j] = tgt[:,:,:-i,j:] * src[:,:,i:,:-j]; I += 1
-                output[:,I,:-i,j:] = tgt[:,:,i:,:-j] * src[:,:,:-i,j:]]; I += 1
+                output[:,I,:-i,j:] = tgt[:,:,i:,:-j] * src[:,:,:-i,j:]; I += 1
                 # print(I); time.sleep(5)
                 # output[:,I] = f(F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))); I += 1
                 # # print(I); time.sleep(5)
