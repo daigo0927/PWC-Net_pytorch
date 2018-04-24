@@ -53,11 +53,16 @@ class Net(nn.Module):
             grid = Variable(data = grid, volatile = not self.training)
             grid_pyramid.append(grid)
 
-        
+        B, C, H, W = src_features[0].size()
+
         flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
         for l in range(args.num_levels):
             # upsample the flow estimated from upper level
-            flow = torch.zeros_like(src_features[0])[:,:2,:,:] if l == 0 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+            if l > 0:
+                flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+            else:
+                flow = Variable(torch.zeros((B, 2, H, W)))
+                if not args.no_cuda: flow = flow.cuda()
             # warp tgt_feature
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
