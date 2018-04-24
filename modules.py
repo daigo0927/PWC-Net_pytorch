@@ -78,26 +78,32 @@ class CostVolumeLayer(nn.Module):
 
         I = 1
         for i in range(1, S + 1):
-            print(I); time.sleep(10)
-            output[:,I] = f(F.pad(tgt[:,:,:-i,:], (0,0,i,0))); I += 1
-            print(I); time.sleep(10)
-            output[:,I] = f(F.pad(tgt[:,:,i:,:], (0,0,0,i))); I += 1
-            print(I); time.sleep(10)
-            output[:,I] = f(F.pad(tgt[:,:,:,:-i], (i,0))); I += 1
-            print(I); time.sleep(10)
-            output[:,I] = f(F.pad(tgt[:,:,:,i:], (0,i))); I += 1
-            print(I); time.sleep(10)
+            # print(I); time.sleep(5)
+            # tgt下移i像素并补0, src与之对应的部分为i之后的像素, output的上i个像素为0
+            output[:,I,i:,:] = tgt[:,:,:-i,:] * src[:,:,i:,:]; I += 1
+            output[:,I,:-i,:] = tgt[:,:,i:,:] * src[:,:,:-i,:]; I += 1
+            output[:,I,:,i:] = tgt[:,:,:,:-i] * src[:,:,:,i:]; I += 1
+            output[:,I,:,:-i] = tgt[:,:,:,i:] * src[:,:,:,:-i]; I += 1
+            # print(I); time.sleep(5)
+            # output[:,I] = f(F.pad(tgt[:,:,i:,:], (0,0,0,i))); I += 1
+            # # print(I); time.sleep(5)
+            # output[:,I] = f(F.pad(tgt[:,:,:,:-i], (i,0))); I += 1
+            # # print(I); time.sleep(5)
+            # output[:,I] = f(F.pad(tgt[:,:,:,i:], (0,i))); I += 1
 
             for j in range(1, S + 1):
-                print(I); time.sleep(10)
-                output[:,I] = f(F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))); I += 1
-                print(I); time.sleep(10)
-                output[:,I] = f(F.pad(tgt[:,:,i:,:-j], (j,0,0,i))); I += 1
-                print(I); time.sleep(10)
-                output[:,I] = f(F.pad(tgt[:,:,:-i,j:], (0,j,i,0))); I += 1
-                print(I); time.sleep(10)
-                output[:,I] = f(F.pad(tgt[:,:,i:,j:], (0,j,0,i))); I += 1
-                print(I); time.sleep(10)
+                output[:,I,i:,j:] = tgt[:,:,:-i,:-j] * src[:,:,i:,j:]; I += 1
+                output[:,I,:-i,:-j] = tgt[:,:,i:,j:] * src[:,:,:-i,:-j]; I += 1
+                output[:,I,i:,:-j] = tgt[:,:,:-i,j:] * src[:,:,i:,:-j]; I += 1
+                output[:,I,:-i,j:] = tgt[:,:,i:,:-j] * src[:,:,:-i,j:]]; I += 1
+                # print(I); time.sleep(5)
+                # output[:,I] = f(F.pad(tgt[:,:,:-i,:-j], (j,0,i,0))); I += 1
+                # # print(I); time.sleep(5)
+                # output[:,I] = f(F.pad(tgt[:,:,i:,:-j], (j,0,0,i))); I += 1
+                # # print(I); time.sleep(5)
+                # output[:,I] = f(F.pad(tgt[:,:,:-i,j:], (0,j,i,0))); I += 1
+                # # print(I); time.sleep(5)
+                # output[:,I] = f(F.pad(tgt[:,:,i:,j:], (0,j,0,i))); I += 1
 
         return output
 
