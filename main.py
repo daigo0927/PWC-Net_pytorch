@@ -168,6 +168,7 @@ def train(args):
         # Load Data
         # ============================================================
         data, target = next(data_iter)
+        data = data / 255 - 0.5
         # shape: B,3,H,W
         squeezer = partial(torch.squeeze, dim = 2)
         src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
