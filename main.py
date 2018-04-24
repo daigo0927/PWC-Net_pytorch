@@ -235,7 +235,7 @@ def train(args):
             torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
         # print log
         if step % args.log_interval == 0:
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe:.4f}, Average Iter Time: {iter_time/step} per iter')
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe.data[0]:.4f}, Average Iter Time: {iter_time/step} per iter')
 
 
 
