@@ -14,7 +14,7 @@ def summary(model, input_size):
             summary[m_key] = OrderedDict()
             summary[m_key]['input_shape'] = list(input[0].size())
             summary[m_key]['input_shape'][0] = -1
-            summary[m_key]['output_shape'] = list(output.size())
+            summary[m_key]['output_shape'] = list(output.size()) if isinstance(output, Variable) else list(output[0].size())
             summary[m_key]['output_shape'][0] = -1
 
             params = 0
@@ -44,7 +44,7 @@ def summary(model, input_size):
     else:
         x = Variable(th.rand(1,*input_size)).type(dtype)
     
-        
+    
     # print(x.shape)
     # print(type(x[0]))
     # create properties
