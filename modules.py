@@ -72,6 +72,7 @@ class CostVolumeLayer(nn.Module):
 
         output = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
         if not args.no_cuda: output = output.cuda()
+        print(output.size(), tgt.size())
         output[:,0] = tgt
 
         I = 1
