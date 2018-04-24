@@ -66,6 +66,8 @@ class CostVolumeLayer(nn.Module):
 
         # Version 4
         # ============================================================
+        import time
+        time.sleep(60)
         f = lambda x: (x*src).sum(1)
         outputs = [f(tgt)]
         S = args.search_range
