@@ -172,8 +172,6 @@ def train(args):
         # shape: B,3,H,W
         squeezer = partial(torch.squeeze, dim = 2)
         src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
-        src_img = src_img / 255# - 0.5
-        tgt_img = tgt_img / 255# - 0.5
         # shape: B,2,H,W
         flow_gt = target[0]
         if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
@@ -198,7 +196,6 @@ def train(args):
         # Compute Loss
         # ============================================================
         loss = criterion(args, flow_pyramid, flow_gt_pyramid)
-        epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
 
 
         
@@ -218,7 +215,8 @@ def train(args):
         if step % args.summary_interval == 0:
             # add scalar summaries
             logger.scalar_summary('loss', loss.data[0], step)
-            logger.scalar_summary('EPE', epe, step)
+            if 'epe' in locals():
+                logger.scalar_summary('EPE', epe, step)
 
 
             # add image summaries
@@ -239,6 +237,7 @@ def train(args):
             torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
         # print log
         if step % args.log_interval == 0:
+            epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
             print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe.data[0]:.4f}, Average Iter Time: {iter_time/step} per iter')
 
 
