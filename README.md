@@ -31,7 +31,7 @@ python3 main.py predict --load models/best.model -i example/1.png example/2.png 
 
 - Prepare Datasets
     - Download [FlyingChairs](https://lmb.informatik.uni-freiburg.de/data/FlyingChairs/FlyingChairs.zip) for training  
-        When setting `--dataset_dir <DIR_NAME>`, your file tree should be like this
+        When setting `--dataset FlyingChairs --dataset_dir <DIR_NAME>`, your file tree should be like this
         ```
         <DIR_NAME>
         ├── 00001_flow.flo
@@ -40,12 +40,12 @@ python3 main.py predict --load models/best.model -i example/1.png example/2.png 
         ...
         ```
     - Download [FlyingThings](https://lmb.informatik.uni-freiburg.de/data/SceneFlowDatasets_CVPR16/Release_april16/data/FlyingThings3D/derived_data/flyingthings3d__optical_flow.tar.bz2) for fine-tuning  
-        When setting `--dataset_dir <DIR_NAME>`, your file tree should be like this
+        When setting `--dataset FlyingThings --dataset_dir <DIR_NAME>`, your file tree should be like this
         ```
         <DIR_NAME>
         ```
     - Download [MPI-Sintel](http://files.is.tue.mpg.de/sintel/MPI-Sintel-complete.zip) for fine-tuning if you want to validate on MPI-Sintel  
-        When setting `--dataset_dir <DIR_NAME>`, your file tree should be like this
+        When setting `--dataset Sintel --dataset_dir <DIR_NAME>`, your file tree should be like this
         ```
         <DIR_NAME>
         ├── training
@@ -57,10 +57,13 @@ python3 main.py predict --load models/best.model -i example/1.png example/2.png 
         ...
         ```
     - Download [KITTI](http://www.cvlibs.net/download.php?file=data_scene_flow.zip) for fine-tuning if you want to validate on KITTI  
-        When setting `--dataset_dir <DIR_NAME>`, your file tree should be like this
+        When setting `--dataset KITTI --dataset_dir <DIR_NAME>`, your file tree should be like this
         ```
         <DIR_NAME>
         ├── training
+        |   ├── image_2
+        |   ├── image_3
+        |   ...
         ├── testing
         ```
 

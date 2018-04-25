@@ -58,6 +58,7 @@ def main():
     train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,0.32,0.08,0.02,0.01,0.005])
     train_parser.add_argument('--epsilon', default = 0.02)
     train_parser.add_argument('--q', type = int, default = 0.4)
+    train_parser.add_argument('--loss', type = str, default = 'L2')
     
     # optimize
     train_parser.add_argument('--lr', type = float, default = 4e-4)

@@ -172,12 +172,22 @@ class Sintel(BaseDataset):
         samples = [(*i, i[0].replace(self.mode, 'flow').replace('.png', '.flo')) for collection in collections for i in window(collection, 2)]
         self.split(samples)
 
+class SintelFinal(Sintel):
+    def __init__(self, dataset_dir, train_or_test, color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale):
+        super(SintelFinal, self).__init__(dataset_dir, train_or_test, mode = 'final', color = color, cropper = cropper, crop_shape = crop_shape, resize_shape = resize_shape, resize_scale = resize_scale)
+
+class SintelClean(Sintel):
+    def __init__(self, dataset_dir, train_or_test, color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale):
+        super(SintelClean, self).__init__(dataset_dir, train_or_test, mode = 'clean', color = color, cropper = cropper, crop_shape = crop_shape, resize_shape = resize_shape, resize_scale = resize_scale)
 
 # KITTI
 # ============================================================
 class KITTI(BaseDataset):
 
-    def __init__(self):
+    def __init__(self, dataset_dir, train_or_test, ):
+        pass
+
+    def has_no_txt(self):
         pass
 
 

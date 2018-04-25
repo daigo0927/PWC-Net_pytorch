@@ -2,7 +2,7 @@ import torch.nn.functional as F
 
 
 def get_criterion(args):
-    return training_loss if args.dataset in ('FlyingChairs', 'FlyingThings') else robust_training_loss
+    return training_loss if args.loss == 'L2' else robust_training_loss
 
 
 def training_loss(args, flow_pyramid, flow_gt_pyramid):
