@@ -10,6 +10,7 @@ class CostVolumeLayer(nn.Module):
     def __init__(self, args):
         super(CostVolumeLayer, self).__init__()
         self.args = args
+        self.zeros = None
 
     
     def forward(self, src, tgt):
@@ -67,17 +68,17 @@ class CostVolumeLayer(nn.Module):
         # Version 4
         # ============================================================
         S = args.search_range
-        B, C, H, W = src.size()
-
-        output = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
-        if not args.no_cuda: output = output.cuda()
+        if self.zeros is None:
+            B, C, H, W = src.size()
+            self.zeros = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
+            if not args.no_cuda: self.zeros = self.zeros.cuda()
+        output = torch.zeros_like(self.zeros)
         output[:,0] = (tgt*src).sum(1).unsqueeze(1)
 
         I = 1
         for i in range(1, S + 1):
             # tgt下移i像素并补0, src与之对应的部分为i之后的像素, output的上i个像素为0
-            if i < H:
-                output[:,I,i:,:] = (tgt[:,:,:-i,:] * src[:,:,i:,:]).sum(1).unsqueeze(1); I += 1
+            output[:,I,i:,:] = (tgt[:,:,:-i,:] * src[:,:,i:,:]).sum(1).unsqueeze(1); I += 1
             output[:,I,:-i,:] = (tgt[:,:,i:,:] * src[:,:,:-i,:]).sum(1).unsqueeze(1); I += 1
             output[:,I,:,i:] = (tgt[:,:,:,:-i] * src[:,:,:,i:]).sum(1).unsqueeze(1); I += 1
             output[:,I,:,:-i] = (tgt[:,:,:,i:] * src[:,:,:,:-i]).sum(1).unsqueeze(1); I += 1
