@@ -13,7 +13,7 @@ import time
 
 from model import Net
 from losses import get_criterion
-from dataset import (FlyingChairs, FlyingThings, Sintel, KITTI)
+from dataset import (FlyingChairs, FlyingThings, Sintel, SintelFinal, SintelClean, KITTI)
 
 import tensorflow as tf
 from summary import summary
