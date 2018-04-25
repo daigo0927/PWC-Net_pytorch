@@ -119,8 +119,9 @@ def main():
 def train(args):
     # Build Model
     # ============================================================
-    model = nn.DataParallel(Net(args))
-    if not args.no_cuda: model.cuda()
+    model = Net(args)
+    if not args.no_cuda: model.cuda_()
+    model = nn.DataParallel(model)
     # summary(model, input_size = [(3, 384, 448)] * 2)
     # quit()
 
