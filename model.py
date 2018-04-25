@@ -40,11 +40,11 @@ class Net(nn.Module):
         args = self.args
         src_img, tgt_img = inputs
         # (B,3,H,W) -> (B,3,H/2,W/2) -> (B,3,H/4,W/4) -> (B,3,H/8,W/8)
-        t = time()
+        # t = time()
         src_features = self.feature_pyramid_extractor(src_img)
-        print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
+        # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
         tgt_features = self.feature_pyramid_extractor(tgt_img)
-        print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
+        # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
         # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
         # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
         # compute grid on each level
@@ -58,7 +58,7 @@ class Net(nn.Module):
                 grid = Variable(data = grid, volatile = not self.training)
                 self.grid_pyramid.append(grid)
         grid_pyramid = self.grid_pyramid
-        print(f'Build Grids: {time() - t: .2f}s'); t = time()
+        # print(f'Build Grids: {time() - t: .2f}s'); t = time()
         B, C, H, W = src_features[0].size()
 
 
@@ -75,17 +75,17 @@ class Net(nn.Module):
             # build cost volume, time costly
             if args.no_cost_volume:
                 flow_feature, flow = self.optical_flow_estimators[l](src_features[l], tgt_feature_warped, flow)
-                print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
+                # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
             else:
                 cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
-                print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
+                # print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
                 # estimate flow
                 flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
-                print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
+                # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
 
             # use context to refine
             flow_refined = self.context_networks[l](src_features[l], flow)
-            print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
+            # print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
 
             flow_features.append(flow_feature); flow_pyramid.append(flow); flow_refined_pyramid.append(flow_refined)
 
