@@ -71,6 +71,7 @@ class Net(nn.Module):
                 flow = Variable(torch.zeros((B, 2, H, W)))
                 if not args.no_cuda: flow = flow.cuda()
             # warp tgt_feature
+            print(tgt_features[l].size(), grid_pyramid[l].size(), flow.size())
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
             if args.no_cost_volume:
