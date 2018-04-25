@@ -205,9 +205,8 @@ def train(args):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-        # don't consider initial cost
-        if step > 100: iter_time += time.time() - t_iter
+        
+        iter_time += time.time() - t_iter
 
         
         # Collect Summaries & Output Logs
@@ -238,7 +237,7 @@ def train(args):
         # print log
         if step % args.log_interval == 0:
             epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe.data[0]:.4f}, Average Iter Time: {iter_time/step} per iter')
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe.data[0]:.4f}, Average Iter Time: {step/iter_time} iters/s')
 
 
 
