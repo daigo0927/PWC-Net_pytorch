@@ -10,7 +10,7 @@ class CostVolumeLayer(nn.Module):
     def __init__(self, args):
         super(CostVolumeLayer, self).__init__()
         self.args = args
-        self.zeros = None
+        self.zeros = {}
 
     
     def forward(self, src, tgt):
@@ -68,11 +68,11 @@ class CostVolumeLayer(nn.Module):
         # Version 4
         # ============================================================
         S = args.search_range
-        if self.zeros is None:
-            B, C, H, W = src.size()
-            self.zeros = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
-            if not args.no_cuda: self.zeros = self.zeros.cuda()
-        output = torch.zeros_like(self.zeros)
+        B, C, H, W = src.size()
+        if H not in self.zeros:
+            self.zeros[H] = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
+            if not args.no_cuda: self.zeros[H] = self.zeros[H].cuda()
+        output = torch.zeros_like(self.zeros[H])
         output[:,0] = (tgt*src).sum(1).unsqueeze(1)
 
         I = 1
