@@ -127,7 +127,7 @@ class FlyingChairs(BaseDataset):
         p = Path(self.dataset_dir)
         imgs = sorted(p.glob('*.ppm'))
         samples = [(str(i[0]), str(i[1]), str(i[0]).replace('img1', 'flow').replace('.ppm', '.flo')) for i in zip(imgs[::2], imgs[1::2])]
-        self.split()
+        self.split(samples)
 
 
 # FlyingThings
