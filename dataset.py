@@ -173,11 +173,11 @@ class Sintel(BaseDataset):
         self.split(samples)
 
 class SintelFinal(Sintel):
-    def __init__(self, dataset_dir, train_or_test, color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale):
+    def __init__(self, dataset_dir, train_or_test, color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale = None):
         super(SintelFinal, self).__init__(dataset_dir, train_or_test, mode = 'final', color = color, cropper = cropper, crop_shape = crop_shape, resize_shape = resize_shape, resize_scale = resize_scale)
 
 class SintelClean(Sintel):
-    def __init__(self, dataset_dir, train_or_test, color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale):
+    def __init__(self, dataset_dir, train_or_test, color = 'rgb', cropper = 'random', crop_shape = None, resize_shape = None, resize_scale = None):
         super(SintelClean, self).__init__(dataset_dir, train_or_test, mode = 'clean', color = color, cropper = cropper, crop_shape = crop_shape, resize_shape = resize_shape, resize_scale = resize_scale)
 
 # KITTI
