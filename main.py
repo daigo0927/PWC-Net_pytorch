@@ -133,6 +133,15 @@ def train(args):
                                  betas = (args.momentum, args.beta),
                                  weight_decay = args.weight_decay)
 
+    def lr_lambda(epoch):
+        iters = epoch * iter_per_epoch
+        if iters < 4e+5: return 1e-4
+        elif 4e+5 <= iters < 6e+5: return 5e-5
+        elif 6e+5 <= iters < 8e+5: return 2e-5
+        elif 8e+5 <= iters < 1e+6: return 1e-5
+        else: return 5e-6
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+
 
     
     # Prepare Dataloader
@@ -159,7 +168,7 @@ def train(args):
     # Start training
     # ============================================================
     data_iter = iter(train_loader)
-    iter_per_epoch = len(train_loader)
+    iter_per_epoch = (len(train_loader) // args.batch_size) * args.batch_size
     model.train()
     for step in range(1, args.total_step + 1):
         t_iter = time.time()
@@ -202,9 +211,9 @@ def train(args):
         
         # Do step
         # ============================================================
-        optimizer.zero_grad()
+        scheduler.zero_grad()
         loss.backward()
-        optimizer.step()
+        scheduler.step()
         
         iter_time += time.time() - t_iter
 
