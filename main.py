@@ -205,13 +205,12 @@ def train(args):
         loss.backward()
         optimizer.step()
 
-        iter_time += time.time() - t_iter
+        # don't consider initial cost
+        if step > 100: iter_time += time.time() - t_iter
 
         
         # Collect Summaries & Output Logs
         # ============================================================
-        # TODO: add summaries and check
-        # flow output on each level
         if step % args.summary_interval == 0:
             # add scalar summaries
             logger.scalar_summary('loss', loss.data[0], step)
