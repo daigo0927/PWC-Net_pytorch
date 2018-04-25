@@ -215,8 +215,7 @@ def train(args):
         # ============================================================
         # TODO: add summaries and check
         # flow output on each level
-        if True:
-        # if step % args.summary_interval == 0:
+        if step % args.summary_interval == 0:
             # add scalar summaries
             logger.scalar_summary('loss', loss.data[0], step)
             logger.scalar_summary('EPE', epe, step)
