@@ -20,7 +20,7 @@ class Net(nn.Module):
             self.cost_volume_layer = CostVolumeLayer(args)
             self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in args.lv_chs[::-1]]
         self.context_networks = [ContextNetwork(args, ch_in + 2) for ch_in in args.lv_chs[::-1]]
-
+        self.grid_pyramid = None
     
     def cuda_(self):
         args = self.args
