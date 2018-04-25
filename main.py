@@ -119,8 +119,8 @@ def main():
 def train(args):
     # Build Model
     # ============================================================
-    model = Net(args)
-    if not args.no_cuda: model.cuda_()
+    model = nn.DataParallel(Net(args))
+    if not args.no_cuda: model.cuda()
     # summary(model, input_size = [(3, 384, 448)] * 2)
     # quit()
 
@@ -128,7 +128,7 @@ def train(args):
     
     # build criterion
     criterion = get_criterion(args)
-    optimizer = torch.optim.Adam(model.parameters(), args.lr,
+    optimizer = torch.optim.Adam(model.modules()[0].parameters(), args.lr,
                                  betas = (args.momentum, args.beta),
                                  weight_decay = args.weight_decay)
 
