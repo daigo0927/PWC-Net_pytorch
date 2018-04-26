@@ -7,9 +7,9 @@ def get_criterion(args):
 
 
 def training_loss(args, flow_pyramid, flow_gt_pyramid):
-    return sum(args.weights[l] * (torch.norm(flow_pyramid[l] - flow_gt_pyramid[l], p = 2, dim = 1).mean()) for l in range(args.num_levels))
+    return sum(w * (torch.norm(flow - gt, p = 2, dim = 1).mean()) for w, flow, gt in zip(args.weights, flow_pyramid, flow_gt_pyramid))
     
     
 def robust_training_loss(args, flow_pyramid, flow_gt_pyramid):
-    return sum(args.weights[l] * ((flow_pyramid[l] - flow_gt_pyramid[l]).abs().mean() + args.epsilon) ** args.q for l in range(args.num_levels))
+    return sum(w * ((flow - gt).abs().mean() + args.epsilon) ** args.q for w, flow, gt in zip(args.weights, flow_pyramid, flow_gt_pyramid))
     
