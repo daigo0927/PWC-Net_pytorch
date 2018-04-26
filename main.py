@@ -163,18 +163,18 @@ def train(args):
 
     # build criterion
     criterion = get_criterion(args)
-    optimizer = torch.optim.Adam(next(model.modules()).parameters(), args.lr,
+    optimizer = torch.optim.SGD(next(model.modules()).parameters(), args.lr,
                                  betas = (args.momentum, args.beta),
                                  weight_decay = args.weight_decay)
 
-    def lr_lambda(epoch):
-        iters = epoch * iter_per_epoch
-        if iters < 4e+5: return 1e-4
-        elif 4e+5 <= iters < 6e+5: return 5e-5
-        elif 6e+5 <= iters < 8e+5: return 2e-5
-        elif 8e+5 <= iters < 1e+6: return 1e-5
-        else: return 5e-6
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    # def lr_lambda(epoch):
+    #     iters = epoch * iter_per_epoch
+    #     if iters < 4e+5: return 1e-4
+    #     elif 4e+5 <= iters < 6e+5: return 5e-5
+    #     elif 6e+5 <= iters < 8e+5: return 2e-5
+    #     elif 8e+5 <= iters < 1e+6: return 1e-5
+    #     else: return 5e-6
+    # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
     for step in range(1, args.total_step + 1):
         t_iter = time.time()
@@ -216,9 +216,9 @@ def train(args):
         
         # Do step
         # ============================================================
-        scheduler.optimizer.zero_grad()
+        optimizer.zero_grad()
         loss.backward()
-        scheduler.step()
+        optimizer.step()
         
         iter_time += time.time() - t_iter
 
@@ -229,7 +229,8 @@ def train(args):
         # Collect Summaries & Output Logs
         # ============================================================
         if step % args.summary_interval == 0:
-            # add scalar summaries
+            # Scalar Summaries
+            # ============================================================
             logger.scalar_summary('loss', loss.item(), step)
             logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
             if 'epe' in locals():
