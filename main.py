@@ -227,7 +227,7 @@ def train(args):
         # ============================================================
         if step % args.summary_interval == 0:
             # add scalar summaries
-            logger.scalar_summary('loss', loss.data[0], step)
+            logger.scalar_summary('loss', loss.item(), step)
             if 'epe' in locals():
                 logger.scalar_summary('EPE', epe, step)
 
