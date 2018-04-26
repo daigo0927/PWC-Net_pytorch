@@ -35,6 +35,10 @@ def main():
     pred_parser = modes.add_parser('pred'); pred_parser.set_defaults(func = pred)
     test_parser = modes.add_parser('eval'); test_parser.set_defaults(func = test)
 
+    # public_parser
+    # ============================================================
+    parser.add_argument('--search_range', type = int, default = 4)
+    parser.add_argument('--no_cuda', action = 'store_true')
 
 
     # train_parser
@@ -90,10 +94,7 @@ def main():
 
 
 
-    # public_parser
-    # ============================================================
-    parser.add_argument('--search_range', type = int, default = 4)
-    parser.add_argument('--no_cuda', action = 'store_true')
+    
 
     args = parser.parse_args()
 
@@ -156,6 +157,7 @@ def train(args):
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = (len(train_loader) // args.batch_size) * args.batch_size
+    print(iter_per_epoch, len(train_loader), args.batch_size)
 
 
     # build criterion
