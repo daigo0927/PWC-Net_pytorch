@@ -68,8 +68,8 @@ class Net(nn.Module):
             if l > 0:
                 flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             else:
-                flow = Variable(torch.zeros((B, 2, H, W)))
-                if not args.no_cuda: flow = flow.cuda()
+                device = torch.device(args.device)
+                flow = torch.zeros((B, 2, H, W)).to(device)
             # warp tgt_feature
             # print(tgt_features[l].size(), grid_pyramid[l].size(), flow.size())
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
