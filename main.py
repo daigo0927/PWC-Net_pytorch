@@ -173,7 +173,7 @@ def train(args):
         else: return 5e-6
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
-    
+
     model.train()
     for step in range(1, args.total_step + 1):
         t_iter = time.time()
@@ -216,7 +216,7 @@ def train(args):
         
         # Do step
         # ============================================================
-        scheduler.zero_grad()
+        scheduler.optimizer.zero_grad()
         loss.backward()
         scheduler.step()
         
