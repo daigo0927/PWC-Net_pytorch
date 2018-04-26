@@ -77,6 +77,10 @@ class Net(nn.Module):
             # print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
 
             flow_features.append(flow_feature); flow_pyramid.append(flow); flow_refined_pyramid.append(flow_refined)
+        
+
+        for layer_idx, (w, flow, gt) in zip(args.weights, flow_pyramid, flow_gt_pyramid):
+            print(layer_idx, torch.norm(flow - gt, p = 2, dim = 1).mean())
 
         summaries = dict()
         summaries['flow_feature'] = flow_features
