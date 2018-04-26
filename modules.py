@@ -70,8 +70,8 @@ class CostVolumeLayer(nn.Module):
         S = args.search_range
         B, C, H, W = src.size()
         if H not in self.zeros:
-            self.zeros[H] = Variable(torch.zeros((B, (S*2+1)**2, H, W)))
-            if not args.no_cuda: self.zeros[H] = self.zeros[H].cuda()
+            device = torch.device(args.device)
+            self.zeros[H] = torch.zeros((B, (S*2+1)**2, H, W)).to(device)
         output = torch.zeros_like(self.zeros[H])
         output[:,0] = (tgt*src).sum(1)
 
