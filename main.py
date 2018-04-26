@@ -38,7 +38,7 @@ def main():
     # public_parser
     # ============================================================
     parser.add_argument('--search_range', type = int, default = 4)
-    parser.add_argument('--no_cuda', action = 'store_true')
+    parser.add_argument('--device', type = str, default = 'cuda')
 
 
     # train_parser
@@ -118,10 +118,10 @@ def main():
 
 
 def train(args):
+    device = torch.device(args.device)
     # Build Model
     # ============================================================
-    model = Net(args)
-    if not args.no_cuda: model.cuda_()
+    model = Net(args).to(device)
     model = nn.DataParallel(model)
     # summary(model, input_size = [(3, 384, 448)] * 2)
     # quit()
@@ -129,6 +129,8 @@ def train(args):
     # TODO: change optimizer to S_long & S_fine (same as flownet2)
     
     
+
+    device = torch.device(args.device)
 
 
     
@@ -157,7 +159,6 @@ def train(args):
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = (len(train_loader) // args.batch_size) * args.batch_size
-    print(iter_per_epoch, len(train_loader), args.batch_size)
 
 
     # build criterion
@@ -175,8 +176,6 @@ def train(args):
         else: return 5e-6
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
-
-    model.train()
     for step in range(1, args.total_step + 1):
         t_iter = time.time()
 
@@ -191,8 +190,7 @@ def train(args):
         src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
         # shape: B,2,H,W
         flow_gt = target[0]
-        if not args.no_cuda: src_img, tgt_img, flow_gt = map(lambda x: x.cuda(), (src_img, tgt_img, flow_gt))
-        src_img, tgt_img, flow_gt = map(Variable, (src_img, tgt_img, flow_gt))
+        src_img, tgt_img, flow_gt = map(lambda x: x.to(device), (src_img, tgt_img, flow_gt))
 
 
         
@@ -258,13 +256,11 @@ def train(args):
 
 
 def pred(args):
-    # TODO
+    device = torch.device(args.device)
     # Build Model
     # ============================================================
-    model = Net(args)
-    if not args.no_cuda: model.cuda_()
+    model = Net(args).to(device)
     model.load_state_dict(torch.load(args.load))
-    model.eval()
     
     # Load Data
     # ============================================================
@@ -296,14 +292,14 @@ def pred(args):
     tgt_img = tgt_img[np.newaxis,:,:,:].transpose(0,3,1,2)
 
 
-    src_img = Variable(torch.Tensor(src_img))
-    tgt_img = Variable(torch.Tensor(tgt_img))
-    if not args.no_cuda: src_img, tgt_img = map(lambda x: x.cuda(), [src_img, tgt_img])
+    src_img = torch.Tensor(src_img).to(device)
+    tgt_img = torch.Tensor(tgt_img).to(device)
     
 
     # Forward Pass
     # ============================================================
-    flow_pyramid, summaries = model(src_img, tgt_img)
+    with torch.no_grad():
+        flow_pyramid, summaries = model(src_img, tgt_img)
     flow = flow_pyramid[-1]
     flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
