@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 import time
 
 from model import Net
-from losses import get_criterion
+from losses import get_criterion, L1loss, L2loss
 from dataset import (FlyingChairs, FlyingThings, Sintel, SintelFinal, SintelClean, KITTI)
 
 import tensorflow as tf
@@ -221,35 +221,35 @@ def train(args):
         optimizer.step()
         
         iter_time += time.time() - t_iter
-
-        for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
-            print(layer_idx, torch.norm(flow - gt, p = 2, dim = 1).mean())
-
         
         # Collect Summaries & Output Logs
         # ============================================================
         if step % args.summary_interval == 0:
             # Scalar Summaries
             # ============================================================
+            # L1&L2 loss per level
+            for layer_idx, (flow, coarse_flow, gt) in enumerate(zip(flow_pyramid, summaries['coarse_flow_pyramid'],  flow_gt_pyramid)):
+                logger.scalar_summary(f'L1-loss-lv{layer_idx}-after-context', L1loss(flow, gt).item(), step)
+                logger.scalar_summary(f'L2-loss-lv{layer_idx}-after-context', L2loss(flow, gt).item(), step)
+                logger.scalar_summary(f'L1-loss-lv{layer_idx}-before-context', L1loss(coarse_flow, gt).item(), step)
+                logger.scalar_summary(f'L2-loss-lv{layer_idx}-before-context', L2loss(coarse_flow, gt).item(), step)
+
             logger.scalar_summary('loss', loss.item(), step)
             logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
             if 'epe' in locals():
                 logger.scalar_summary('EPE', epe, step)
 
-
-            # add image summaries
+            # Image Summaries
+            # ============================================================
             B = flow_pyramid[l].size(0)
-            for l in range(args.num_levels):
-                # build flow & gt vis_pair:
-                flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[l].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
-                flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[l].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+            for layer_idx, (flow, coarse_flow, gt) in enumerate(zip(flow_pyramid, summaries['coarse_flow_pyramid'],  flow_gt_pyramid)):
+                flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+                coarse_flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(summaries['coarse_flow_pyramid'][layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+                flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+                logger.image_summary(f'coarse&fine&gt-lv{l}', [np.concatenate([i,j,k], axis = 1) for i,j,k in zip(flow_vis, coarse_flow_vis, flow_gt_vis)], step)
 
-                logger.image_summary(f'flow&gt_level{l}', [np.concatenate([i,j], axis = 1) for i,j in zip(flow_vis, flow_gt_vis)], step)
             logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0))], step)
-            
-            # list(map(lambda x: x.squeeze(0), np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
-            # logger.image_summary('tgt_img', list(map(lambda x: x.squeeze(0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0)))[:3], step)
-                # logger.image_summary(f'')
+
         # save model
         if step % args.checkpoint_interval == 0:
             torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
