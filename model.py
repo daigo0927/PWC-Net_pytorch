@@ -13,27 +13,15 @@ class Net(nn.Module):
     def __init__(self, args):
         super(Net, self).__init__()
         self.args = args
-        self.feature_pyramid_extractor = FeaturePyramidExtractor(args)
+        device = torch.device(args.device)
+        self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(device)
         if args.no_cost_volume:
-            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2) for ch_in in args.lv_chs[::-1]]
+            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
         else:
-            self.cost_volume_layer = CostVolumeLayer(args)
-            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2) for ch_in in args.lv_chs[::-1]]
-        self.context_networks = [ContextNetwork(args, ch_in + 2) for ch_in in args.lv_chs[::-1]]
+            self.cost_volume_layer = CostVolumeLayer(args).to(device)
+            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2).to(device) for ch_in in args.lv_chs[::-1]]
+        self.context_networks = [ContextNetwork(args, ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
         self.grid_pyramid = None
-    
-    def cuda_(self):
-        args = self.args
-        self.feature_pyramid_extractor.levels = [i.cuda() for i in self.feature_pyramid_extractor.levels]
-        self.feature_pyramid_extractor.cuda()
-        self.optical_flow_estimators = [i.cuda() for i in self.optical_flow_estimators]
-        self.context_networks = [i.cuda() for i in self.context_networks]
-        self.cuda()
-        # if not args.no_cost_volume:
-        #     self.cost_volume_layer = nn.DataParallel(self.cost_volume_layer).cuda()
-        # self.optical_flow_estimators = [nn.DataParallel(i) for i in self.optical_flow_estimators]
-        # self.context_networks = [nn.DataParallel(i) for i in self.context_networks]
-
 
 
     def forward(self, inputs):
