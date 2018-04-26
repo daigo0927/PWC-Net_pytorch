@@ -251,7 +251,7 @@ def train(args):
         # print log
         if step % args.log_interval == 0:
             epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.data[0]:.4f}, EPE: {epe.data[0]:.4f}, Average Iter Time: {step/iter_time} iters/s')
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, EPE: {epe.item():.4f}, Average Iter Time: {step/iter_time} iters/s')
 
 
 
