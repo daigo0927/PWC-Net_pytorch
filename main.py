@@ -222,6 +222,9 @@ def train(args):
         
         iter_time += time.time() - t_iter
 
+        for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
+            print(layer_idx, torch.norm(flow - gt, p = 2, dim = 1).mean())
+
         
         # Collect Summaries & Output Logs
         # ============================================================
