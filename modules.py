@@ -89,7 +89,7 @@ class CostVolumeLayer(nn.Module):
                 output[:,I,i:,:-j] = (tgt[:,:,:-i,j:] * src[:,:,i:,:-j]).sum(1); I += 1
                 output[:,I,:-i,j:] = (tgt[:,:,i:,:-j] * src[:,:,:-i,j:]).sum(1); I += 1
 
-        return output
+        return output / C
 
 
 
