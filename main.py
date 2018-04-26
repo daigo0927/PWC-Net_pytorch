@@ -256,6 +256,7 @@ def train(args):
 
 
 def pred(args):
+    # Get environment
     device = torch.device(args.device)
     # Build Model
     # ============================================================

@@ -26,6 +26,7 @@ class Net(nn.Module):
 
     def forward(self, inputs):
         args = self.args
+        device = torch.device(args.device)
         src_img, tgt_img = inputs
         # (B,3,H,W) -> (B,3,H/2,W/2) -> (B,3,H/4,W/4) -> (B,3,H/8,W/8)
         # t = time()
@@ -40,10 +41,9 @@ class Net(nn.Module):
             self.grid_pyramid = []
             for l in range(args.num_levels):
                 x = src_features[l]
-                torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
-                torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
-                grid = torch.cat([torchHorizontal, torchVertical], 1).cuda()
-                grid = Variable(data = grid, volatile = not self.training)
+                torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3)).to(device)
+                torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3)).to(device)
+                grid = torch.cat([torchHorizontal, torchVertical], 1)
                 self.grid_pyramid.append(grid)
         grid_pyramid = self.grid_pyramid
         # print(f'Build Grids: {time() - t: .2f}s'); t = time()
@@ -59,22 +59,22 @@ class Net(nn.Module):
                 device = torch.device(args.device)
                 flow = torch.zeros((B, 2, H, W)).to(device)
             # warp tgt_feature
-            # print(tgt_features[l].size(), grid_pyramid[l].size(), flow.size())
+            print(tgt_features[l].size(), grid_pyramid[l].size(), flow.size())
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
             if args.no_cost_volume:
                 flow_feature, flow = self.optical_flow_estimators[l](src_features[l], tgt_feature_warped, flow)
-                # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
+                print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
             else:
                 cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
-                # print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
+                print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
                 # estimate flow
                 flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
-                # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
+                print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
 
             # use context to refine
             flow_refined = self.context_networks[l](src_features[l], flow)
-            # print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
+            print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
 
             flow_features.append(flow_feature); flow_pyramid.append(flow); flow_refined_pyramid.append(flow_refined)
 
