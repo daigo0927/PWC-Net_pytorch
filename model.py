@@ -71,7 +71,7 @@ class Net(nn.Module):
             # upsample the flow estimated from upper level
 
 
-            if l > 0: flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+            if layer_idx > 0: flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             else:
                 device = torch.device(args.device)
                 flow = torch.zeros((B, 2, H, W)).to(device)
