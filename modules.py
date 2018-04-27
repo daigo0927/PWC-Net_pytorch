@@ -106,7 +106,7 @@ class FeaturePyramidExtractor(nn.Module):
                 nn.LeakyReLU(inplace = True),
                 nn.Conv2d(in_channels = args.lv_chs[layer_idx], out_channels = args.lv_chs[layer_idx], kernel_size = 3, stride = 1, padding = 1),
                 nn.LeakyReLU(inplace = True)))
-
+            self.add_module(f'Feature(Lv{layer_idx + 1})', layer)
             self.levels.insert(0, layer)
 
 
@@ -115,7 +115,7 @@ class FeaturePyramidExtractor(nn.Module):
         feature_pyramid = []
         out = self.levels[-1](x)
         feature_pyramid.insert(0, out)
-        for layer_idx in range(args.num_levels - 1, 0, -1):
+        for layer_idx in range(args.num_levels - 2, 0, -1):
             out = self.levels[layer_idx](out)
             feature_pyramid.insert(0, out)
 

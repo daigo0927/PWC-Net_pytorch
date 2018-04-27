@@ -21,19 +21,19 @@ class Net(nn.Module):
             for layer_idx in range(args.num_levels):
                 layer = OpticalFlowEstimator(args, args.lv_chs[layer_idx] + (args.search_range*2+1)**2 + 2).to(device)
                 self.optical_flow_estimators.append(layer)
-                self.add_module(f'FlowEstimator(Lv{layer_idx})', layer)
+                self.add_module(f'FlowEstimator(Lv{layer_idx + 1})', layer)
         else:
             self.optical_flow_estimators = []
             for layer_idx in range(args.num_levels):
                 layer = OpticalFlowEstimator(args, 2 * args.lv_chs[layer_idx] + 2).to(device)
                 self.optical_flow_estimators.append(layer)
-                self.add_module(f'FlowEstimator(Lv{layer_idx})', layer)
+                self.add_module(f'FlowEstimator(Lv{layer_idx + 1})', layer)
         if args.use_context_network:
             self.context_networks = []
             for layer_idx in range(args.num_levels):
                 layer = ContextNetwork(args, args.lv_chs[layer_idx] + 2).to(device)
                 self.context_networks.append(layer)
-                self.add_module(f'ContextNetwork(Lv{layer_idx})', layer)
+                self.add_module(f'ContextNetwork(Lv{layer_idx + 1})', layer)
         if args.use_warping_layer:
             self.grid_pyramid = None
 
