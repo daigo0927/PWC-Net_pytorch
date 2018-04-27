@@ -114,7 +114,7 @@ class FeaturePyramidExtractor(nn.Module):
         args = self.args
         feature_pyramid = []
         out = self.levels[0](x)
-        feature_pyramid.insert(0, out)
+        feature_pyramid.append(out)
         for layer_idx in range(args.num_levels):
             out = self.levels[layer_idx](out)
             feature_pyramid.append(out)
