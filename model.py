@@ -17,11 +17,23 @@ class Net(nn.Module):
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(device)
         if args.use_cost_volume_layer:
             self.cost_volume_layer = CostVolumeLayer(args).to(device)
-            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2).to(device) for ch_in in args.lv_chs[::-1]]
+            self.optical_flow_estimators = []
+            for layer_idx in range(args.num_levels):
+                layer = OpticalFlowEstimator(args, args.lv_chs[layer_idx] + (args.search_range*2+1)**2 + 2).to(device)
+                self.optical_flow_estimators.append(layer)
+                self.add_module(f'FlowEstimator(Lv{layer_idx})', layer)
         else:
-            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
+            self.optical_flow_estimators = []
+            for layer_idx in range(args.num_levels):
+                layer = OpticalFlowEstimator(args, 2 * args.lv_chs[layer_idx] + 2).to(device)
+                self.optical_flow_estimators.append(layer)
+                self.add_module(f'FlowEstimator(Lv{layer_idx})', layer)
         if args.use_context_network:
-            self.context_networks = [ContextNetwork(args, ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
+            self.context_networks = []
+            for layer_idx in range(args.num_levels):
+                layer = ContextNetwork(args, args.lv_chs[layer_idx] + 2).to(device)
+                self.context_networks.append(layer)
+                self.add_module(f'ContextNetwork(Lv{layer_idx})', layer)
         if args.use_warping_layer:
             self.grid_pyramid = None
 
