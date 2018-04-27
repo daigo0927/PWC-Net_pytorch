@@ -4,6 +4,10 @@
 - Thanks [sksq96/pytorch-summary](https://github.com/sksq96/pytorch-summary) for model summary similar to `model.summary()` in Keras
 
 # PWC-Net
+- As many ablation experiments are done in the original paper, we make it easy to add/remove a component by just adding a parameter to the parser. Type `python3 main.py -h` to see the details.
+- 
+
+
 **Still in Progress**
 - [ ] EPE compute on train_batch & test_batch
 - [ ] predict & test codes

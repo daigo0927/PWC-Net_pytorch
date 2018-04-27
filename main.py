@@ -52,11 +52,14 @@ def main():
     train_parser.add_argument('--batch_size', default = 8, type=int, help='mini-batch size')
     train_parser.add_argument('--dataset_dir', type = str)
     train_parser.add_argument('--dataset', type = str)
+    train_parser.add_argument('--output_level', type = int, default = 2)
 
     # net
     train_parser.add_argument('--num_levels', type = int, default = 6)
     train_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
-    train_parser.add_argument('--no_cost_volume', action = 'store_true')
+    train_parser.add_argument('--use_cost_volume_layer', action = 'store_true')
+    train_parser.add_argument('--use_context_network', action = 'store_true')
+    train_parser.add_argument('--use_warping_layer', action = 'store_true')
 
     # loss
     train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,0.32,0.08,0.02,0.01,0.005])

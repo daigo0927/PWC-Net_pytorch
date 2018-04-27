@@ -99,27 +99,24 @@ class FeaturePyramidExtractor(nn.Module):
         super(FeaturePyramidExtractor, self).__init__()
         self.args = args
 
-        # it seems that pytorch can't handle modules correctly that are not in Module.__dict__?
-        # so here uses setattr to add levels
         self.levels = []
-        for l in range(args.num_levels):
+        for layer_idx in range(args.num_levels):
             layer = nn.DataParallel(nn.Sequential(
                 nn.Conv2d(in_channels = 3 if l == 0 else args.lv_chs[l-1], out_channels = args.lv_chs[l], kernel_size = 3, stride = 2, padding = 1),
                 nn.LeakyReLU(inplace = True),
                 nn.Conv2d(in_channels = args.lv_chs[l], out_channels = args.lv_chs[l], kernel_size = 3, stride = 1, padding = 1),
                 nn.LeakyReLU(inplace = True)))
 
-            setattr(self, f'level{l+1}', layer)
-            self.levels.append(layer)
+            self.levels.insert(0, layer)
 
 
     def forward(self, x):
         args = self.args
         feature_pyramid = []
-        out = self.levels[0](x)
+        out = self.levels[-1](x)
         feature_pyramid.insert(0, out)
-        for l in range(1, args.num_levels):
-            out = self.levels[l](out)
+        for layer_idx in range(args.num_levels - 1, 0, -1):
+            out = self.levels[layer_idx](out)
             feature_pyramid.insert(0, out)
 
         return feature_pyramid
@@ -158,7 +155,7 @@ class OpticalFlowEstimator(nn.Module):
         out_feature = self.conv5(out_conv4)
         out_flow = self.conv6(out_feature)
 
-        return out_feature, out_flow
+        return out_flow
 
 class ContextNetwork(nn.Module):
 

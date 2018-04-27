@@ -15,13 +15,14 @@ class Net(nn.Module):
         self.args = args
         device = torch.device(args.device)
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(device)
-        if args.no_cost_volume:
-            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
-        else:
+        if args.use_cost_volume:
             self.cost_volume_layer = CostVolumeLayer(args).to(device)
             self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2).to(device) for ch_in in args.lv_chs[::-1]]
+        else:
+            self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
         self.context_networks = [ContextNetwork(args, ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
-        self.grid_pyramid = None
+        if args.use_warping_layer:
+            self.grid_pyramid = None
 
 
     def forward(self, inputs):
@@ -37,48 +38,56 @@ class Net(nn.Module):
         # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
         # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
         # compute grid on each level
-        if self.grid_pyramid is None:
-            self.grid_pyramid = []
-            for l in range(args.num_levels):
-                x = src_features[l]
-                torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3)).to(device)
-                torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3)).to(device)
-                grid = torch.cat([torchHorizontal, torchVertical], 1)
-                self.grid_pyramid.append(grid)
-        grid_pyramid = self.grid_pyramid
+        if args.use_warping_layer:
+            if self.grid_pyramid is None:
+                self.grid_pyramid = []
+                for l in range(args.num_levels):
+                    x = src_features[l]
+                    torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).to(device).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
+                    torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).to(device).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
+                    grid = torch.cat([torchHorizontal, torchVertical], 1)
+                    self.grid_pyramid.append(grid)
+            grid_pyramid = self.grid_pyramid
         # print(f'Build Grids: {time() - t: .2f}s'); t = time()
         B, C, H, W = src_features[0].size()
 
 
         flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
-        for l in range(args.num_levels):
+
+
+        for layer_idx in range(args.num_levels, 0, -1):
             # upsample the flow estimated from upper level
-            if l > 0:
-                flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+
+
+            if l > 0: flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             else:
                 device = torch.device(args.device)
                 flow = torch.zeros((B, 2, H, W)).to(device)
             # warp tgt_feature
             # print(tgt_features[l].size(), grid_pyramid[l].size(), flow.size())
-            tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
+            
+            tgt_feature = tgt_features[l]
+            if args.use_warping_layer:
+                tgt_feature = F.grid_sample(tgt_feature, (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
+            
             # build cost volume, time costly
-            if args.no_cost_volume:
-                flow_feature, flow = self.optical_flow_estimators[l](torch.cat([src_features[l], tgt_feature_warped, flow], dim = 1))
-                # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
+            if args.use_cost_volume:
+                cost_volume = self.cost_volume_layer(src_features[l], tgt_feature)
+                x = torch.cat([src_features[l], cost_volume, flow], dim = 1)
             else:
-                cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
-                # print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
-                # estimate flow
-                flow_feature, flow = self.optical_flow_estimators[l](torch.cat([src_features[l], cost_volume, flow], dim = 1))
-                # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
+                x = torch.cat([src_features[l], tgt_feature, flow], dim = 1)
+                
+            flow = self.optical_flow_estimators[l](x)
+
 
             # use context to refine
-            flow_refined = self.context_networks[l](src_features[l], flow)
+            if args.use_context_network:
+                flow = self.context_networks[l](src_features[l], flow)
+
+            # output
+            if layer_idx == args.output_level:
+                output_flow = F.upsample(flow, scale_factor = 2**layer_idx, mode = 'bilinear')
+                break
             # print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
 
-            flow_features.append(flow_feature); flow_pyramid.append(flow); flow_refined_pyramid.append(flow_refined)
-
-        summaries = dict()
-        summaries['flow_feature'] = flow_features
-        summaries['coarse_flow_pyramid'] = flow_pyramid
-        return flow_refined_pyramid, summaries
+        return output_flow, flow_pyramid
