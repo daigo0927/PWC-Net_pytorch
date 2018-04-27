@@ -53,8 +53,8 @@ class Net(nn.Module):
         if args.use_warping_layer:
             if self.grid_pyramid is None:
                 self.grid_pyramid = []
-                for l in range(args.num_levels):
-                    x = src_features[l]
+                for layer_idx in range(args.num_levels):
+                    x = src_features[layer_idx]
                     torchHorizontal = torch.linspace(-1.0, 1.0, x.size(3)).to(device).view(1, 1, 1, x.size(3)).expand(x.size(0), 1, x.size(2), x.size(3))
                     torchVertical = torch.linspace(-1.0, 1.0, x.size(2)).to(device).view(1, 1, x.size(2), 1).expand(x.size(0), 1, x.size(2), x.size(3))
                     grid = torch.cat([torchHorizontal, torchVertical], 1)

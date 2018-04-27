@@ -107,7 +107,7 @@ class FeaturePyramidExtractor(nn.Module):
                 nn.Conv2d(in_channels = args.lv_chs[layer_idx], out_channels = args.lv_chs[layer_idx], kernel_size = 3, stride = 1, padding = 1),
                 nn.LeakyReLU(inplace = True)))
             self.add_module(f'Feature(Lv{layer_idx + 1})', layer)
-            self.levels.insert(0, layer)
+            self.levels.append(layer)
 
 
     def forward(self, x):
