@@ -83,11 +83,10 @@ class Net(nn.Module):
                 x = torch.cat([src_features[layer_idx], tgt_feature, flow], dim = 1)
                 
             flow = self.optical_flow_estimators[layer_idx](x)
-
-
             # use context to refine
             if args.use_context_network:
                 flow = self.context_networks[layer_idx](src_features[layer_idx], flow)
+            flow_pyramid.insert(0, flow)
 
             # output
             if layer_idx == args.output_level:
