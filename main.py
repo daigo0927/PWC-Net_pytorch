@@ -157,8 +157,9 @@ def train(args):
 
     # build criterion
     criterion = get_criterion(args)
-    optimizer = torch.optim.SGD(model.parameters(), args.lr,
-                                 weight_decay = args.weight_decay)
+    # optimizer = torch.optim.SGD(model.parameters(), args.lr,
+    #                              weight_decay = args.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     # def lr_lambda(epoch):
     #     iters = epoch * iter_per_epoch

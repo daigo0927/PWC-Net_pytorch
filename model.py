@@ -59,9 +59,6 @@ class Net(nn.Module):
                     grid = torch.cat([torchHorizontal, torchVertical], 1)
                     self.grid_pyramid.append(grid)
             grid_pyramid = self.grid_pyramid
-        # print(f'Build Grids: {time() - t: .2f}s'); t = time()
-        
-
 
         flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
         B, C, H, W = src_features[-1].size()
@@ -92,6 +89,5 @@ class Net(nn.Module):
             if layer_idx == args.output_level:
                 output_flow = F.upsample(flow, scale_factor = 2**(layer_idx+1), mode = 'bilinear')
                 break
-            # print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
 
         return output_flow, flow_pyramid
