@@ -90,4 +90,4 @@ class Net(nn.Module):
                 flow = F.upsample(flow, scale_factor = 2**(layer_idx+1), mode = 'bilinear')
                 break
 
-        return output_flow, flow_pyramid
+        return flow, flow_pyramid
