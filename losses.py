@@ -12,5 +12,5 @@ def training_loss(args, flow_pyramid, flow_gt_pyramid):
     return sum(w * L2loss(flow, gt) for w, flow, gt in zip(args.weights, flow_pyramid, flow_gt_pyramid))
     
 def robust_training_loss(args, flow_pyramid, flow_gt_pyramid):
-    return sum(w * L1loss(flow - gt) + args.epsilon) ** args.q for w, flow, gt in zip(args.weights, flow_pyramid, flow_gt_pyramid))
+    return sum((w * L1loss(flow - gt) + args.epsilon) ** args.q for w, flow, gt in zip(args.weights, flow_pyramid, flow_gt_pyramid))
     
