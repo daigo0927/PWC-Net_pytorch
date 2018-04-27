@@ -240,7 +240,7 @@ def train(args):
 
             # Image Summaries
             # ============================================================
-            B = flow_pyramid[l].size(0)
+            B = flow_pyramid[0].size(0)
             for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid,  flow_gt_pyramid)):
                 flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
