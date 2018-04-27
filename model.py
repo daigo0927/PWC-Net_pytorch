@@ -62,7 +62,7 @@ class Net(nn.Module):
 
         flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
         B, C, H, W = src_features[-1].size()
-        for layer_idx in range(args.num_levels - 1, 0, -1):
+        for layer_idx in range(args.num_levels - 1, -1, -1):
             # upsample the flow estimated from upper level
             flow = torch.zeros((B, 2, H, W)).to(device) if layer_idx == args.num_levels - 1 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             # warp tgt_feature
