@@ -44,15 +44,7 @@ class Net(nn.Module):
         src_img, tgt_img = inputs
         # t = time()
         src_features = self.feature_pyramid_extractor(src_img)
-
-
-        for i,j in enumerate(src_features):
-            print(i, j.size())
-        # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
         tgt_features = self.feature_pyramid_extractor(tgt_img)
-        for i,j in enumerate(tgt_features):
-            print(i, j.size())
-        quit()
         # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
         # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
         # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
@@ -68,33 +60,27 @@ class Net(nn.Module):
                     self.grid_pyramid.append(grid)
             grid_pyramid = self.grid_pyramid
         # print(f'Build Grids: {time() - t: .2f}s'); t = time()
-        B, C, H, W = src_features[0].size()
+        
 
 
         flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
-
-
+        B, C, H, W = src_features[-1].size()
         for layer_idx in range(args.num_levels - 1, 0, -1):
             # upsample the flow estimated from upper level
-
-
-            if layer_idx != args.num_levels - 1: flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
-            else:
-                device = torch.device(args.device)
-                flow = torch.zeros((B, 2, H, W)).to(device)
+            flow = torch.zeros((B, 2, H, W)).to(device) if layer_idx == args.num_levels - 1 else F.upsample(flow, scale_factor = 2, mode = 'bilinear')
             # warp tgt_feature
             # print(tgt_features[l].size(), grid_pyramid[l].size(), flow.size())
             
             tgt_feature = tgt_features[layer_idx]
             if args.use_warping_layer:
-                tgt_feature = F.grid_sample(tgt_feature, (grid_pyramid[5 - layer_idx] + flow).permute(0, 2, 3, 1))
+                tgt_feature = F.grid_sample(tgt_feature, (grid_pyramid[layer_idx] + flow).permute(0, 2, 3, 1))
             
             # build cost volume, time costly
             if args.use_cost_volume_layer:
-                cost_volume = self.cost_volume_layer(src_features[5 - layer_idx], tgt_feature)
-                x = torch.cat([src_features[5 - layer_idx], cost_volume, flow], dim = 1)
+                cost_volume = self.cost_volume_layer(src_features[layer_idx], tgt_feature)
+                x = torch.cat([src_features[layer_idx], cost_volume, flow], dim = 1)
             else:
-                x = torch.cat([src_features[5 - layer_idx], tgt_feature, flow], dim = 1)
+                x = torch.cat([src_features[layer_idx], tgt_feature, flow], dim = 1)
                 
             flow = self.optical_flow_estimators[layer_idx](x)
 
