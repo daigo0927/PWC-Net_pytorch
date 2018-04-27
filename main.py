@@ -53,6 +53,7 @@ def main():
     train_parser.add_argument('--dataset_dir', type = str)
     train_parser.add_argument('--dataset', type = str)
     train_parser.add_argument('--output_level', type = int, default = 2)
+    train_parser.add_argument('--input_norm', action = 'store_true')
 
     # net
     train_parser.add_argument('--num_levels', type = int, default = 6)
@@ -183,15 +184,16 @@ def train(args):
         flow_gt = target[0]
         src_img, tgt_img, flow_gt = map(lambda x: x.to(device), (src_img, tgt_img, flow_gt))
 
-        r = (src_img[:,1] - 0.485) / 0.229
-        g = (src_img[:,1] - 0.456) / 0.224
-        b = (src_img[:,2] - 0.406) / 0.225
-        src_img = torch.stack([r,g,b], dim = 1)
+        if args.input_norm:
+            r = (src_img[:,1] - 0.485) / 0.229
+            g = (src_img[:,1] - 0.456) / 0.224
+            b = (src_img[:,2] - 0.406) / 0.225
+            src_img = torch.stack([r,g,b], dim = 1)
 
-        r = (tgt_img[:,1] - 0.485) / 0.229
-        g = (tgt_img[:,1] - 0.456) / 0.224
-        b = (tgt_img[:,2] - 0.406) / 0.225
-        tgt_img = torch.stack([r,g,b], dim = 1)
+            r = (tgt_img[:,1] - 0.485) / 0.229
+            g = (tgt_img[:,1] - 0.456) / 0.224
+            b = (tgt_img[:,2] - 0.406) / 0.225
+            tgt_img = torch.stack([r,g,b], dim = 1)
         
         # Build Groundtruth Pyramid
         # ============================================================
@@ -312,7 +314,7 @@ def pred(args):
 
 
 
-def test(args, eval_iter, ):
+def test(args, eval_iter):
     # TODO
     pass
 
