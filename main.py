@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 import time
 
 from model import Net
-from losses import get_criterion, L1loss, L2loss, training_loss, robust_training_loss
+from losses import L1loss, L2loss, training_loss, robust_training_loss
 from dataset import (FlyingChairs, FlyingThings, Sintel, SintelFinal, SintelClean, KITTI)
 
 import tensorflow as tf
@@ -67,6 +67,7 @@ def main():
     train_parser.add_argument('--epsilon', default = 0.02)
     train_parser.add_argument('--q', type = int, default = 0.4)
     train_parser.add_argument('--loss', type = str, default = 'L2')
+    train_parser.add_argument('--optimizer', type = str, default = 'Adam')
     
     # optimize
     train_parser.add_argument('--lr', type = float, default = 4e-4)
@@ -157,9 +158,10 @@ def train(args):
 
     # build criterion
     criterion = get_criterion(args)
-    # optimizer = torch.optim.SGD(model.parameters(), args.lr,
-    #                              weight_decay = args.weight_decay)
-    optimizer = torch.optim.Adam(model.parameters(), args.lr)
+    if args.optimizer == 'SGD':  
+        optimizer = torch.optim.SGD(model.parameters(), args.lr, weight_decay = args.weight_decay)
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     # def lr_lambda(epoch):
     #     iters = epoch * iter_per_epoch
