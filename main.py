@@ -125,7 +125,7 @@ def train(args):
     # Build Model
     # ============================================================
     model = Net(args).to(device)
-    model = nn.DataParallel(model)
+    model = model
 
     # Prepare Dataloader
     # ============================================================
