@@ -229,11 +229,9 @@ def train(args):
             # Scalar Summaries
             # ============================================================
             # L1&L2 loss per level
-            for layer_idx, (flow, coarse_flow, gt) in enumerate(zip(flow_pyramid, summaries['coarse_flow_pyramid'],  flow_gt_pyramid)):
-                logger.scalar_summary(f'L1-loss-lv{layer_idx}-after-context', L1loss(flow, gt).item(), step)
-                logger.scalar_summary(f'L2-loss-lv{layer_idx}-after-context', L2loss(flow, gt).item(), step)
-                logger.scalar_summary(f'L1-loss-lv{layer_idx}-before-context', L1loss(coarse_flow, gt).item(), step)
-                logger.scalar_summary(f'L2-loss-lv{layer_idx}-before-context', L2loss(coarse_flow, gt).item(), step)
+            for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
+                logger.scalar_summary(f'L1-loss-lv{layer_idx}', L1loss(flow, gt).item(), step)
+                logger.scalar_summary(f'L2-loss-lv{layer_idx}', L2loss(flow, gt).item(), step)
 
             logger.scalar_summary('loss', loss.item(), step)
             # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
@@ -243,11 +241,10 @@ def train(args):
             # Image Summaries
             # ============================================================
             B = flow_pyramid[l].size(0)
-            for layer_idx, (flow, coarse_flow, gt) in enumerate(zip(flow_pyramid, summaries['coarse_flow_pyramid'],  flow_gt_pyramid)):
+            for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid,  flow_gt_pyramid)):
                 flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
-                coarse_flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(summaries['coarse_flow_pyramid'][layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
-                logger.image_summary(f'coarse&fine&gt-lv{layer_idx}', [np.concatenate([i,j,k], axis = 1) for i,j,k in zip(flow_vis, coarse_flow_vis, flow_gt_vis)], step)
+                logger.image_summary(f'coarse&fine&gt-lv{layer_idx}', [np.concatenate([i,j,k], axis = 1) for i,j in zip(flow_vis, flow_gt_vis)], step)
 
             logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0))], step)
 
@@ -306,7 +303,7 @@ def pred(args):
     # Forward Pass
     # ============================================================
     with torch.no_grad():
-        flow_pyramid, summaries = model(src_img, tgt_img)
+        output_flow, flow_pyramid = model(src_img, tgt_img)
     flow = flow_pyramid[-1]
     flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
