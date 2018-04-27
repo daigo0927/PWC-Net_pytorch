@@ -153,7 +153,8 @@ def train(args):
     logger = Logger(args.log_dir)
     p_log = Path(args.log_dir)
 
-    iter_time = 0
+    forward_time = 0
+    backward_time = 0
 
     # Start training
     # ============================================================
@@ -176,8 +177,7 @@ def train(args):
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
     for step in range(1, args.total_step + 1):
-        t_iter = time.time()
-
+        
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
 
@@ -204,7 +204,9 @@ def train(args):
         # Forward Pass
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
+        t_forward = time.time()
         flow_pyramid, summaries = model([src_img, tgt_img])
+        forward_time += time.time() - t_forward
 
         
         # Compute Loss
@@ -215,11 +217,11 @@ def train(args):
         
         # Do step
         # ============================================================
+        t_backward = time.time()
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
-        iter_time += time.time() - t_iter
+        backward_time += time.time() - t_backward
         
         # Collect Summaries & Output Logs
         # ============================================================
@@ -255,7 +257,7 @@ def train(args):
         # print log
         if step % args.log_interval == 0:
             epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, EPE: {epe.item():.4f}, Average Iter Time: {step/iter_time} iters/s')
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, EPE: {epe.item():.4f},  Forward: {forward_time/step*1000} ms, Backward: {backward_time/step*1000} ms')
 
 
 

@@ -148,10 +148,9 @@ class OpticalFlowEstimator(nn.Module):
             nn.LeakyReLU(inplace = True))
         self.conv6 = nn.Conv2d(in_channels = 32, out_channels = 2, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True)
 
-    def forward(self, tgt, cost_volume, flow):
+    def forward(self, x):
         args = self.args
-        x = torch.cat([tgt, cost_volume, flow], dim = 1).cuda()
-        
+
         out_conv1 = self.conv1(x)
         out_conv2 = self.conv2(out_conv1)
         out_conv3 = self.conv3(out_conv2)
