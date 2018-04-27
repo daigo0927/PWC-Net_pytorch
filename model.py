@@ -86,8 +86,8 @@ class Net(nn.Module):
             flow_pyramid.append(flow)
 
             # output
-            if layer_idx == args.output_level:
-                output_flow = F.upsample(flow, scale_factor = 2**(layer_idx+1), mode = 'bilinear')
+            if layer_idx == args.output_level or layer_idx == 0:
+                flow = F.upsample(flow, scale_factor = 2**(layer_idx+1), mode = 'bilinear')
                 break
 
         return output_flow, flow_pyramid
