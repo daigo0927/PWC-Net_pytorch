@@ -157,6 +157,7 @@ def train(args):
 
     # build criterion
     criterion = get_criterion(args)
+    print(list(model.modules()))
     optimizer = torch.optim.SGD(next(model.modules()).parameters(), args.lr,
                                  weight_decay = args.weight_decay)
 
