@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 import time
 
 from model import Net
-from losses import get_criterion, L1loss, L2loss
+from losses import get_criterion, L1loss, L2loss, training_loss, robust_training_loss
 from dataset import (FlyingChairs, FlyingThings, Sintel, SintelFinal, SintelClean, KITTI)
 
 import tensorflow as tf
@@ -214,8 +214,14 @@ def train(args):
         
         # Compute Loss
         # ============================================================
-        # loss = criterion(args, flow_pyramid, flow_gt_pyramid)
-        loss = L2loss(flow_gt, output_flow)
+        if args.loss == 'L1':
+            loss = L1loss(flow_gt, output_flow)
+        elif args.loss == 'PyramidL1':
+            loss = robust_training_loss(args, flow_pyramid, flow_gt_pyramid)
+        elif args.loss == 'L2':
+            loss = L2loss(flow_gt, output_flow)
+        elif args.loss == 'PyramidL2':
+            loss = training_loss(args, flow_pyramid, flow_gt_pyramid)
 
         
         # Do step
