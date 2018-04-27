@@ -213,8 +213,8 @@ def train(args):
         
         # Compute Loss
         # ============================================================
-        loss = criterion(args, flow_pyramid, flow_gt_pyramid)
-
+        # loss = criterion(args, flow_pyramid, flow_gt_pyramid)
+        loss = L2loss(flow_gt, output_flow)
 
         
         # Do step
