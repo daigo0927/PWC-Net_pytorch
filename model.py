@@ -69,7 +69,7 @@ class Net(nn.Module):
                 cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
                 # print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
                 # estimate flow
-                flow_feature, flow = self.optical_flow_estimators[l](torch.cat([src_features[l], cost_volume, flow]))
+                flow_feature, flow = self.optical_flow_estimators[l](torch.cat([src_features[l], cost_volume, flow], dim = 1))
                 # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
 
             # use context to refine
