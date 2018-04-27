@@ -74,7 +74,7 @@ def main():
     train_parser.add_argument('--momentum', default = 4e-4)
     train_parser.add_argument('--beta', default = 0.99)
     train_parser.add_argument('--weight_decay', type = float, default = 4e-4)
-    train_parser.add_argument('--total_step', default = 200 * 1000)
+    train_parser.add_argument('--total_step', type = int, default = 200 * 1000)
 
     # summary & log args
     train_parser.add_argument('--log_dir', default = 'train_log/' + datetime.now().strftime('%Y%m%d-%H%M%S'))
@@ -157,7 +157,6 @@ def train(args):
 
 
     # build criterion
-    criterion = get_criterion(args)
     if args.optimizer == 'SGD':  
         optimizer = torch.optim.SGD(model.parameters(), args.lr, weight_decay = args.weight_decay)
     else:
