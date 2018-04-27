@@ -29,7 +29,6 @@ class Net(nn.Module):
         args = self.args
         device = torch.device(args.device)
         src_img, tgt_img = inputs
-        # (B,3,H,W) -> (B,3,H/2,W/2) -> (B,3,H/4,W/4) -> (B,3,H/8,W/8)
         # t = time()
         src_features = self.feature_pyramid_extractor(src_img)
         # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()

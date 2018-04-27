@@ -126,17 +126,7 @@ def train(args):
     # ============================================================
     model = Net(args).to(device)
     model = nn.DataParallel(model)
-    # summary(model, input_size = [(3, 384, 448)] * 2)
-    # quit()
 
-    # TODO: change optimizer to S_long & S_fine (same as flownet2)
-    
-    
-
-    device = torch.device(args.device)
-
-
-    
     # Prepare Dataloader
     # ============================================================
     train_dataset, eval_dataset = eval("{0}('{1}', 'train', cropper = '{5}', crop_shape = {2}, resize_shape = {3}, resize_scale = {4}), {0}('{1}', 'test', cropper = '{5}', crop_shape = {2}, resize_shape = {3}, resize_scale = {4})".format(args.dataset, args.dataset_dir, args.crop_shape, args.resize_shape, args.resize_scale, args.crop_type))
@@ -208,7 +198,7 @@ def train(args):
         # ============================================================
         # features on each level will downsample to 1/2 from bottom to top
         t_forward = time.time()
-        flow_pyramid, summaries = model([src_img, tgt_img])
+        output_flow, flow_pyramid = model([src_img, tgt_img])
         forward_time += time.time() - t_forward
 
         
