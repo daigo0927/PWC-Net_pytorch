@@ -67,7 +67,7 @@ class Net(nn.Module):
         flow_features, flow_pyramid, flow_refined_pyramid = [], [], []
 
 
-        for layer_idx in range(args.num_levels, 0, -1):
+        for layer_idx in range(args.num_levels - 1, 0, -1):
             # upsample the flow estimated from upper level
 
 
@@ -94,7 +94,7 @@ class Net(nn.Module):
 
             # use context to refine
             if args.use_context_network:
-                flow = self.context_networks[l](src_features[l], flow)
+                flow = self.context_networks[layer_idx](src_features[layer_idx], flow)
 
             # output
             if layer_idx == args.output_level:
