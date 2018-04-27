@@ -84,10 +84,10 @@ class Net(nn.Module):
             
             # build cost volume, time costly
             if args.use_cost_volume_layer:
-                cost_volume = self.cost_volume_layer(src_features[layer_idx], tgt_feature)
-                x = torch.cat([src_features[layer_idx], cost_volume, flow], dim = 1)
+                cost_volume = self.cost_volume_layer(src_features[5 - layer_idx], tgt_feature)
+                x = torch.cat([src_features[5 - layer_idx], cost_volume, flow], dim = 1)
             else:
-                x = torch.cat([src_features[layer_idx], tgt_feature, flow], dim = 1)
+                x = torch.cat([src_features[5 - layer_idx], tgt_feature, flow], dim = 1)
                 
             flow = self.optical_flow_estimators[layer_idx](x)
 
