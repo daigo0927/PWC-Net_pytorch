@@ -68,7 +68,7 @@ def main():
     train_parser.add_argument('--lr', type = float, default = 4e-4)
     train_parser.add_argument('--momentum', default = 4e-4)
     train_parser.add_argument('--beta', default = 0.99)
-    train_parser.add_argument('--weight_decay', default = 4e-4)
+    train_parser.add_argument('--weight_decay', type = float, default = 4e-4)
     train_parser.add_argument('--total_step', default = 200 * 1000)
 
     # summary & log args
