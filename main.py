@@ -235,8 +235,6 @@ def train(args):
 
             logger.scalar_summary('loss', loss.item(), step)
             # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
-            if 'epe' in locals():
-                logger.scalar_summary('EPE', epe, step)
 
             # Image Summaries
             # ============================================================
@@ -253,8 +251,7 @@ def train(args):
             torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
         # print log
         if step % args.log_interval == 0:
-            epe = torch.norm(flow_pyramid[-1] - flow_gt_pyramid[-1], p = 2, dim = 1).mean()
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, EPE: {epe.item():.4f},  Forward: {forward_time/step*1000} ms, Backward: {backward_time/step*1000} ms')
+            print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, Forward: {forward_time/step*1000} ms, Backward: {backward_time/step*1000} ms')
 
 
 
