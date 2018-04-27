@@ -125,7 +125,7 @@ def train(args):
     # Build Model
     # ============================================================
     model = Net(args).to(device)
-    model = model
+    print(model.modules())
 
     # Prepare Dataloader
     # ============================================================
