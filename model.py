@@ -86,7 +86,7 @@ class Net(nn.Module):
             # use context to refine
             if args.use_context_network:
                 flow = self.context_networks[layer_idx](src_features[layer_idx], flow)
-            flow_pyramid.insert(0, flow)
+            flow_pyramid.append(flow)
 
             # output
             if layer_idx == args.output_level:
