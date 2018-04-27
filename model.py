@@ -80,7 +80,7 @@ class Net(nn.Module):
             
             tgt_feature = tgt_features[layer_idx]
             if args.use_warping_layer:
-                tgt_feature = F.grid_sample(tgt_feature, (grid_pyramid[layer_idx] + flow).permute(0, 2, 3, 1))
+                tgt_feature = F.grid_sample(tgt_feature, (grid_pyramid[6 - layer_idx] + flow).permute(0, 2, 3, 1))
             
             # build cost volume, time costly
             if args.use_cost_volume_layer:
