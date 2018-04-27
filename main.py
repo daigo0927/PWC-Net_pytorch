@@ -184,7 +184,15 @@ def train(args):
         flow_gt = target[0]
         src_img, tgt_img, flow_gt = map(lambda x: x.to(device), (src_img, tgt_img, flow_gt))
 
+        r = (src_img[:,1] - 0.485) / 0.229
+        g = (src_img[:,1] - 0.456) / 0.224
+        b = (src_img[:,2] - 0.406) / 0.225
+        src_img = torch.stack([r,g,b], dim = 1)
 
+        r = (tgt_img[:,1] - 0.485) / 0.229
+        g = (tgt_img[:,1] - 0.456) / 0.224
+        b = (tgt_img[:,2] - 0.406) / 0.225
+        tgt_img = torch.stack([r,g,b], dim = 1)
         
         # Build Groundtruth Pyramid
         # ============================================================
