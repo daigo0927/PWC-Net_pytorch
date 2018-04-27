@@ -245,7 +245,7 @@ def train(args):
                 flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 coarse_flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(summaries['coarse_flow_pyramid'][layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
-                logger.image_summary(f'coarse&fine&gt-lv{l}', [np.concatenate([i,j,k], axis = 1) for i,j,k in zip(flow_vis, coarse_flow_vis, flow_gt_vis)], step)
+                logger.image_summary(f'coarse&fine&gt-lv{layer_idx}', [np.concatenate([i,j,k], axis = 1) for i,j,k in zip(flow_vis, coarse_flow_vis, flow_gt_vis)], step)
 
             logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0))], step)
 
