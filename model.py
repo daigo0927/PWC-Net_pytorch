@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.args = args
         device = torch.device(args.device)
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(device)
-        if args.use_cost_volume:
+        if args.use_cost_volume_layer:
             self.cost_volume_layer = CostVolumeLayer(args).to(device)
             self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2).to(device) for ch_in in args.lv_chs[::-1]]
         else:
@@ -70,7 +70,7 @@ class Net(nn.Module):
                 tgt_feature = F.grid_sample(tgt_feature, (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             
             # build cost volume, time costly
-            if args.use_cost_volume:
+            if args.use_cost_volume_layer:
                 cost_volume = self.cost_volume_layer(src_features[l], tgt_feature)
                 x = torch.cat([src_features[l], cost_volume, flow], dim = 1)
             else:
