@@ -44,8 +44,15 @@ class Net(nn.Module):
         src_img, tgt_img = inputs
         # t = time()
         src_features = self.feature_pyramid_extractor(src_img)
+
+
+        for i,j in enumerate(src_features):
+            print(i, j.size())
         # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
         tgt_features = self.feature_pyramid_extractor(tgt_img)
+        for i,j in enumerate(tgt_features):
+            print(i, j.size())
+        quit()
         # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
         # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
         # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
