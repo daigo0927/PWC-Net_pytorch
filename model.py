@@ -63,13 +63,13 @@ class Net(nn.Module):
             tgt_feature_warped = F.grid_sample(tgt_features[l], (grid_pyramid[l] + flow).permute(0, 2, 3, 1))
             # build cost volume, time costly
             if args.no_cost_volume:
-                flow_feature, flow = self.optical_flow_estimators[l](src_features[l], tgt_feature_warped, flow)
+                flow_feature, flow = self.optical_flow_estimators[l](torch.cat([src_features[l], tgt_feature_warped, flow], dim = 1))
                 # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
             else:
                 cost_volume = self.cost_volume_layer(src_features[l], tgt_feature_warped)
                 # print(f'[Lv{l}] Compute Cost Volume: {time() - t: .2f}s'); t = time()
                 # estimate flow
-                flow_feature, flow = self.optical_flow_estimators[l](src_features[l], cost_volume, flow)
+                flow_feature, flow = self.optical_flow_estimators[l](torch.cat([src_features[l], cost_volume, flow]))
                 # print(f'[Lv{l}] Estimate Flow: {time() - t: .2f}s'); t = time()
 
             # use context to refine
