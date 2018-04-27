@@ -234,7 +234,7 @@ def train(args):
                 logger.scalar_summary(f'L2-loss-lv{layer_idx}-before-context', L2loss(coarse_flow, gt).item(), step)
 
             logger.scalar_summary('loss', loss.item(), step)
-            logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
+            # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
             if 'epe' in locals():
                 logger.scalar_summary('EPE', epe, step)
 
