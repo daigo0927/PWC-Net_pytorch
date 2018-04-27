@@ -164,7 +164,6 @@ def train(args):
     # build criterion
     criterion = get_criterion(args)
     optimizer = torch.optim.SGD(next(model.modules()).parameters(), args.lr,
-                                 betas = (args.momentum, args.beta),
                                  weight_decay = args.weight_decay)
 
     # def lr_lambda(epoch):
