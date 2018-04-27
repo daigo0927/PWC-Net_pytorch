@@ -20,7 +20,8 @@ class Net(nn.Module):
             self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + (args.search_range*2+1)**2 + 2).to(device) for ch_in in args.lv_chs[::-1]]
         else:
             self.optical_flow_estimators = [OpticalFlowEstimator(args, ch_in + ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
-        self.context_networks = [ContextNetwork(args, ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
+        if args.use_context_network:
+            self.context_networks = [ContextNetwork(args, ch_in + 2).to(device) for ch_in in args.lv_chs[::-1]]
         if args.use_warping_layer:
             self.grid_pyramid = None
 
