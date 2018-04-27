@@ -90,7 +90,7 @@ class Net(nn.Module):
 
             # output
             if layer_idx == args.output_level:
-                output_flow = F.upsample(flow, scale_factor = 2**layer_idx, mode = 'bilinear')
+                output_flow = F.upsample(flow, scale_factor = 2**(layer_idx+1), mode = 'bilinear')
                 break
             # print(f'[Lv{l}] Refine Flow: {time() - t: .2f}s'); t = time()
 
