@@ -1,7 +1,7 @@
-# Acknowledges
-- Thanks [NVIDIA/flownet2-pytorch](https://github.com/NVIDIA/flownet2-pytorch) for data transformers
-- Thanks [yunjey/pytorch-tutorial](https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/04-utils/tensorboard) for Tensorboard logger
-- Thanks [sksq96/pytorch-summary](https://github.com/sksq96/pytorch-summary) for model summary similar to `model.summary()` in Keras
+# Acknowledgments
+- [NVIDIA/flownet2-pytorch](https://github.com/NVIDIA/flownet2-pytorch): data transformers
+- [yunjey/pytorch-tutorial](https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/04-utils/tensorboard): Tensorboard logger
+- [sksq96/pytorch-summary](https://github.com/sksq96/pytorch-summary): model summary similar to `model.summary()` in Keras
 
 # PWC-Net
 - As many ablation experiments are done in the original paper, we make it easy to add/remove a component by just adding a parameter to the parser. Type `python3 main.py -h` to see the details.

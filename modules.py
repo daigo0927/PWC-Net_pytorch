@@ -70,8 +70,7 @@ class CostVolumeLayer(nn.Module):
         S = args.search_range
         B, C, H, W = src.size()
         if H not in self.zeros:
-            device = torch.device(args.device)
-            self.zeros[H] = torch.zeros((B, (S*2+1)**2, H, W)).to(device)
+            self.zeros[H] = torch.zeros((B, (S*2+1)**2, H, W)).to(args.device)
         output = torch.zeros_like(self.zeros[H])
         output[:,0] = (tgt*src).sum(1)
 

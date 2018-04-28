@@ -54,11 +54,12 @@ def main():
     train_parser.add_argument('--dataset', type = str)
     train_parser.add_argument('--output_level', type = int, default = 2)
     train_parser.add_argument('--input_norm', action = 'store_true')
+    train_parser.add_argument('--corr', type = str, default = 'cost_volume')
 
     # net
     train_parser.add_argument('--num_levels', type = int, default = 6)
     train_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
-    train_parser.add_argument('--use_cost_volume_layer', action = 'store_true')
+    train_parser.add_argument('--corr_activation', action = 'store_true')
     train_parser.add_argument('--use_context_network', action = 'store_true')
     train_parser.add_argument('--use_warping_layer', action = 'store_true')
 
@@ -117,16 +118,17 @@ def main():
         assert args.load is not None
     else:
         raise RuntimeError('use train/predict/test to select a mode')
+    
+    args.device = torch.device(args.device)
 
     args.func(args)
 
 
 
 def train(args):
-    device = torch.device(args.device)
     # Build Model
     # ============================================================
-    model = Net(args).to(device)
+    model = Net(args).to(args.device)
 
     # Prepare Dataloader
     # ============================================================
@@ -184,7 +186,7 @@ def train(args):
         src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
         # shape: B,2,H,W
         flow_gt = target[0]
-        src_img, tgt_img, flow_gt = map(lambda x: x.to(device), (src_img, tgt_img, flow_gt))
+        src_img, tgt_img, flow_gt = map(lambda x: x.to(args.device), (src_img, tgt_img, flow_gt))
 
         if args.input_norm:
             r = (src_img[:,1] - 0.485) / 0.229
@@ -267,10 +269,9 @@ def train(args):
 
 def pred(args):
     # Get environment
-    device = torch.device(args.device)
     # Build Model
     # ============================================================
-    model = Net(args).to(device)
+    model = Net(args).to(args.device)
     model.load_state_dict(torch.load(args.load))
     
     # Load Data
@@ -303,8 +304,8 @@ def pred(args):
     tgt_img = tgt_img[np.newaxis,:,:,:].transpose(0,3,1,2)
 
 
-    src_img = torch.Tensor(src_img).to(device)
-    tgt_img = torch.Tensor(tgt_img).to(device)
+    src_img = torch.Tensor(src_img).to(args.device)
+    tgt_img = torch.Tensor(tgt_img).to(args.device)
     
 
     # Forward Pass
