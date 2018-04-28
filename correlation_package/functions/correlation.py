@@ -37,8 +37,8 @@ class CorrelationFunction(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        if not grad_output.is_contiguous():
-            grad_output = grad_output.contiguous()
+        # if not grad_output.is_contiguous():
+        #     grad_output = grad_output.contiguous()
 
         input1, input2 = ctx.saved_tensors
 
