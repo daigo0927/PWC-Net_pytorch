@@ -162,7 +162,7 @@ def train(args):
     if args.optimizer == 'SGD':  
         optimizer = torch.optim.SGD(model.parameters(), args.lr, weight_decay = args.weight_decay)
     else:
-        optimizer = torch.optim.Adam(model.parameters(), args.lr)
+        optimizer = torch.optim.Adam(model.parameters(), args.lr, weight_decay = args.weight_decay)
 
     # def lr_lambda(epoch):
     #     iters = epoch * iter_per_epoch
@@ -232,6 +232,8 @@ def train(args):
         # ============================================================
         t_backward = time.time()
         optimizer.zero_grad()
+        print(loss.item())
+    
         loss.backward()
         optimizer.step()
         backward_time += time.time() - t_backward
