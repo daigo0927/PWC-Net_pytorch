@@ -231,12 +231,7 @@ def train(args):
         # ============================================================
         t_backward = time.time()
         optimizer.zero_grad()
-        for flow, gt in zip(flow_pyramid,flow_gt_pyramid):
-            print(flow.is_contiguous(), gt.is_contiguous())
-        print(loss.is_contiguous())
-    
         loss.backward()
-        print('BACKWARD OK')
         optimizer.step()
         backward_time += time.time() - t_backward
         
