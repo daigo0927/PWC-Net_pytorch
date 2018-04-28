@@ -174,7 +174,6 @@ def train(args):
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
     for step in range(1, args.total_step + 1):
-        model.train()
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
 
@@ -232,7 +231,9 @@ def train(args):
         # ============================================================
         t_backward = time.time()
         optimizer.zero_grad()
-        print(loss)
+        for flow, gt in zip(flow_pyramid,flow_gt_pyramid):
+            print(flow.is_contiguous(), gt.is_contiguous())
+        print(loss.is_contiguous())
     
         loss.backward()
         optimizer.step()
