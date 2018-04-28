@@ -174,7 +174,7 @@ def train(args):
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
     for step in range(1, args.total_step + 1):
-        
+        model.train()
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
 
