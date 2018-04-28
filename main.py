@@ -232,7 +232,7 @@ def train(args):
         # ============================================================
         t_backward = time.time()
         optimizer.zero_grad()
-        print(loss.item())
+        print(loss)
     
         loss.backward()
         optimizer.step()
