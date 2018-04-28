@@ -25,7 +25,7 @@ class Net(nn.Module):
         if args.corr == 'cost_volume':
             self.corr = CostVolumeLayer(args).to(args.device)
         elif args.corr == 'flownetc':
-            self.corr = Correlation(pad_size=20, kernel_size=1, max_displacement=20, stride1=1, stride2=2, corr_multiply=1).to(args.device)
+            self.corr = Correlation(pad_size = args.search_range, kernel_size = 1, max_displacement = args.search_range, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
 
 
         # build estimate layer
@@ -92,7 +92,7 @@ class Net(nn.Module):
             # build cost volume, time costly
             if args.corr != 'none':
                 corr = self.corr(src_features[layer_idx], tgt_feature)
-                x = torch.cat([src_features[layer_idx], cost_volume, flow], dim = 1)
+                x = torch.cat([src_features[layer_idx], corr, flow], dim = 1)
             else:
                 x = torch.cat([src_features[layer_idx], tgt_feature, flow], dim = 1)
                 
