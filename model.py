@@ -25,7 +25,7 @@ class Net(nn.Module):
         if args.corr == 'cost_volume':
             self.corr = CostVolumeLayer(args).to(args.device)
         elif args.corr == 'flownetc':
-            self.corr = Correlation(pad_size = args.search_range, kernel_size = 1, max_displacement = args.search_range, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
+            self.corr = Correlation(pad_size = args.search_range * 2 + 1, kernel_size = 1, max_displacement = args.search_range * 2 + 1, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
 
 
         # build estimate layer
