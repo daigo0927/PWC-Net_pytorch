@@ -236,6 +236,7 @@ def train(args):
         print(loss.is_contiguous())
     
         loss.backward()
+        print('BACKWARD OK')
         optimizer.step()
         backward_time += time.time() - t_backward
         
