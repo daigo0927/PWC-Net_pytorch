@@ -92,7 +92,6 @@ class Net(nn.Module):
             # build cost volume, time costly
             if args.corr != 'none':
                 corr = self.corr(src_features[layer_idx], tgt_feature)
-                print(corr.size())
                 x = torch.cat([src_features[layer_idx], corr, flow], dim = 1)
             else:
                 x = torch.cat([src_features[layer_idx], tgt_feature, flow], dim = 1)
