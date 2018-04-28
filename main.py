@@ -155,7 +155,7 @@ def train(args):
     # Start training
     # ============================================================
     data_iter = iter(train_loader)
-    iter_per_epoch = (len(train_loader) // args.batch_size) * args.batch_size
+    iter_per_epoch = len(train_loader)
 
 
     # build criterion
