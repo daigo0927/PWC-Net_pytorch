@@ -71,7 +71,7 @@ class Net(nn.Module):
             flow_coarse = self.flow_estimators[l](torch.cat([x1, x2_warp, flow], dim = 1))
 
             # use context to refine the flow
-            flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse]. dim = 1))
+            flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
             flow = flow_coarse + flow_fine
 
             # collect
