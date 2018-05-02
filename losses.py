@@ -81,10 +81,6 @@ class MultiScale(nn.Module):
 
     def forward(self, outputs, target):
         targets = (avg_pool(target) for avg_pool in self.multiScales)
-
-        for i in targets:
-            print(i.size())
-        quit()
         loss, epe = 0, 0
         for w, o, t in zip(self.loss_weights, outputs, targets):
             loss += w * self.loss(o, t)
