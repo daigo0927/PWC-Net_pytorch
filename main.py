@@ -193,16 +193,16 @@ def train(args):
         
         # Compute Loss
         # ============================================================
-        loss = criterion(flows, flow_gt)
+        loss, epe = criterion(flows, flow_gt)
 
-        if args.loss == 'L1':
-            loss = L1loss(flow_gt, output_flow)
-        elif args.loss == 'PyramidL1':
-            loss = robust_training_loss(args, flow_pyramid, flow_gt_pyramid)
-        elif args.loss == 'L2':
-            loss = L2loss(flow_gt, output_flow)
-        elif args.loss == 'PyramidL2':
-            loss = training_loss(args, flow_pyramid, flow_gt_pyramid)
+        # if args.loss == 'L1':
+        #     loss = L1loss(flow_gt, output_flow)
+        # elif args.loss == 'PyramidL1':
+        #     loss = robust_training_loss(args, flow_pyramid, flow_gt_pyramid)
+        # elif args.loss == 'L2':
+        #     loss = L2loss(flow_gt, output_flow)
+        # elif args.loss == 'PyramidL2':
+        #     loss = training_loss(args, flow_pyramid, flow_gt_pyramid)
 
         
         # backward
@@ -220,11 +220,12 @@ def train(args):
             # ============================================================
             logger.scalar_summary('lr', optimizer.param_groups[0]['lr'])
             # L1&L2 loss per level
-            for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
-                logger.scalar_summary(f'L1-loss-lv{layer_idx}', L1loss(flow, gt).item(), step)
-                logger.scalar_summary(f'L2-loss-lv{layer_idx}', L2loss(flow, gt).item(), step)
+            # for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
+            #     logger.scalar_summary(f'L1-loss-lv{layer_idx}', L1loss(flow, gt).item(), step)
+            #     logger.scalar_summary(f'L2-loss-lv{layer_idx}', L2loss(flow, gt).item(), step)
 
             logger.scalar_summary('loss', loss.item(), step)
+            logger.scalar_summary('EPE', epe.item(), step)
             # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
 
             # Image Summaries
