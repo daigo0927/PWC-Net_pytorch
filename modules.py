@@ -128,7 +128,7 @@ class FeaturePyramidExtractor(nn.Module):
         for conv in self.convs:
             x = conv(x); feature_pyramid.append(x)
 
-        return feature_pyramid
+        return feature_pyramid[::-1]
         
 
 class OpticalFlowEstimator(nn.Module):
