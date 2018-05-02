@@ -73,8 +73,6 @@ class Net(nn.Module):
             x2_warp = F.grid_sample(x2, grid)
             
             # concat and estimate flow
-            print(x1.size(), x2_warp.size(), self.flow_estimators[l])
-            quit()
             flow_coarse = self.flow_estimators[l](torch.cat([x1, x2_warp, flow], dim = 1))
 
             # use context to refine the flow
