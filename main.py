@@ -198,11 +198,11 @@ def train(args):
         # if args.loss == 'L1':
         #     loss = L1loss(flow_gt, output_flow)
         # elif args.loss == 'PyramidL1':
-        #     loss = robust_training_loss(args, flow_pyramid, flow_gt_pyramid)
+        #     loss = robust_training_loss(args, flows, flow_gt_pyramid)
         # elif args.loss == 'L2':
         #     loss = L2loss(flow_gt, output_flow)
         # elif args.loss == 'PyramidL2':
-        #     loss = training_loss(args, flow_pyramid, flow_gt_pyramid)
+        #     loss = training_loss(args, flows, flow_gt_pyramid)
 
         
         # backward
@@ -227,7 +227,7 @@ def train(args):
             # ============================================================
             B = flows[0].size(0)
             for layer_idx, flow in enumerate(flows):
-                flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+                flow_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flows[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 # flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 logger.image_summary(f'flow-lv{layer_idx}', flow_vis, step)
 
@@ -286,8 +286,8 @@ def pred(args):
     # Forward Pass
     # ============================================================
     with torch.no_grad():
-        output_flow, flow_pyramid = model(x1_raw, x2_raw)
-    flow = flow_pyramid[-1]
+        output_flow, flows = model(x1_raw, x2_raw)
+    flow = flows[-1]
     flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
     flow_vis = vis_flow(flow)
