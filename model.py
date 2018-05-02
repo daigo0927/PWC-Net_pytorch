@@ -67,7 +67,7 @@ class Net(nn.Module):
 
             # warp
             grid = (get_grid(x1).to(args.device) + flow).permute(0, 2, 3, 1)
-            x2_warp = F.grid_samples(x2, grid)
+            x2_warp = F.grid_sample(x2, grid)
             
             # concat and estimate flow
             flow_coarse = self.flow_estimators[l](torch.cat([x1, x2_warp, flow], dim = 1))
