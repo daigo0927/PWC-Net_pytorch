@@ -23,16 +23,16 @@ class Net(nn.Module):
         self.corr = Correlation(pad_size = args.search_range * 2 + 1, kernel_size = 1, max_displacement = args.search_range * 2 + 1, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
         
         self.flow_estimators = []
-        for l in range(args.num_levels):
-            layer = OpticalFlowEstimator(args, args.lv_chs[l] + (args.search_range*2+1)**2 + 2).to(args.device)
-            self.add_module(f'FlowEstimator(Lv{l + 1})', layer)
-            self.flow_estimators.insert(0, layer)
+        for l, ch in enumerate(args.lv_chs[::-1]):
+            layer = OpticalFlowEstimator(args, ch + (args.search_range*2+1)**2 + 2).to(args.device)
+            self.add_module(f'FlowEstimator(Lv{l})', layer)
+            self.flow_estimators.append(layer)
 
         self.context_networks = []
-        for l in range(args.num_levels):
-            layer = ContextNetwork(args, args.lv_chs[l] + 2).to(args.device)
-            self.add_module(f'ContextNetwork(Lv{l + 1})', layer)
-            self.context_networks.insert(0, layer)
+        for l, ch in enumerate(args.lv_chs[::-1]):
+            layer = ContextNetwork(args, ch + 2).to(args.device)
+            self.add_module(f'ContextNetwork(Lv{l})', layer)
+            self.context_networks.append(layer)
 
 
     def forward(self, x):
@@ -73,6 +73,8 @@ class Net(nn.Module):
             x2_warp = F.grid_sample(x2, grid)
             
             # concat and estimate flow
+            print(x1.size(), x2_warp.size(), self.flow_estimators[l])
+            quit()
             flow_coarse = self.flow_estimators[l](torch.cat([x1, x2_warp, flow], dim = 1))
 
             # use context to refine the flow
