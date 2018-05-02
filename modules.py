@@ -6,11 +6,11 @@ from torch.autograd import Variable
 import sys
 
 
-def conv(args.batch_norm, in_planes, out_planes, kernel_size=3, stride=1):
-    if args.batch_norm:
+def conv(batch_norm, in_planes, out_planes, kernel_size=3, stride=1):
+    if batch_norm:
         return nn.Sequential(
             nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=(kernel_size-1)//2, bias=False),
-            nn.args.batch_norm2d(out_planes),
+            nn.BatchNorm2d(out_planes),
             nn.LeakyReLU(0.1,inplace=True)
         )
     else:
