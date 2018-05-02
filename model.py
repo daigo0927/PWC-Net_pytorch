@@ -18,13 +18,16 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.args = args
 
-        self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(args.device)
+        self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(args.device)        
+        
         self.corr = Correlation(pad_size = args.search_range * 2 + 1, kernel_size = 1, max_displacement = args.search_range * 2 + 1, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
-        self.optical_flow_estimators = []
+        
+        self.flow_estimators = []
         for l in range(args.num_levels):
             layer = OpticalFlowEstimator(args, args.lv_chs[l] + (args.search_range*2+1)**2 + 2).to(args.device)
             self.add_module(f'FlowEstimator(Lv{l + 1})', layer)
-            self.optical_flow_estimators.append(layer)
+            self.flow_estimators.append(layer)
+
         self.context_networks = []
         for l in range(args.num_levels):
             layer = ContextNetwork(args, args.lv_chs[l] + 2).to(args.device)
