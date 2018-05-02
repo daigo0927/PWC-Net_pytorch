@@ -66,7 +66,7 @@ class Net(nn.Module):
             flow *= 5
 
             # warp
-            grid = (get_grid(x1) + flow).permute(0, 2, 3, 1)
+            grid = (get_grid(x1).to(args.device) + flow).permute(0, 2, 3, 1)
             x2_warp = F.grid_samples(x2, grid)
             
             # concat and estimate flow
