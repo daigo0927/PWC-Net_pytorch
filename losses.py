@@ -60,7 +60,7 @@ class L2Loss(nn.Module):
 
 
 class MultiScale(nn.Module):
-    def __init__(self, args, startScale = 4, numScales = 6, l_weight= 0.32, norm= 'L1'):
+    def __init__(self, args, startScale = 4, numScales = 5, l_weight= 0.32, norm= 'L1'):
         super(MultiScale,self).__init__()
 
         self.startScale = startScale
