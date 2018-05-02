@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 import time
 
 from model import Net
-from losses import L1loss, L2loss, training_loss, robust_training_loss
+from losses import L1loss, L2loss, training_loss, robust_training_loss, MultiScale
 from dataset import (FlyingChairs, FlyingThings, Sintel, SintelFinal, SintelClean, KITTI)
 
 import tensorflow as tf
@@ -39,6 +39,7 @@ def main():
     # ============================================================
     parser.add_argument('--search_range', type = int, default = 4)
     parser.add_argument('--device', type = str, default = 'cuda')
+    parser.add_argument('--rgb_max', type = float, default = 255)
 
 
     # train_parser
@@ -98,10 +99,6 @@ def main():
     # ============================================================
     test_parser.add_argument('--load', type = str)
 
-
-
-    
-
     args = parser.parse_args()
 
 
@@ -156,6 +153,7 @@ def train(args):
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
+    criterion = MultiScale()
 
 
     # build criterion
@@ -164,15 +162,9 @@ def train(args):
     else:
         optimizer = torch.optim.Adam(model.parameters(), args.lr, weight_decay = args.weight_decay)
 
-    # def lr_lambda(epoch):
-    #     iters = epoch * iter_per_epoch
-    #     if iters < 4e+5: return 1e-4
-    #     elif 4e+5 <= iters < 6e+5: return 5e-5
-    #     elif 6e+5 <= iters < 8e+5: return 2e-5
-    #     elif 8e+5 <= iters < 1e+6: return 1e-5
-    #     else: return 5e-6
-    # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
+    # training
+    # ============================================================
     for step in range(1, args.total_step + 1):
         # Reset the data_iter
         if (step) % iter_per_epoch == 0: data_iter = iter(train_loader)
@@ -180,43 +172,28 @@ def train(args):
         # Load Data
         # ============================================================
         data, target = next(data_iter)
+
         # shape: B,3,H,W
         squeezer = partial(torch.squeeze, dim = 2)
-        src_img, tgt_img = map(squeezer, data[0].split(split_size = 1, dim = 2))
-        if src_img.size(0) != args.batch_size: continue
+        x1_raw, x2_raw = map(squeezer, data[0].split(split_size = 1, dim = 2))
+        if x1_raw.size(0) != args.batch_size: continue
         # shape: B,2,H,W
         flow_gt = target[0]
-        src_img, tgt_img, flow_gt = map(lambda x: x.to(args.device), (src_img, tgt_img, flow_gt))
+        data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
+        x1_raw, x2_raw, flow_gt = map(lambda x: x.to(args.device), (x1_raw, x2_raw, flow_gt))
 
-        if args.input_norm:
-            r = (src_img[:,1] - 0.485) / 0.229
-            g = (src_img[:,1] - 0.456) / 0.224
-            b = (src_img[:,2] - 0.406) / 0.225
-            src_img = torch.stack([r,g,b], dim = 1)
-
-            r = (tgt_img[:,1] - 0.485) / 0.229
-            g = (tgt_img[:,1] - 0.456) / 0.224
-            b = (tgt_img[:,2] - 0.406) / 0.225
-            tgt_img = torch.stack([r,g,b], dim = 1)
-        
-        # Build Groundtruth Pyramid
-        # ============================================================
-        flow_gt_pyramid = []
-        x = flow_gt
-        for l in range(args.num_levels):
-            x = F.avg_pool2d(x, 2)
-            flow_gt_pyramid.insert(0, x)
 
         # Forward Pass
         # ============================================================
-        # features on each level will downsample to 1/2 from bottom to top
         t_forward = time.time()
-        output_flow, flow_pyramid = model([src_img, tgt_img])
+        flows, summaries = model(data[0])
         forward_time += time.time() - t_forward
 
         
         # Compute Loss
         # ============================================================
+        loss = criterion(flows, flow_gt)
+
         if args.loss == 'L1':
             loss = L1loss(flow_gt, output_flow)
         elif args.loss == 'PyramidL1':
@@ -227,7 +204,7 @@ def train(args):
             loss = training_loss(args, flow_pyramid, flow_gt_pyramid)
 
         
-        # Do step
+        # backward
         # ============================================================
         t_backward = time.time()
         optimizer.zero_grad()
@@ -240,6 +217,7 @@ def train(args):
         if step % args.summary_interval == 0:
             # Scalar Summaries
             # ============================================================
+            logger.scalar_summary('lr', optimizer.param_groups[0]['lr'])
             # L1&L2 loss per level
             for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
                 logger.scalar_summary(f'L1-loss-lv{layer_idx}', L1loss(flow, gt).item(), step)
@@ -256,7 +234,7 @@ def train(args):
                 flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
                 logger.image_summary(f'flow&gt-lv{layer_idx}', [np.concatenate([i,j], axis = 1) for i,j in zip(flow_vis, flow_gt_vis)], step)
 
-            logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(src_img.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(tgt_img.data).transpose(0,2,3,1), B, axis = 0))], step)
+            logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(x1_raw.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(x2_raw.data).transpose(0,2,3,1), B, axis = 0))], step)
 
         # save model
         if step % args.checkpoint_interval == 0:
@@ -276,7 +254,7 @@ def pred(args):
     
     # Load Data
     # ============================================================
-    src_img, tgt_img = map(imageio.imread, args.input)
+    x1_raw, x2_raw = map(imageio.imread, args.input)
 
     class StaticCenterCrop(object):
         def __init__(self, image_size, crop_size):
@@ -286,32 +264,32 @@ def pred(args):
         def __call__(self, img):
             return img[(self.h-self.th)//2:(self.h+self.th)//2, (self.w-self.tw)//2:(self.w+self.tw)//2,:]
 
-    src_img = np.array(src_img)
-    tgt_img = np.array(tgt_img)
+    x1_raw = np.array(x1_raw)
+    x2_raw = np.array(x2_raw)
 
     if args.crop_shape is not None:
-        cropper = StaticCenterCrop(src_img.shape[:2], args.crop_shape)
-        src_img = cropper(src_img)
-        tgt_img = cropper(tgt_img)
+        cropper = StaticCenterCrop(x1_raw.shape[:2], args.crop_shape)
+        x1_raw = cropper(x1_raw)
+        x2_raw = cropper(x2_raw)
     if args.resize_shape is not None:
         resizer = partial(cv2.resize, dsize = (0,0), dst = args.resize_shape)
-        src_img, tgt_img = map(resizer, [src_img, tgt_img])
+        x1_raw, x2_raw = map(resizer, [x1_raw, x2_raw])
     elif args.resize_scale is not None:
         resizer = partial(cv2.resize, dsize = (0,0), fx = args.resize_scale, fy = args.resize_scale)
-        src_img, tgt_img = map(resizer, [src_img, tgt_img])
+        x1_raw, x2_raw = map(resizer, [x1_raw, x2_raw])
 
-    src_img = src_img[np.newaxis,:,:,:].transpose(0,3,1,2)
-    tgt_img = tgt_img[np.newaxis,:,:,:].transpose(0,3,1,2)
+    x1_raw = x1_raw[np.newaxis,:,:,:].transpose(0,3,1,2)
+    x2_raw = x2_raw[np.newaxis,:,:,:].transpose(0,3,1,2)
 
 
-    src_img = torch.Tensor(src_img).to(args.device)
-    tgt_img = torch.Tensor(tgt_img).to(args.device)
+    x1_raw = torch.Tensor(x1_raw).to(args.device)
+    x2_raw = torch.Tensor(x2_raw).to(args.device)
     
 
     # Forward Pass
     # ============================================================
     with torch.no_grad():
-        output_flow, flow_pyramid = model(src_img, tgt_img)
+        output_flow, flow_pyramid = model(x1_raw, x2_raw)
     flow = flow_pyramid[-1]
     flow = np.array(flow.data).transpose(0,2,3,1).squeeze(0)
     save_flow(args.output, flow)
