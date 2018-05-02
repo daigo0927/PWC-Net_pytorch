@@ -26,13 +26,13 @@ class Net(nn.Module):
         for l in range(args.num_levels):
             layer = OpticalFlowEstimator(args, args.lv_chs[l] + (args.search_range*2+1)**2 + 2).to(args.device)
             self.add_module(f'FlowEstimator(Lv{l + 1})', layer)
-            self.flow_estimators.append(layer)
+            self.flow_estimators.insert(0, layer)
 
         self.context_networks = []
         for l in range(args.num_levels):
             layer = ContextNetwork(args, args.lv_chs[l] + 2).to(args.device)
             self.add_module(f'ContextNetwork(Lv{l + 1})', layer)
-            self.context_networks.append(layer)
+            self.context_networks.insert(0, layer)
 
 
     def forward(self, x):
