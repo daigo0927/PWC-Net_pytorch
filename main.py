@@ -154,7 +154,7 @@ def train(args):
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
-    criterion = MultiScale()
+    criterion = MultiScale(args)
 
 
     # build criterion
