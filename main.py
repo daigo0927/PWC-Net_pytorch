@@ -227,7 +227,7 @@ def train(args):
             # ============================================================
             B = flows[0].size(0)
             for b in range(B):
-                batch = [vis_flow(i) for l in range(len(flows)) for i in np.split(np.array(F.upsample(flows[l][b].unsqueeze(0), 2 ** (6-l)).squeeze(0)).transpose(1,2,0))]
+                batch = [vis_flow(i) for l in range(len(flows)) for i in np.split(np.array(F.upsample(flows[l][b].unsqueeze(0), scale_factor = 2 ** (6-l)).squeeze(0)).transpose(1,2,0))]
                 logger.image_summary(f'flow{num}', np.concatenate(batch + [flow_gt], axis = 1), step)
 
             # for l, flow in enumerate(flows):
