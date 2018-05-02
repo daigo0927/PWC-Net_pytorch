@@ -7,6 +7,7 @@ from torch.autograd import Variable
 from modules import (FeaturePyramidExtractor, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
 from correlation_package.modules.correlation import Correlation
 
+from utils import get_grid
 
 
 
