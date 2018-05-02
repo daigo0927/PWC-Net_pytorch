@@ -60,7 +60,7 @@ class L2Loss(nn.Module):
 
 
 class MultiScale(nn.Module):
-    def __init__(self, args, startScale = 4, numScales = 5, l_weight= 0.32, norm= 'L1'):
+    def __init__(self, args, startScale = 4, numScales = 6, l_weight= 0.32, norm= 'L1'):
         super(MultiScale,self).__init__()
 
         self.startScale = startScale
@@ -85,8 +85,10 @@ class MultiScale(nn.Module):
 
         if type(output) in (tuple, list):
             target = self.div_flow * target
+            print(target.size())
             for i, output_ in enumerate(output):
                 target_ = self.multiScales[i](target)
+                print(target_.size())
                 epevalue += self.loss_weights[i]*EPE(output_, target_)
                 lossvalue += self.loss_weights[i]*self.loss(output_, target_)
             return [lossvalue, epevalue]
