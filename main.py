@@ -63,6 +63,7 @@ def main():
     train_parser.add_argument('--corr_activation', action = 'store_true')
     train_parser.add_argument('--use_context_network', action = 'store_true')
     train_parser.add_argument('--use_warping_layer', action = 'store_true')
+    train_parser.add_argument('--batch_norm', action = 'store_true')
 
     # loss
     train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,0.32,0.08,0.02,0.01,0.005])
