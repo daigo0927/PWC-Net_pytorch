@@ -218,12 +218,7 @@ def train(args):
         if step % args.summary_interval == 0:
             # Scalar Summaries
             # ============================================================
-            logger.scalar_summary('lr', optimizer.param_groups[0]['lr'])
-            # L1&L2 loss per level
-            # for layer_idx, (flow, gt) in enumerate(zip(flow_pyramid, flow_gt_pyramid)):
-            #     logger.scalar_summary(f'L1-loss-lv{layer_idx}', L1loss(flow, gt).item(), step)
-            #     logger.scalar_summary(f'L2-loss-lv{layer_idx}', L2loss(flow, gt).item(), step)
-
+            logger.scalar_summary('lr', optimizer.param_groups[0]['lr'], step)
             logger.scalar_summary('loss', loss.item(), step)
             logger.scalar_summary('EPE', epe.item(), step)
             # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
