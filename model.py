@@ -57,7 +57,7 @@ class Net(nn.Module):
         for l, (x1, x2) in enumerate(zip(x1_pyramid, x2_pyramid)):
             # upsample flow and scale the displacement
             if l == 0:
-                shape = x1.size(); shape[1] = 2
+                shape = list(x1.size()); shape[1] = 2
                 flow = torch.zeros(shape).to(args.device)
             else:
                 flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
