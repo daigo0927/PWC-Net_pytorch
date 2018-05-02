@@ -225,19 +225,23 @@ def train(args):
 
             # Image Summaries
             # ============================================================
-            B = flows[0].size(0)
-            flow_batchs = [[] for _ in range(3)]
-            for l, flow in enumerate(flows):
-                flow_batchs[0], flow_batchs[1], flow_batchs[2] = [vis_flow(i.squeeze()) for i in np.split(np.array(F.upsample(flow, 2 ** (6-l)).transpose(0,2,3,1)), B, axis = 0))]
+            # B = flows[0].size(0)
+            vis_batchs = []
+            for num, b in numerate(flows):
+                batch = [vis_flow(i) for i in np.split(np.array(F.upsample(flow[b], 2 ** (6-l))).transpose(1,2,0))]
+                logger.image_summary(f'flow{num}', np.concatenate(batch + [flow_gt], axis = 1), step)
+
+            # for l, flow in enumerate(flows):
+            #     flow_batchs[0], flow_batchs[1], flow_batchs[2] = [vis_flow(i.squeeze()) for i in np.split(np.array(F.upsample(flow, 2 ** (6-l)).transpose(0,2,3,1)), B, axis = 0)]
             
-            print(flow_batchs[0])
-            # concat
+            # print(flow_batchs[0])
+            # # concat
             
-            flow_vis = [vis_flow(i.squeeze()) for flow in flows for i in np.split(np.array(flow.data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
-            for layer_idx, flow in enumerate(flows):
-                flow_vis = 
-                # flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
-                logger.image_summary(f'flow-lv{layer_idx}', flow_vis, step)
+            # flow_vis = [vis_flow(i.squeeze()) for flow in flows for i in np.split(np.array(flow.data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+            # for layer_idx, flow in enumerate(flows):
+            #     flow_vis = 
+            #     # flow_gt_vis = [vis_flow(i.squeeze()) for i in np.split(np.array(flow_gt_pyramid[layer_idx].data).transpose(0,2,3,1), B, axis = 0)][:min(B, args.max_output)]
+            #     logger.image_summary(f'flow-lv{layer_idx}', flow_vis, step)
 
             logger.image_summary('src & tgt', [np.concatenate([i.squeeze(0),j.squeeze(0)], axis = 1) for i,j in zip(np.split(np.array(x1_raw.data).transpose(0,2,3,1), B, axis = 0), np.split(np.array(x2_raw.data).transpose(0,2,3,1), B, axis = 0))], step)
 
