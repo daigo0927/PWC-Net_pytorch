@@ -26,8 +26,10 @@ class WarpingLayer(nn.Module):
     
     def __init__(self, args):
         super(WarpingLayer, self).__init__()
+        self.args = args
     
     def forward(self, x, flow):
+        args = self.args
         grid = (get_grid(x).to(args.device) + flow).permute(0, 2, 3, 1)
         x_warp = F.grid_sample(x, grid)
         return x_warp
