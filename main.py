@@ -191,7 +191,7 @@ def train(args):
         t_forward = time.time()
         flows, summaries = model(data[0])
         for f in flows:
-            f[0] *= f.size(1); f[1] *= f.size(2)
+            f[0] *= f.size(2); f[1] *= f.size(1)
         forward_time += time.time() - t_forward
 
         
