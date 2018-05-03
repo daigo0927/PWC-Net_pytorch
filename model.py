@@ -81,6 +81,7 @@ class Net(nn.Module):
             
             # correlation
             corr = self.corr(x1, x2_warp)
+            if args.corr_activation: F.leaky_relu_(corr)
 
             # concat and estimate flow
             flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1))
