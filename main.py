@@ -164,7 +164,8 @@ def train(args):
     Opt = eval('torch.optim.' + args.optimizer)
     optimizer = Opt(model.parameters(), args.lr, weight_decay = args.weight_decay)
 
-
+    total_loss = 0
+    total_epe = 0
     # training
     # ============================================================
     for step in range(1, args.total_step + 1):
@@ -197,6 +198,8 @@ def train(args):
         # Compute Loss
         # ============================================================
         loss, epe = criterion(flows, flow_gt)
+        total_loss += loss.item()
+        total_epe += epe.item()
 
         # if args.loss == 'L1':
         #     loss = L1loss(flow_gt, output_flow)
@@ -222,8 +225,8 @@ def train(args):
             # Scalar Summaries
             # ============================================================
             logger.scalar_summary('lr', optimizer.param_groups[0]['lr'], step)
-            logger.scalar_summary('loss', loss.item(), step)
-            logger.scalar_summary('EPE', epe.item(), step)
+            logger.scalar_summary('loss', total_loss / step, step)
+            logger.scalar_summary('EPE', total_epe / step, step)
             # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
 
             # Image Summaries
