@@ -178,11 +178,12 @@ def train(args):
 
         # shape: B,3,H,W
         squeezer = partial(torch.squeeze, dim = 2)
+        # shape: B,2,H,W
+        data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
+        
         x1_raw, x2_raw = map(squeezer, data[0].split(split_size = 1, dim = 2))
         if x1_raw.size(0) != args.batch_size: continue
-        # shape: B,2,H,W
         flow_gt = target[0]
-        data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
 
 
         # Forward Pass
