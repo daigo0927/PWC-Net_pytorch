@@ -36,6 +36,17 @@ class Net(nn.Module):
             self.add_module(f'ContextNetwork(Lv{l})', layer)
             self.context_networks.append(layer)
 
+        # init
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                if m.bias is not None:
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
+
+            if isinstance(m, nn.ConvTranspose2d):
+                if m.bias is not None:
+                    init.uniform__(m.bias)
+                init.xavier_uniform__(m.weight)
 
     def forward(self, x):
         args = self.args
