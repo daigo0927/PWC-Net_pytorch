@@ -80,7 +80,9 @@ class MultiScale(nn.Module):
         self.loss_labels = ['MultiScale-'+self.l_type, 'EPE'],
 
     def forward(self, outputs, target):
-        target *= self.div_flow
+        # target *= self.div_flow
+        target[0,:,:] /= target.size(1)
+        target[1,:,:] /= target.size(2)
         print('target max:', target.max())
         print('target min:', target.min())
         targets = (avg_pool(target) for avg_pool in self.multiScales)
