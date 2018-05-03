@@ -6,10 +6,7 @@
 # PWC-Net
 
 **Still in Progress**  
-What I have tried:
-- train with/without Correlation Layer / Cost Volume / Warping Layer / Context Network on **single** sample, it works.
-- train on multiple samples, doesn't converge
-- build PWC-Net on [NVIDIA/flownet2-pytorch](https://github.com/NVIDIA/flownet2-pytorch)'s framework, converges but outputs -0.08 ~ -0.03 optical flow.
+It works!
 
 Much appreciated if you have any advice.
 

@@ -34,73 +34,20 @@ class WarpingLayer(nn.Module):
         x_warp = F.grid_sample(x, grid)
         return x_warp
 
+
 class CostVolumeLayer(nn.Module):
 
     def __init__(self, args):
         super(CostVolumeLayer, self).__init__()
         self.args = args
-        self.zeros = {}
+        self.search_range = args.search_range
 
     
     def forward(self, src, tgt):
         args = self.args
 
-        # Version 1
-        # ============================================================
-        # B, C, H, W = src.size()
-        # if src.size(1) >= (args.search_range*2+1)**2:
-        #     output = torch.zeros_like(src)[:,:(args.search_range*2+1)**2,:,:]
-        # else:
-        #     output = F.pad(torch.zeros_like(src), (0,0,0,0,(args.search_range*2+1)**2 - src.size(1),0))
-        # tgt = F.pad(tgt, [args.search_range]*4)
-        # for i in range(args.search_range, H):
-        #     for j in range(args.search_range, W):
-        #         # TODO: pytorch的einsum该怎么写????
-        #         tmp = [torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,I,J].unsqueeze(2)) for I in range(i-args.search_range, i+args.search_range+1) for J in range(j-args.search_range, j+args.search_range+1)]
-        #         tmp = torch.stack(tmp, dim = 1).squeeze()
-        #         output[:,:,i,j] = tmp
-
-        # Version 2
-        # ============================================================
-        # B, C, H, W = src.size()
-        # if src.size(1) >= (args.search_range*2+1)**2:
-        #     output = torch.zeros_like(src)[:,:(args.search_range*2+1)**2,:,:]
-        # else:
-        #     output = F.pad(torch.zeros_like(src), (0,0,0,0,(args.search_range*2+1)**2 - src.size(1),0))
-        # tgt = F.pad(tgt, [args.search_range]*4)
-        # for i in range(args.search_range, H):
-        #     for j in range(args.search_range, W):\
-        #         output[:,:,i,j] = torch.matmul(src[:,:,i,j].unsqueeze(1), tgt[:,:,i-args.search_range:i+args.search_range+1,j-args.search_range:j+args.search_range+1].contiguous().view(B, C, -1)).squeeze(1)
-
-        # Version 3
-        # ============================================================
-        # tgt_neigh = [tgt]
-        # for i in range(1, args.search_range + 1):
-        #     map_up    = torch.zeros_like(tgt); map_up[:,:,i:,:]     = tgt[:,:,:-i,:]
-        #     map_down  = torch.zeros_like(tgt); map_down[:,:,:-i,:]  = tgt[:,:,i:,:]
-        #     map_left  = torch.zeros_like(tgt); map_left[:,:,:,i:]   = tgt[:,:,:,:-i]
-        #     map_right = torch.zeros_like(tgt); map_right[:,:,:,:-i] = tgt[:,:,:,i:]
-        #     tgt_neigh.extend([map_up, map_down, map_left, map_right])
-
-        #     for j in range(1, args.search_range + 1):
-        #         map_ul = torch.zeros_like(tgt); map_ul[:,:,i:,j:]   = tgt[:,:,:-i,:-j]
-        #         map_ll = torch.zeros_like(tgt); map_ll[:,:,:-i,j:]  = tgt[:,:,i:,:-j]
-        #         map_ur = torch.zeros_like(tgt); map_ur[:,:,i:,:-j]  = tgt[:,:,:-i,j:]
-        #         map_lr = torch.zeros_like(tgt); map_lr[:,:,:-i,:-j] = tgt[:,:,i:,j:]
-        #         tgt_neigh.extend([map_ul, map_ll, map_ur, map_lr])
-
-        # tgt_neigh = torch.stack(tgt_neigh, dim = 2)
-        
-        # output = (src.unsqueeze(dim = 2) * tgt_neigh).sum(dim = 1)
-
-
-        # Version 4
-        # ============================================================
-        S = args.search_range
-        B, C, H, W = src.size()
-        if H not in self.zeros:
-            self.zeros[H] = torch.zeros((B, (S*2+1)**2, H, W)).to(args.device)
-        output = torch.zeros_like(self.zeros[H])
+        shape = list(src.size()); shape[1] = (self.search_range * 2 + 1) ** 2
+        output = torch.zeros(shape).to(args.device)
         output[:,0] = (tgt*src).sum(1)
 
         I = 1
@@ -117,8 +64,7 @@ class CostVolumeLayer(nn.Module):
                 output[:,I,i:,:-j] = (tgt[:,:,:-i,j:] * src[:,:,i:,:-j]).sum(1); I += 1
                 output[:,I,:-i,j:] = (tgt[:,:,i:,:-j] * src[:,:,:-i,j:]).sum(1); I += 1
 
-        return output / C
-
+        return output / shape[1]
 
 
 class FeaturePyramidExtractor(nn.Module):
@@ -162,6 +108,7 @@ class OpticalFlowEstimator(nn.Module):
 
     def forward(self, x):
         return self.convs(x)
+
 
 class ContextNetwork(nn.Module):
 
