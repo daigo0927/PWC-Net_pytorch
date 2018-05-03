@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from modules import (FeaturePyramidExtractor, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
+from modules import (WarpingLayer, FeaturePyramidExtractor, CostVolumeLayer, OpticalFlowEstimator, ContextNetwork)
 from correlation_package.modules.correlation import Correlation
 
 from utils import get_grid
@@ -20,6 +20,8 @@ class Net(nn.Module):
 
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(args.device)        
         
+        self.warping_layer = WarpingLayer(args)
+
         self.corr = Correlation(pad_size = args.search_range * 2 + 1, kernel_size = 1, max_displacement = args.search_range * 2 + 1, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
         
         self.flow_estimators = []
@@ -69,8 +71,7 @@ class Net(nn.Module):
             flow *= 5
 
             # warp
-            grid = (get_grid(x1).to(args.device) + flow).permute(0, 2, 3, 1)
-            x2_warp = F.grid_sample(x2, grid)
+            x2_warp = self.warping_layer(x2, flow)
             
             # correlation
             corr = self.corr(x1, x2_warp)
@@ -143,10 +144,6 @@ class NetOld(nn.Module):
         # t = time()
         src_features = self.feature_pyramid_extractor(src_img)
         tgt_features = self.feature_pyramid_extractor(tgt_img)
-        # print(f'Extract Features of Sources: {time() - t: .2f}s'); t = time()
-        # TypeError: Type torch.cuda.FloatTensor doesn't implement stateless method linspace
-        # so making grids is done on CPU, and Tensors will be converted to cuda.Tensor and dispatch to GPUs
-        # compute grid on each level
         if args.use_warping_layer:
             if self.grid_pyramid is None:
                 self.grid_pyramid = []

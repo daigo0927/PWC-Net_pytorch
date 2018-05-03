@@ -5,6 +5,8 @@ from torch.autograd import Variable
 
 import sys
 
+from utils import get_grid
+
 
 def conv(batch_norm, in_planes, out_planes, kernel_size=3, stride=1):
     if batch_norm:
@@ -19,6 +21,16 @@ def conv(batch_norm, in_planes, out_planes, kernel_size=3, stride=1):
             nn.LeakyReLU(0.1,inplace=True)
         )
 
+
+class WarpingLayer(nn.Module):
+    
+    def __init__(self, args):
+        super(WarpingLayer, self).__init__()
+    
+    def forward(self, x, flow):
+        grid = (get_grid(x1).to(args.device) + flow).permute(0, 2, 3, 1)
+        x_warp = F.grid_sample(x, grid)
+        return x_warp
 
 class CostVolumeLayer(nn.Module):
 
