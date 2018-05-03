@@ -237,11 +237,11 @@ def train(args):
                 vis = np.concatenate(batch + [vis_flow(flow_gt[b].detach().cpu().numpy().transpose(1,2,0))], axis = 1)
                 logger.image_summary(f'flow{b}', [vis.transpose(2, 0, 1)], step)
             
-            for l, x2_warp in enumerate(summaries['x2_warps']):
-                out = [i.squeeze(0) for i in np.split(np.array(x2_warp.data).transpose(0,2,3,1), B, axis = 0)]
-                for i in out:
-                    print(i.shape)
-                logger.image_summary('tgt_warp', [i.squeeze(0) for i in np.split(np.array(x2_warp.data).transpose(0,2,3,1), B, axis = 0)], step)
+            # for l, x2_warp in enumerate(summaries['x2_warps']):
+            #     out = [i.squeeze(0) for i in np.split(np.array(x2_warp.data).transpose(0,2,3,1), B, axis = 0)]
+            #     for i in out:
+            #         print(i.shape)
+            #     logger.image_summary('tgt_warp', [i.squeeze(0) for i in np.split(np.array(x2_warp.data).transpose(0,2,3,1), B, axis = 0)], step)
             
 
             # for l, flow in enumerate(flows):
