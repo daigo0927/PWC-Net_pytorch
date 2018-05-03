@@ -18,7 +18,7 @@ class Net(nn.Module):
         self.feature_pyramid_extractor = FeaturePyramidExtractor(args).to(args.device)        
         
         self.warping_layer = WarpingLayer(args)
-        if args.corr = 'CostVolumeLayer':
+        if args.corr == 'CostVolumeLayer':
             self.corr = CostVolumeLayer(args)
         else:
             self.corr = Correlation(pad_size = args.search_range * 2 + 1, kernel_size = 1, max_displacement = args.search_range * 2 + 1, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
