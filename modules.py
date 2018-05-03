@@ -51,14 +51,14 @@ class CostVolumeLayer(nn.Module):
         output[:,0] = (tgt*src).sum(1)
 
         I = 1
-        for i in range(1, S + 1):
+        for i in range(1, self.search_range + 1):
             # tgt下移i像素并补0, src与之对应的部分为i之后的像素, output的上i个像素为0
             output[:,I,i:,:] = (tgt[:,:,:-i,:] * src[:,:,i:,:]).sum(1); I += 1
             output[:,I,:-i,:] = (tgt[:,:,i:,:] * src[:,:,:-i,:]).sum(1); I += 1
             output[:,I,:,i:] = (tgt[:,:,:,:-i] * src[:,:,:,i:]).sum(1); I += 1
             output[:,I,:,:-i] = (tgt[:,:,:,i:] * src[:,:,:,:-i]).sum(1); I += 1
 
-            for j in range(1, S + 1):
+            for j in range(1, self.search_range + 1):
                 output[:,I,i:,j:] = (tgt[:,:,:-i,:-j] * src[:,:,i:,j:]).sum(1); I += 1
                 output[:,I,:-i,:-j] = (tgt[:,:,i:,j:] * src[:,:,:-i,:-j]).sum(1); I += 1
                 output[:,I,i:,:-j] = (tgt[:,:,:-i,j:] * src[:,:,i:,:-j]).sum(1); I += 1
