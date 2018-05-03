@@ -158,10 +158,8 @@ def train(args):
 
 
     # build criterion
-    if args.optimizer == 'SGD':  
-        optimizer = torch.optim.SGD(model.parameters(), args.lr, weight_decay = args.weight_decay)
-    else:
-        optimizer = torch.optim.Adam(model.parameters(), args.lr, weight_decay = args.weight_decay)
+    Opt = eval('torch.optim.' + args.optimizer)
+    optimizer = Opt(model.parameters(), args.lr, weight_decay = args.weight_decay)
 
 
     # training

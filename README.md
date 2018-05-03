@@ -1,19 +1,17 @@
 # Acknowledgments
-- [NVIDIA/flownet2-pytorch](https://github.com/NVIDIA/flownet2-pytorch): data transformers
+- [NVIDIA/flownet2-pytorch](https://github.com/NVIDIA/flownet2-pytorch): framework, data transformers, and many details about flow estimation.
 - [yunjey/pytorch-tutorial](https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/04-utils/tensorboard): Tensorboard logger
 - [sksq96/pytorch-summary](https://github.com/sksq96/pytorch-summary): model summary similar to `model.summary()` in Keras
 
 # PWC-Net
-- As many ablation experiments are done in the original paper, we make it easy to add/remove a component by just adding a parameter to the parser. Type `python3 main.py -h` to see the details.
-- 
 
+**Still in Progress**  
+What I have tried:
+- train with/without Correlation Layer / Cost Volume / Warping Layer / Context Network on **single** sample, it works.
+- train on multiple samples, doesn't converge
+- build PWC-Net on [NVIDIA/flownet2-pytorch](https://github.com/NVIDIA/flownet2-pytorch)'s framework, converges but outputs -0.08 ~ -0.03 optical flow.
 
-**Still in Progress**
-- [ ] EPE compute on train_batch & test_batch
-- [ ] predict & test codes
-- [ ] Support to FlyingThings dataset.
-- [ ] Support to KITTI dataset.
-- [ ] Load official Caffe weights. (After the official Caffe implementation is released.)
+Much appreciated if you have any advice.
 
 
 This is an unofficial pytorch implementation of CVPR2018 paper: Deqing Sun *et al.* **"PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume"**.
