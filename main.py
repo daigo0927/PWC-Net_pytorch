@@ -254,7 +254,7 @@ def train(args):
             torch.save(model.state_dict(), str(p_log / f'{step}.pkl'))
         # print log
         if step % args.log_interval == 0:
-            print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, Forward: {forward_time/step*1000} ms, Backward: {backward_time/step*1000} ms')
+            print(f'Step [{step}/{args.total_step}], Loss: {total_loss / step:.4f}, EPE: {total_epe / step:.4f}, Forward: {forward_time/step*1000} ms, Backward: {backward_time/step*1000} ms')
         
         if step % args.gif_interval == 0:
             ...
