@@ -40,13 +40,13 @@ class Net(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 if m.bias is not None:
-                    nn.init.uniform__(m.bias)
-                nn.init.xavier_uniform__(m.weight)
+                    nn.init.uniform_(m.bias)
+                nn.init.xavier_uniform_(m.weight)
 
             if isinstance(m, nn.ConvTranspose2d):
                 if m.bias is not None:
-                    nn.init.uniform__(m.bias)
-                nn.init.xavier_uniform__(m.weight)
+                    nn.init.uniform_(m.bias)
+                nn.init.xavier_uniform_(m.weight)
 
     def forward(self, x):
         args = self.args
