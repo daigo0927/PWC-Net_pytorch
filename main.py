@@ -183,7 +183,6 @@ def train(args):
         # shape: B,2,H,W
         flow_gt = target[0]
         data, target = [d.to(args.device) for d in data], [t.to(args.device) for t in target]
-        x1_raw, x2_raw, flow_gt = map(lambda x: x.to(args.device), (x1_raw, x2_raw, flow_gt))
 
 
         # Forward Pass

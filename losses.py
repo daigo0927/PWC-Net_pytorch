@@ -83,7 +83,7 @@ class MultiScale(nn.Module):
         # target *= self.div_flow
         targets = (avg_pool(target) for avg_pool in self.multiScales)
         loss, epe = 0, 0
-        for w, o, t in zip([1, 1, 1, 1, 1, 1], outputs, targets):
+        for w, o, t in zip(args.weights, outputs, targets):
             loss += w * self.loss(o, t)
             epe += w * EPE(o, t)
         return [loss, epe]
