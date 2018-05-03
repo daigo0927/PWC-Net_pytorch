@@ -84,6 +84,9 @@ def main():
     train_parser.add_argument('--summary_interval', type = int, default = 100)
     train_parser.add_argument('--log_interval', type = int, default = 100)
     train_parser.add_argument('--checkpoint_interval', type = int, default = 100)
+    train_parser.add_argument('--gif_input', type = str, default = None)
+    train_parser.add_argument('--gif_output', type = str, default = 'gif')
+    train_parser.add_argument('--gif_interval', type = int, default = 100)
     train_parser.add_argument('--max_output', type = int, default = 3)
 
 
@@ -247,6 +250,9 @@ def train(args):
         # print log
         if step % args.log_interval == 0:
             print(f'Step [{step}/{args.total_step}], Loss: {loss.item():.4f}, Forward: {forward_time/step*1000} ms, Backward: {backward_time/step*1000} ms')
+        
+        if step % args.gif_interval == 0:
+            ...
 
 
 
