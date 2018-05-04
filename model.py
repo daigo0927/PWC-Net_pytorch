@@ -28,7 +28,7 @@ class Net(nn.Module):
             layer = OpticalFlowEstimator(args, ch + (args.search_range*2+1)**2 + 2).to(args.device)
             self.add_module(f'FlowEstimator(Lv{l})', layer)
             self.flow_estimators.append(layer)
-
+        print(len(self.flow_estimators))
         self.context_network = ContextNetwork(args, 3).to(args.device)
         # self.context_networks = []
         # for l, ch in enumerate(args.lv_chs[::-1]):
@@ -83,6 +83,7 @@ class Net(nn.Module):
             
             # correlation
             print(x1.size(), x2_warp.size())
+            print(self.flow_estimators[l])
             corr = self.corr(x1, x2_warp)
             if args.corr_activation: F.leaky_relu_(corr)
 
