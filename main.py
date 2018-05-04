@@ -197,7 +197,7 @@ def train(args):
         
         # Compute Loss
         # ============================================================
-        loss, epe = criterion(flows, flow_gt)
+        loss, epe, loss_levels, epe_levels = criterion(flows, flow_gt)
         total_loss += loss.item()
         total_epe += epe.item()
 
@@ -227,7 +227,10 @@ def train(args):
             logger.scalar_summary('lr', optimizer.param_groups[0]['lr'], step)
             logger.scalar_summary('loss', total_loss / step, step)
             logger.scalar_summary('EPE', total_epe / step, step)
-            # logger.scalar_summary('lr', lr_lambda(step // step*iter_per_epoch), step)
+
+            for l, (loss_, epe_) in enumerate(zip(loss_levels, epe_levels)):
+                logger.scalar_summary(f'loss_lv{l}', loss_.item(), step)
+                logger.scalar_summary(f'EPE_lv{l}', epe_.item(), step)
 
             # Image Summaries
             # ============================================================
@@ -236,6 +239,8 @@ def train(args):
                 batch = [vis_flow(np.array(F.upsample(flows[l][b].unsqueeze(0), scale_factor = 2 ** ((len(flows)-l))).detach().squeeze(0)).transpose(1,2,0)) for l in range(len(flows))]
                 vis = np.concatenate(batch + [vis_flow(flow_gt[b].detach().cpu().numpy().transpose(1,2,0))], axis = 1)
                 logger.image_summary(f'flow{b}', [vis.transpose(2, 0, 1)], step)
+            
+            
             
             # for l, x2_warp in enumerate(summaries['x2_warps']):
             #     out = [i.squeeze(0) for i in np.split(np.array(x2_warp.data).transpose(0,2,3,1), B, axis = 0)]
