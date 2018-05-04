@@ -245,10 +245,10 @@ def train(args):
             B = flows[0].size(0)
             for b in range(B):
                 batch = [np.array(F.upsample(flows[l][b].unsqueeze(0), scale_factor = 2 ** ((len(flows)-l + 1))).detach().squeeze(0)).transpose(1,2,0) for l in range(len(flows) - 1)]
-                for i in batch:
-                    print(i.shape)
-                print(flows[-1][b].detach().cpu().numpy().transpose(1,2,0))
-                print(flow_gt[b].detach().cpu().numpy().transpose(1,2,0).shape)
+                # for i in batch:
+                #     print(i.shape)
+                # print(flows[-1][b].detach().cpu().numpy().transpose(1,2,0))
+                # print(flow_gt[b].detach().cpu().numpy().transpose(1,2,0).shape)
                 vis = np.concatenate(list(map(vis_flow, batch + [flows[-1][b].detach().cpu().numpy().transpose(1,2,0), flow_gt[b].detach().cpu().numpy().transpose(1,2,0)])), axis = 1)
                 logger.image_summary(f'flow{b}', [vis.transpose(2, 0, 1)], step)
             
