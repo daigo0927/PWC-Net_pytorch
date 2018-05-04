@@ -84,7 +84,8 @@ class Net(nn.Module):
             if args.corr_activation: F.leaky_relu_(corr)
 
             # concat and estimate flow
-            flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1))
+            # ATTENTION: `+ flow`` makes flow estimator learn to estimate residual flow
+            flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1)) + flow
 
             # use context to refine the flow
             flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
