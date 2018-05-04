@@ -207,8 +207,7 @@ if __name__ == '__main__':
 
     data_iter = iter(train_loader)
     for data, flow in data_iter:
-        print(data[0].size(), flow[0].size())
-    
+        print(data[0].max())
     # for i in range(dataset.__len__()):
     #     data, flow = dataset.__getitem__(i)
     #     print(data.size(), flow.size())

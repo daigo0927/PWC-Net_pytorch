@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--search_range', type = int, default = 4)
     parser.add_argument('--device', type = str, default = 'cuda')
     parser.add_argument('--rgb_max', type = float, default = 255)
+    parser.add_argument('--residual', action = 'store_true')
 
 
     # train_parser
@@ -58,7 +59,7 @@ def main():
     train_parser.add_argument('--corr', type = str, default = 'cost_volume')
 
     # net
-    train_parser.add_argument('--num_levels', type = int, default = 6)
+    train_parser.add_argument('--num_levels', type = int, default = 7)
     train_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
     train_parser.add_argument('--corr_activation', action = 'store_true')
     train_parser.add_argument('--use_context_network', action = 'store_true')
@@ -69,11 +70,11 @@ def main():
     train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,0.32,0.08,0.02,0.01,0.005])
     train_parser.add_argument('--epsilon', default = 0.02)
     train_parser.add_argument('--q', type = int, default = 0.4)
-    train_parser.add_argument('--loss', type = str, default = 'L2')
+    train_parser.add_argument('--loss', type = str, default = 'MultiScale')
     train_parser.add_argument('--optimizer', type = str, default = 'Adam')
     
     # optimize
-    train_parser.add_argument('--lr', type = float, default = 4e-4)
+    train_parser.add_argument('--lr', type = float, default = 1e-4)
     train_parser.add_argument('--momentum', default = 4e-4)
     train_parser.add_argument('--beta', default = 0.99)
     train_parser.add_argument('--weight_decay', type = float, default = 4e-4)
@@ -157,6 +158,7 @@ def train(args):
     # ============================================================
     data_iter = iter(train_loader)
     iter_per_epoch = len(train_loader)
+    Crit = eval(args.loss)
     criterion = MultiScale(args)
 
 

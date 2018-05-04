@@ -55,8 +55,9 @@ class Net(nn.Module):
         x1_raw = x[:,:,0,:,:]
         x2_raw = x[:,:,1,:,:]
 
-        x1_pyramid = self.feature_pyramid_extractor(x1_raw)
-        x2_pyramid = self.feature_pyramid_extractor(x2_raw)
+        # on the bottom level are original images
+        x1_pyramid = self.feature_pyramid_extractor(x1_raw) + [x1_raw]
+        x2_pyramid = self.feature_pyramid_extractor(x2_raw) + [x2_raw]
 
 
         # outputs
@@ -85,7 +86,8 @@ class Net(nn.Module):
 
             # concat and estimate flow
             # ATTENTION: `+ flow`` makes flow estimator learn to estimate residual flow
-            flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1)) + flow
+            flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1))
+            if args.residual: flow_coarse += flow
 
             # use context to refine the flow
             flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
