@@ -99,7 +99,8 @@ class Net(nn.Module):
 
             if l == args.output_level:
                 flow_fine = self.context_network(torch.cat([x1, flow_coarse], dim = 1))
-                flow = flow_coarse + flow_fine
+                flow = F.upsample(flow_coarse + flow_fine, scale_factor = 2 ** (args.num_levels - args.output_level - 1), mode = 'bilinear')
+                
                 flows.append(flow)
                 summaries['x2_warps'].append(x2_warp)
                 break
