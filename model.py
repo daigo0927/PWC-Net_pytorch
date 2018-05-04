@@ -89,16 +89,24 @@ class Net(nn.Module):
             flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1))
             if args.residual: flow_coarse += flow
 
-            # use context to refine the flow
-            if l == len(x1_pyramid) - 1:
+            # # use context to refine the flow
+            # if l == len(x1_pyramid) - 1:
+            #     flow_fine = self.context_network(torch.cat([x1, flow_coarse], dim = 1))
+            #     # flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
+            #     flow = flow_coarse + flow_fine
+            # else:
+            
+
+            if l == args.output_level:
                 flow_fine = self.context_network(torch.cat([x1, flow_coarse], dim = 1))
-                # flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
                 flow = flow_coarse + flow_fine
+                flows.append(flow)
+                summaries['x2_warps'].append(x2_warp)
+                break
             else:
                 flow = flow_coarse
-
-            # collect
-            flows.append(flow)
-            summaries['x2_warps'].append(x2_warp)
+                # collect
+                flows.append(flow)
+                summaries['x2_warps'].append(x2_warp)
 
         return flows, summaries
