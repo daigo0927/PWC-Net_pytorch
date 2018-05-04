@@ -54,7 +54,7 @@ def main():
     train_parser.add_argument('--batch_size', default = 8, type=int, help='mini-batch size')
     train_parser.add_argument('--dataset_dir', type = str)
     train_parser.add_argument('--dataset', type = str)
-    train_parser.add_argument('--output_level', type = int, default = 2)
+    train_parser.add_argument('--output_level', type = int, default = 4)
     train_parser.add_argument('--input_norm', action = 'store_true')
     train_parser.add_argument('--corr', type = str, default = 'cost_volume')
 
