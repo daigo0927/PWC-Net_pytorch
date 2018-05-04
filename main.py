@@ -221,8 +221,6 @@ def train(args):
         
         # backward
         # ============================================================
-        print('姨妈大！')
-        time.sleep(100)
         t_backward = time.time()
         optimizer.zero_grad()
         loss.backward()
