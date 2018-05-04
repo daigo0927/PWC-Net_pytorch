@@ -110,7 +110,7 @@ def main():
     # check args
     # ============================================================
     if args.subparser_name == 'train':
-        assert len(args.weights) == len(args.lv_chs) == args.num_levels - 1
+        assert len(args.weights) == len(args.lv_chs) + 1 == args.num_levels
         assert args.dataset in ['FlyingChairs', 'FlyingThings', 'SintelFinal', 'SintelClean', 'KITTI'], 'One dataset should be correctly set as for there are specific hyper-parameters for every dataset'
     elif args.subparser_name == 'pred':
         assert args.input is not None, 'TWO input image path should be given.'
