@@ -67,7 +67,7 @@ def main():
     train_parser.add_argument('--batch_norm', action = 'store_true')
 
     # loss
-    train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,0.32,0.08,0.02,0.01,0.005])
+    train_parser.add_argument('--weights', nargs = '+', type = float, default = [1,1,0.32,0.08,0.02,0.01,0.005])
     train_parser.add_argument('--epsilon', default = 0.02)
     train_parser.add_argument('--q', type = int, default = 0.4)
     train_parser.add_argument('--loss', type = str, default = 'MultiScale')
@@ -110,7 +110,7 @@ def main():
     # check args
     # ============================================================
     if args.subparser_name == 'train':
-        assert len(args.weights) == len(args.lv_chs) == args.num_levels
+        assert len(args.weights) == len(args.lv_chs) == args.num_levels - 1
         assert args.dataset in ['FlyingChairs', 'FlyingThings', 'SintelFinal', 'SintelClean', 'KITTI'], 'One dataset should be correctly set as for there are specific hyper-parameters for every dataset'
     elif args.subparser_name == 'pred':
         assert args.input is not None, 'TWO input image path should be given.'
