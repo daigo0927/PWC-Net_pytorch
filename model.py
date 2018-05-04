@@ -81,6 +81,7 @@ class Net(nn.Module):
             x2_warp = self.warping_layer(x2, flow)
             
             # correlation
+            print(x1.size(), x2_warp.size())
             corr = self.corr(x1, x2_warp)
             if args.corr_activation: F.leaky_relu_(corr)
 
