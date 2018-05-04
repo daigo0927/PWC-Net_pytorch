@@ -84,6 +84,7 @@ class MultiScale(nn.Module):
         loss, epe = 0, 0
         loss_levels, epe_levels = [], []
         for w, o, t in zip(args.weights, outputs, targets):
+            print(o.size(), t.size())
             loss += w * self.loss(o, t)
             epe += EPE(o, t)
             loss_levels.append(self.loss(o, t))
