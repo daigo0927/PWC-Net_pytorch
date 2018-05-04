@@ -166,6 +166,8 @@ def train(args):
 
     total_loss = 0
     total_epe = 0
+    total_loss_levels = [0] * args.num_levels
+    total_epe_levels = [0] * args.num_levels
     # training
     # ============================================================
     for step in range(1, args.total_step + 1):
@@ -200,6 +202,9 @@ def train(args):
         loss, epe, loss_levels, epe_levels = criterion(flows, flow_gt)
         total_loss += loss.item()
         total_epe += epe.item()
+        for l, (loss_, epe_) in enumerate(zip(loss_levels, epe_levels)):
+            total_loss_levels[l] += loss_.item()
+            total_epe_levels[l] += epe_.item()
 
         # if args.loss == 'L1':
         #     loss = L1loss(flow_gt, output_flow)
@@ -229,8 +234,8 @@ def train(args):
             logger.scalar_summary('EPE', total_epe / step, step)
 
             for l, (loss_, epe_) in enumerate(zip(loss_levels, epe_levels)):
-                logger.scalar_summary(f'loss_lv{l}', loss_.item(), step)
-                logger.scalar_summary(f'EPE_lv{l}', epe_.item(), step)
+                logger.scalar_summary(f'loss_lv{l}', total_loss_levels[l] / step, step)
+                logger.scalar_summary(f'EPE_lv{l}', total_epe_levels[l] / step, step)
 
             # Image Summaries
             # ============================================================
