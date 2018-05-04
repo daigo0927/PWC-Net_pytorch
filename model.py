@@ -24,16 +24,17 @@ class Net(nn.Module):
             self.corr = Correlation(pad_size = args.search_range * 2 + 1, kernel_size = 1, max_displacement = args.search_range * 2 + 1, stride1 = 1, stride2 = 2, corr_multiply = 1).to(args.device)
         
         self.flow_estimators = []
-        for l, ch in enumerate(args.lv_chs[::-1]):
+        for l, ch in enumerate(args.lv_chs[::-1] + [3]):
             layer = OpticalFlowEstimator(args, ch + (args.search_range*2+1)**2 + 2).to(args.device)
             self.add_module(f'FlowEstimator(Lv{l})', layer)
             self.flow_estimators.append(layer)
 
-        self.context_networks = []
-        for l, ch in enumerate(args.lv_chs[::-1]):
-            layer = ContextNetwork(args, ch + 2).to(args.device)
-            self.add_module(f'ContextNetwork(Lv{l})', layer)
-            self.context_networks.append(layer)
+        self.context_network = ContextNetwork(args, 3).to(args.device)
+        # self.context_networks = []
+        # for l, ch in enumerate(args.lv_chs[::-1]):
+        #     layer = ContextNetwork(args, ch + 2).to(args.device)
+        #     self.add_module(f'ContextNetwork(Lv{l})', layer)
+        #     self.context_networks.append(layer)
 
         # init
         for m in self.modules():
@@ -91,8 +92,12 @@ class Net(nn.Module):
             if args.residual: flow_coarse += flow
 
             # use context to refine the flow
-            flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
-            flow = flow_coarse + flow_fine
+            if l == len(x1_pyramid) - 1:
+                flow_fine = self.context_network(torch.cat([x1, flow_coarse], dim = 1))
+                # flow_fine = self.context_networks[l](torch.cat([x1, flow_coarse], dim = 1))
+                flow = flow_coarse + flow_fine
+            else:
+                flow = flow_coarse
 
             # collect
             flows.append(flow)
