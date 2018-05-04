@@ -52,8 +52,8 @@ class Net(nn.Module):
             rgb_mean = x.contiguous().view(x.size()[:2]+(-1,)).mean(dim=-1).view(x.size()[:2] + (1,1,1,))
             x = (x - rgb_mean) / args.rgb_max
         
-        x1_raw = x[:,:,0,:,:]
-        x2_raw = x[:,:,1,:,:]
+        x1_raw = x[:,:,0,:,:].contiguous()
+        x2_raw = x[:,:,1,:,:].contiguous()
 
         # on the bottom level are original images
         x1_pyramid = self.feature_pyramid_extractor(x1_raw) + [x1_raw]
