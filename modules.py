@@ -74,7 +74,7 @@ class FeaturePyramidExtractor(nn.Module):
         self.args = args
 
         self.convs = []
-        for l in range(args.num_levels):
+        for l in range(args.num_levels - 1):
             layer = nn.Sequential(
                 conv(args.batch_norm, 3 if l == 0 else args.lv_chs[l - 1], args.lv_chs[l], stride = 2),
                 conv(args.batch_norm, args.lv_chs[l], args.lv_chs[l])
