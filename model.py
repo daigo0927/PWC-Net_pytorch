@@ -100,8 +100,8 @@ class Net(nn.Module):
 
             if l == args.output_level:
                 flow = F.upsample(flow_coarse, scale_factor = 2 ** (args.num_levels - args.output_level - 1), mode = 'bilinear') * 2 ** (args.num_levels - args.output_level - 1)
-                print(x1_pyramid.size(), flow_coarse.size())
-                flow_fine = self.context_network(torch.cat([x1_pyramid[-1], flow_coarse], dim = 1))
+                # print(x1_pyramid.size(), flow_coarse.size())
+                flow_fine = self.context_network(torch.cat([x1_pyramid[-1], flow], dim = 1))
                 flow = flow + flow_fine
                 flows.append(flow)
                 summaries['x2_warps'].append(x2_warp)
