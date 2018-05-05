@@ -107,7 +107,7 @@ class OpticalFlowEstimator(nn.Module):
         )
 
     def forward(self, x):
-        return self.convs(x)
+        return F.tanh(self.convs(x)) if args.flow_norm self.convs(x)
 
 
 class ContextNetwork(nn.Module):

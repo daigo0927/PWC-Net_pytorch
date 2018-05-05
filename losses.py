@@ -79,15 +79,16 @@ class MultiScale(nn.Module):
 
     def forward(self, outputs, target):
         args = self.args
-        target[:,0] /= target.size(3); target[:,1] /= target.size(2)
+        if args.flow_norm:
+            target[:,0] /= target.size(3); target[:,1] /= target.size(2)
         # target *= self.div_flow
         targets = [avg_pool(target) for avg_pool in self.multiScales] + [target]
         loss, epe = 0, 0
         loss_levels, epe_levels = [], []
         for w, o, t in zip(args.weights, outputs, targets):
-            print(f'flow值域: ({o.min()}, {o.max()})')
-            print(f'gt值域: ({t.min()}, {t.max()})')
-            print(f'EPE:', EPE(o, t))
+            # print(f'flow值域: ({o.min()}, {o.max()})')
+            # print(f'gt值域: ({t.min()}, {t.max()})')
+            # print(f'EPE:', EPE(o, t))
             loss += w * self.loss(o, t)
             epe += EPE(o, t)
             loss_levels.append(self.loss(o, t))

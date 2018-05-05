@@ -41,6 +41,7 @@ def main():
     parser.add_argument('--device', type = str, default = 'cuda')
     parser.add_argument('--rgb_max', type = float, default = 255)
     parser.add_argument('--residual', action = 'store_true')
+    parser.add_argument('--flow_norm', action = 'store_true')
 
 
     # train_parser
