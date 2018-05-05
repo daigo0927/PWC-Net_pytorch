@@ -110,8 +110,9 @@ class OpticalFlowEstimator(nn.Module):
         args = self.args
         if args.flow_norm:
             output = F.tanh(self.convs(x))
-            output[:,0,:,:] = output[:,0,:,:] * x.size(3)
-            output[:,1,:,:] = output[:,1,:,:] * x.size(2)
+            new_output = torch.zeros_like(output)
+            new_output[:,0,:,:] = output[:,0,:,:] * x.size(3)
+            new_output[:,1,:,:] = output[:,1,:,:] * x.size(2)
         else:
             output = self.convs(x)
         return output
