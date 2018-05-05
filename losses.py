@@ -79,7 +79,7 @@ class MultiScale(nn.Module):
 
     def forward(self, outputs, target):
         args = self.args
-        target[0] /= target.size(3); target[1] /= target.size(2)
+        target[:,0] /= target.size(3); target[:,1] /= target.size(2)
         # target *= self.div_flow
         targets = [avg_pool(target) for avg_pool in self.multiScales] + [target]
         loss, epe = 0, 0
