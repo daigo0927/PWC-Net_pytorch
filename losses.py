@@ -84,7 +84,7 @@ class MultiScale(nn.Module):
         if args.flow_norm: 
             targets = [avg_pool(target) / 2 ** (args.num_levels - l - 1) for l, avg_pool in enumerate(self.multiScales)] + [target]
         else:
-            targets = [avg_pool(target) / 2 ** (args.num_levels - l - 1) for avg_pool in self.multiScales] + [target]
+            targets = [avg_pool(target) / 2 ** (args.num_levels - l - 1) for l, avg_pool in enumerate(self.multiScales)] + [target]
         loss, epe = 0, 0
         loss_levels, epe_levels = [], []
         for w, o, t in zip(args.weights, outputs, targets):
