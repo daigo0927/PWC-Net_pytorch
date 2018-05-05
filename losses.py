@@ -79,10 +79,13 @@ class MultiScale(nn.Module):
 
     def forward(self, outputs, target):
         args = self.args
-        if args.flow_norm:
-            target[:,0] /= target.size(3); target[:,1] /= target.size(2)
-        # target *= self.div_flow
-        targets = [avg_pool(target) for avg_pool in self.multiScales] + [target]
+        # if flow is normalized, every output is multiplied by its size
+        # correspondingly, groundtruth should be scaled at each level
+        if args.flow_norm: 
+            targets = [avg_pool(target) / 2 ** (args.num_levels - l - 1) for l, avg_pool in enumerate(self.multiScales)] + [target]
+
+        else:
+            targets = [avg_pool(target) for avg_pool in self.multiScales] + [target]
         loss, epe = 0, 0
         loss_levels, epe_levels = [], []
         for w, o, t in zip(args.weights, outputs, targets):
