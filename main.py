@@ -199,7 +199,7 @@ def train(args):
         # outputs are (-1, 1), multiply the size
         if args.flow_norm:
             for f in flows:
-                f[:,0,:,:] /= f.size(3); f[:,1,:,:] /= f.size(2)
+                f[:,0,:,:] *= f.size(3); f[:,1,:,:] *= f.size(2)
         forward_time += time.time() - t_forward
 
         

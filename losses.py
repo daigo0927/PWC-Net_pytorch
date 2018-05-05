@@ -83,7 +83,6 @@ class MultiScale(nn.Module):
         # correspondingly, groundtruth should be scaled at each level
         if args.flow_norm: 
             targets = [avg_pool(target) / 2 ** (args.num_levels - l - 1) for l, avg_pool in enumerate(self.multiScales)] + [target]
-
         else:
             targets = [avg_pool(target) for avg_pool in self.multiScales] + [target]
         loss, epe = 0, 0
