@@ -34,8 +34,8 @@ class WarpingLayer(nn.Module):
         # we still output unnormalized flow for the convenience of comparing EPEs with FlowNet2 and original code
         # so here we need to denormalize the flow
         flow_for_grip = torch.zeros_like(flow)
-        flow_for_grip[:,0,:,:] = flow[:,0,:,:] / flow.size(2)
-        flow_for_grip[:,1,:,:] = flow[:,1,:,:] / flow.size(2)
+        flow_for_grip[:,0,:,:] = flow[:,0,:,:] / ((flow.size(3) - 1.0) / 2.0)
+        flow_for_grip[:,1,:,:] = flow[:,1,:,:] / ((flow.size(2) - 1.0) / 2.0)
 
         grid = (get_grid(x).to(args.device) + flow_for_grip).permute(0, 2, 3, 1)
         x_warp = F.grid_sample(x, grid)
@@ -118,8 +118,8 @@ class OpticalFlowEstimator(nn.Module):
         if args.flow_norm:
             output = F.tanh(self.convs(x))
             new_output = torch.zeros_like(output)
-            new_output[:,0,:,:] = output[:,0,:,:] * x.size(3)
-            new_output[:,1,:,:] = output[:,1,:,:] * x.size(2)
+            new_output[:,0,:,:] = output[:,0,:,:] * ((x.size(3) - 1.0) / 2.0)
+            new_output[:,1,:,:] = output[:,1,:,:] * ((x.size(3) - 1.0) / 2.0)
             return new_output
         else:
             return self.convs(x)
