@@ -53,6 +53,9 @@ def main():
     summary_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
     summary_parser.add_argument('--input_norm', action = 'store_true')
     summary_parser.add_argument('--batch_norm', action = 'store_true')
+    summary_parser.add_argument('--output_level', type = int, default = 4)
+    summary_parser.add_argument('--corr', type = str, default = 'cost_volume')
+    summary_parser.add_argument('--corr_activation', action = 'store_true')
 
     # train_parser
     # ============================================================
