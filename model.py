@@ -86,8 +86,10 @@ class Net(nn.Module):
 
             # concat and estimate flow
             # ATTENTION: `+ flow`` makes flow estimator learn to estimate residual flow
-            flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1))
-            if args.residual: flow_coarse += flow
+            if args.residual:
+                flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1)) + flow
+            else:
+                flow_coarse = self.flow_estimators[l](torch.cat([x1, corr, flow], dim = 1))
 
             # # use context to refine the flow
             # if l == len(x1_pyramid) - 1:
