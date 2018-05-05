@@ -111,7 +111,7 @@ class OpticalFlowEstimator(nn.Module):
         if args.flow_norm:
             output = F.tanh(self.convs(x))
             output[:,0,:,:] = output[:,0,:,:] * x.size(3)
-            output[:,1,:,:] = output[:,0,:,:] * x.size(2)
+            output[:,1,:,:] = output[:,1,:,:] * x.size(2)
         else:
             output = self.convs(x)
         return output
