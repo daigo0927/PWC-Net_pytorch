@@ -115,8 +115,7 @@ class OpticalFlowEstimator(nn.Module):
             new_output[:,1,:,:] = output[:,1,:,:] * x.size(2)
             return new_output
         else:
-            output = self.convs(x)
-            return output
+            return self.convs(x)
 
 
 class ContextNetwork(nn.Module):

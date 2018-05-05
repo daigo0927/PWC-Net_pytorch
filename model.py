@@ -75,7 +75,7 @@ class Net(nn.Module):
                 shape = list(x1.size()); shape[1] = 2
                 flow = torch.zeros(shape).to(args.device)
             else:
-                flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear')
+                flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear') * 2
 
             # warp
             x2_warp = self.warping_layer(x2, flow)
