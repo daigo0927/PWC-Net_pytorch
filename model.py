@@ -76,13 +76,8 @@ class Net(nn.Module):
                 flow = torch.zeros(shape).to(args.device)
             else:
                 flow = F.upsample(flow, scale_factor = 2, mode = 'bilinear') * 2
-            # WarpingLayer use F.grid_sample, which expects normalized grid
-            # we still output unnormalized flow for the convenience of comparing EPEs with FlowNet2 and original code
-            # so here we need to denormalize the flow
-            flow_for_grip = torch.zeros_like(flow)
-            flow_for_grip[:,0,:,:] = flow[:,0,:,:] / flow.size(2)
-            flow_for_grip[:,1,:,:] = flow[:,1,:,:] / flow.size(2)
-            x2_warp = self.warping_layer(x2, flow_for_grip)
+            
+            x2_warp = self.warping_layer(x2, flow)
             
             # correlation
             corr = self.corr(x1, x2_warp)

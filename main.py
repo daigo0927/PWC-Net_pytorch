@@ -16,7 +16,7 @@ from losses import L1loss, L2loss, training_loss, robust_training_loss, MultiSca
 from dataset import (FlyingChairs, FlyingThings, Sintel, SintelFinal, SintelClean, KITTI)
 
 import tensorflow as tf
-from summary import summary
+from summary import summary as summary_
 from logger import Logger
 from pathlib import Path
 from flow_utils import (vis_flow, save_flow)
@@ -31,6 +31,8 @@ def main():
                                 description='valid modes',  
                                 help='additional help',  
                                 dest='subparser_name')
+
+    summary_parser = modes.add_parser('summary'); summary_parser.set_defaults(func = summary)
     train_parser = modes.add_parser('train'); train_parser.set_defaults(func = train)
     pred_parser = modes.add_parser('pred'); pred_parser.set_defaults(func = pred)
     test_parser = modes.add_parser('eval'); test_parser.set_defaults(func = test)
@@ -127,6 +129,10 @@ def main():
 
     args.func(args)
 
+
+def summary(args):
+    model = Net(args).to(args.device)
+    summary_(model, (3, 384, 448))
 
 
 def train(args):

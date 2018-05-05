@@ -30,7 +30,14 @@ class WarpingLayer(nn.Module):
     
     def forward(self, x, flow):
         args = self.args
-        grid = (get_grid(x).to(args.device) + flow).permute(0, 2, 3, 1)
+        # WarpingLayer uses F.grid_sample, which expects normalized grid
+        # we still output unnormalized flow for the convenience of comparing EPEs with FlowNet2 and original code
+        # so here we need to denormalize the flow
+        flow_for_grip = torch.zeros_like(flow)
+        flow_for_grip[:,0,:,:] = flow[:,0,:,:] / flow.size(2)
+        flow_for_grip[:,1,:,:] = flow[:,1,:,:] / flow.size(2)
+
+        grid = (get_grid(x).to(args.device) + flow_for_grip).permute(0, 2, 3, 1)
         x_warp = F.grid_sample(x, grid)
         return x_warp
 
