@@ -56,7 +56,7 @@ def main():
     summary_parser.add_argument('--output_level', type = int, default = 4)
     summary_parser.add_argument('--corr', type = str, default = 'cost_volume')
     summary_parser.add_argument('--corr_activation', action = 'store_true')
-
+    summary_parser.add_argument('-i', '--input_shape', type = int, nargs = '*', default = (3, 2, 384, 448))
     # train_parser
     # ============================================================
     # dataflow
@@ -145,7 +145,7 @@ def main():
 
 def summary(args):
     model = Net(args).to(args.device)
-    summary_(model, (3, 2, 384, 448))
+    summary_(model, args.input_shape)
 
 
 def train(args):
