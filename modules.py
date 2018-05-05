@@ -107,6 +107,7 @@ class OpticalFlowEstimator(nn.Module):
         )
 
     def forward(self, x):
+        args = self.args
         return F.tanh(self.convs(x)) if args.flow_norm else self.convs(x)
 
 
