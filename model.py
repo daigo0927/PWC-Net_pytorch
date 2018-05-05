@@ -28,7 +28,7 @@ class Net(nn.Module):
             layer = OpticalFlowEstimator(args, ch + (args.search_range*2+1)**2 + 2).to(args.device)
             self.add_module(f'FlowEstimator(Lv{l})', layer)
             self.flow_estimators.append(layer)
-        self.context_network = ContextNetwork(args, args.lv_chs[::-1][args.output_level] + 2).to(args.device)
+        self.context_network = ContextNetwork(args, 3 + 2).to(args.device)
         # self.context_networks = []
         # for l, ch in enumerate(args.lv_chs[::-1]):
         #     layer = ContextNetwork(args, ch + 2).to(args.device)
@@ -99,9 +99,9 @@ class Net(nn.Module):
             
 
             if l == args.output_level:
-                flow_fine = self.context_network(torch.cat([x1, flow_coarse], dim = 1))
-                flow = F.upsample(flow_coarse + flow_fine, scale_factor = 2 ** (args.num_levels - args.output_level - 1), mode = 'bilinear') * 2 ** (args.num_levels - args.output_level - 1)
-                
+                flow = F.upsample(flow_coarse, scale_factor = 2 ** (args.num_levels - args.output_level - 1), mode = 'bilinear') * 2 ** (args.num_levels - args.output_level - 1)
+                flow_fine = self.context_network(torch.cat([x1_pyramid[-1], flow_coarse], dim = 1))
+                flow = flow + flow_fine
                 flows.append(flow)
                 summaries['x2_warps'].append(x2_warp)
                 break
