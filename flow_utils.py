@@ -139,7 +139,7 @@ def vis_flow(flow):
 
 	maxv = max([maxv, np.amax(v)])
 	minv = min([minv, np.amin(v)])
-	rad = np.sqrt(np.multiply(u,u)+np.multiply(v,v)) 
+	rad = np.sqrt(np.multiply(u,u)+np.multiply(v,v))
 	maxrad = max([maxrad, np.amax(rad)])
 	# print('max flow: %.4f flow range: u = %.3f .. %.3f; v = %.3f .. %.3f\n' % (maxrad, minu, maxu, minv, maxv))
 
