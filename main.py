@@ -46,6 +46,14 @@ def main():
     parser.add_argument('--flow_norm', action = 'store_true')
 
 
+    # summary parser
+    # ============================================================
+    #
+    summary_parser.add_argument('--num_levels', type = int, default = 7)
+    summary_parser.add_argument('--lv_chs', nargs = '+', type = int, default = [16, 32, 64, 96, 128, 192])
+    summary_parser.add_argument('--input_norm', action = 'store_true')
+    summary_parser.add_argument('--batch_norm', action = 'store_true')
+
     # train_parser
     # ============================================================
     # dataflow
