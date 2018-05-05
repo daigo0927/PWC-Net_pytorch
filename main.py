@@ -145,7 +145,7 @@ def main():
 
 def summary(args):
     model = Net(args).to(args.device)
-    summary_(model, (3, 384, 448))
+    summary_(model, (3, 2, 384, 448))
 
 
 def train(args):
