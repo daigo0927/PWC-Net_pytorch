@@ -269,7 +269,8 @@ def train(args):
                 #     print(i.shape)
                 # print(flows[-1][b].detach().cpu().numpy().transpose(1,2,0))
                 # print(flow_gt[b].detach().cpu().numpy().transpose(1,2,0).shape)
-                vis = np.concatenate(list(map(vis_flow, batch + [flows[-1][b].detach().cpu().numpy().transpose(1,2,0), flow_gt[b].detach().cpu().numpy().transpose(1,2,0)])), axis = 1)
+                vis = batch + [flows[-1][b].detach().cpu().numpy().transpose(1,2,0), flow_gt[b].detach().cpu().numpy().transpose(1,2,0)]
+                vis = np.concatenate(list(map(vis_flow, vis)), axis = 1)
                 vis_batch.append(vis.transpose(2, 0, 1))
             logger.image_summary(f'flow', vis_batch, step)
             
