@@ -113,9 +113,10 @@ class OpticalFlowEstimator(nn.Module):
             new_output = torch.zeros_like(output)
             new_output[:,0,:,:] = output[:,0,:,:] * x.size(3)
             new_output[:,1,:,:] = output[:,1,:,:] * x.size(2)
+            return new_output
         else:
             output = self.convs(x)
-        return output
+            return output
 
 
 class ContextNetwork(nn.Module):
