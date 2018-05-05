@@ -104,12 +104,12 @@ class Net(nn.Module):
                 flow_fine = self.context_network(torch.cat([x1_pyramid[-1], flow], dim = 1))
                 flow = flow + flow_fine
                 flows.append(flow)
-                summaries['x2_warps'].append(x2_warp)
+                summaries['x2_warps'].append(x2_warp.item())
                 break
             else:
                 flow = flow_coarse
                 # collect
                 flows.append(flow)
-                summaries['x2_warps'].append(x2_warp)
+                summaries['x2_warps'].append(x2_warp.item())
 
         return flows, summaries
