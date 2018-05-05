@@ -84,6 +84,9 @@ class MultiScale(nn.Module):
         loss, epe = 0, 0
         loss_levels, epe_levels = [], []
         for w, o, t in zip(args.weights, outputs, targets):
+            print(f'flow值域: ({o.min()}, {o.max()})')
+            print(f'gt值域: ({t.min()}, {t.max()})')
+            print(f'EPE:', EPE(o, t))
             loss += w * self.loss(o, t)
             epe += EPE(o, t)
             loss_levels.append(self.loss(o, t))
